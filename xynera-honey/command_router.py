@@ -1,59 +1,262 @@
-from ai_client import send_to_ai
-from fake_filesystem import ls, cd, pwd, cat
-from fake_process import ps
-from fake_network import netstat, ss
-from attack_analyzer import classify
-from deception_engine import adapt_response
+from fake_filesystem import filesystem, file_contents
+
+from fake_process import (
+    ps,
+    ps_aux
+)
+
+from fake_network import (
+    netstat,
+    netstat_tulpn,
+    ss,
+    ifconfig,
+    ip_addr
+)
 
 
-def route_command(command, session):
-    ip = session["ip"]
+def route_command(command, session_manager):
 
-    parts = command.split()
-    cmd = parts[0] if parts else ""
+    session = session_manager.get_session()
 
-    # define attack type once
-    attack_type = classify(command)
+    cwd = session["cwd"]
 
-    # ===== LOCAL COMMANDS =====
-    if cmd == "ls":
-        return ls(session), attack_type
+    command = command.strip()
 
-    elif cmd == "pwd":
-        return pwd(session), attack_type
+    # --------------------------
+    # USER COMMANDS
+    # --------------------------
 
-    elif cmd == "cd":
-        if len(parts) < 2:
-            return "", attack_type
-        return cd(session, parts[1]), attack_type
+    if command == "whoami":
+        return "ubuntu"
 
-    elif cmd == "cat":
-        if len(parts) < 2:
-            return "cat: missing file", attack_type
-        return cat(session, parts[1]), attack_type
+    elif command == "id":
+        return (
+            "uid=1000(ubuntu) "
+            "gid=1000(ubuntu) "
+            "groups=1000(ubuntu)"
+        )
 
-    elif cmd == "ps":
-        return ps(), attack_type
+    elif command == "users":
+        return "ubuntu"
 
-    elif cmd == "netstat":
-        return netstat(), attack_type
+    # --------------------------
+    # DIRECTORY COMMANDS
+    # --------------------------
 
-    elif cmd == "ss":
-        return ss(), attack_type
+    elif command == "pwd":
+        return cwd
 
-    elif cmd == "whoami":
-        return "ubuntu", attack_type
+    elif command == "ls":
 
-    elif cmd == "id":
-        return "uid=1000(ubuntu) gid=1000(ubuntu) groups=1000(ubuntu)", attack_type
+        return "\n".join(
+            filesystem.get(cwd, [])
+        )
 
-    # ===== ADAPTIVE DECEPTION =====
-    deception = adapt_response(command, session, attack_type)
+    elif command == "ls -la":
 
-    if deception is not None:
-        return deception, attack_type
+        files = filesystem.get(
+            cwd,
+            []
+        )
 
-    # ===== AI WITH CONTEXT =====
-    history = session.get("commands", [])[-5:]
+        output = []
 
-    return send_to_ai(ip, command, history, attack_type), attack_type
+        for file in files:
+
+            output.append(
+                f"-rw-r--r-- 1 ubuntu ubuntu "
+                f"1024 Jun 25 {file}"
+            )
+
+        return "\n".join(output)
+
+    # --------------------------
+    # CHANGE DIRECTORY
+    # --------------------------
+
+    elif command.startswith("cd "):
+
+        path = command[3:].strip()
+
+        if path == "..":
+
+            if cwd == "/":
+                return ""
+
+            parent = "/".join(
+                cwd.rstrip("/")
+                .split("/")[:-1]
+            )
+
+            if parent == "":
+                parent = "/"
+
+            session_manager.change_directory(
+                parent
+            )
+
+            return ""
+
+        if path.startswith("/"):
+
+            new_path = path
+
+        else:
+
+            if cwd == "/":
+
+                new_path = f"/{path}"
+
+            else:
+
+                new_path = f"{cwd}/{path}"
+
+        new_path = new_path.replace(
+            "//",
+            "/"
+        )
+
+        if new_path in filesystem:
+
+            session_manager.change_directory(
+                new_path
+            )
+
+            return ""
+
+        return (
+            f"cd: no such file "
+            f"or directory: {path}"
+        )
+
+    # --------------------------
+    # FILE COMMANDS
+    # --------------------------
+
+    elif command.startswith("cat "):
+
+        filename = command[4:].strip()
+
+        if filename.startswith("/"):
+
+            full_path = filename
+
+        else:
+
+            full_path = (
+                f"{cwd}/{filename}"
+            )
+
+        full_path = full_path.replace(
+            "//",
+            "/"
+        )
+
+        if full_path in file_contents:
+
+            return file_contents[
+                full_path
+            ]
+
+        return (
+            f"cat: {filename}: "
+            f"No such file"
+        )
+
+    # --------------------------
+    # PROCESS COMMANDS
+    # --------------------------
+
+    elif command == "ps":
+        return ps()
+
+    elif command == "ps aux":
+        return ps_aux()
+
+    # --------------------------
+    # NETWORK COMMANDS
+    # --------------------------
+
+    elif command == "netstat":
+        return netstat()
+
+    elif command == "netstat -tulpn":
+        return netstat_tulpn()
+
+    elif command == "ss":
+        return ss()
+
+    elif command == "ifconfig":
+        return ifconfig()
+
+    elif command == "ip addr":
+        return ip_addr()
+
+    # --------------------------
+    # SYSTEM DISCOVERY
+    # --------------------------
+
+    elif command == "hostname":
+        return "web-prod-01"
+
+    elif command == "uname -a":
+
+        return (
+            "Linux web-prod-01 "
+            "5.15.0-generic "
+            "x86_64 GNU/Linux"
+        )
+
+    elif command == "uptime":
+
+        return (
+            "14:23:05 up 37 days, "
+            "3 users, "
+            "load average: "
+            "0.11, 0.09, 0.05"
+        )
+
+    elif command == "systemctl":
+
+        return """
+ssh.service active
+nginx.service active
+mysql.service active
+redis.service active
+"""
+
+    # --------------------------
+    # ATTACKER COMMANDS
+    # --------------------------
+
+    elif command.startswith("wget"):
+
+        return (
+            "Downloading file... done"
+        )
+
+    elif command.startswith("curl"):
+
+        return (
+            "Request completed"
+        )
+
+    elif command.startswith("chmod"):
+
+        return (
+            "Permissions updated"
+        )
+
+    elif command.startswith("nc"):
+
+        return (
+            "Connection established"
+        )
+
+    # --------------------------
+    # DEFAULT
+    # --------------------------
+
+    return (
+        f"{command}: command not found"
+    )
