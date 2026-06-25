@@ -1,60 +1,139 @@
 filesystem = {
-    "/": ["home", "var", "etc"],
-    "/home": ["ubuntu"],
-    "/home/ubuntu": ["notes.txt", "script.sh"],
-    "/var": ["log", "www"],
-    "/etc": ["passwd"]
+    "/": [
+        "bin",
+        "boot",
+        "dev",
+        "etc",
+        "home",
+        "opt",
+        "tmp",
+        "usr",
+        "var"
+    ],
+
+    "/home": [
+        "ubuntu",
+        "dev",
+        "backup"
+    ],
+
+    "/home/ubuntu": [
+        "Documents",
+        "Downloads",
+        "projects",
+        ".bash_history"
+    ],
+
+    "/home/ubuntu/Documents": [
+        "employee_directory.csv",
+        "meeting_notes.txt",
+        "server_inventory.csv"
+    ],
+
+    "/etc": [
+        "passwd",
+        "hosts",
+        "hostname"
+    ],
+
+    "/var": [
+        "log",
+        "www"
+    ],
+
+    "/var/log": [
+        "auth.log",
+        "syslog"
+    ],
+
+    "/opt": [
+        "backups"
+    ],
+
+    "/opt/backups": [
+        "db_backup.sql",
+        "weekly_backup.tar.gz"
+    ]
 }
+
 
 file_contents = {
-    "/home/ubuntu/notes.txt": "Remember to update server.\nPassword is weak.\n",
-    "/home/ubuntu/script.sh": "#!/bin/bash\necho Hello World\n",
-    "/etc/passwd": "root:x:0:0:root:/root:/bin/bash\nubuntu:x:1000:1000::/home/ubuntu:/bin/bash\n"
+
+    "/home/ubuntu/Documents/employee_directory.csv": """
+ID,Name,Department,Email
+1001,Alice Johnson,Finance,alice.johnson@xynera.local
+1002,John Smith,IT,john.smith@xynera.local
+1003,Sarah Davis,Operations,sarah.davis@xynera.local
+1004,Michael Brown,HR,michael.brown@xynera.local
+1005,Emma Wilson,Engineering,emma.wilson@xynera.local
+""",
+
+    "/home/ubuntu/Documents/meeting_notes.txt": """
+Infrastructure Weekly Review
+
+- nginx upgrade planned next month
+- verify backup integrity
+- review SSL renewal process
+- monitor database replication
+""",
+
+    "/home/ubuntu/Documents/server_inventory.csv": """
+Hostname,Role,Location
+web-prod-01,Web Server,Delhi
+db-prod-01,Database Server,Delhi
+backup-01,Backup Node,Mumbai
+""",
+
+    "/home/ubuntu/.bash_history": """
+apt update
+apt upgrade -y
+systemctl restart nginx
+nano /etc/nginx/nginx.conf
+tail -f /var/log/auth.log
+mysql -u root
+""",
+
+    "/etc/passwd": """
+root:x:0:0:root:/root:/bin/bash
+ubuntu:x:1000:1000::/home/ubuntu:/bin/bash
+dev:x:1001:1001::/home/dev:/bin/bash
+backup:x:1002:1002::/home/backup:/bin/bash
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+mysql:x:111:115:MySQL Server:/nonexistent:/bin/false
+""",
+
+    "/etc/hosts": """
+127.0.0.1 localhost
+127.0.1.1 web-prod-01
+10.0.0.10 db-prod-01
+10.0.0.11 backup-01
+""",
+
+    "/etc/hostname": """
+web-prod-01
+""",
+
+    "/var/log/auth.log": """
+Jun 15 08:01:22 sshd[2211]: Accepted password for ubuntu
+Jun 15 08:15:13 sshd[2214]: Accepted password for dev
+Jun 15 09:01:55 CRON[1001]: Job Started
+""",
+
+    "/var/log/syslog": """
+Jun 15 nginx restarted
+Jun 15 mysql service started
+Jun 15 backup completed successfully
+""",
+
+    "/opt/backups/db_backup.sql": """
+CREATE DATABASE customers;
+
+USE customers;
+
+CREATE TABLE users(
+    id INT PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100)
+);
+"""
 }
-
-
-def ls(session):
-    cwd = session["cwd"]
-    return "\n".join(filesystem.get(cwd, []))
-
-
-def pwd(session):
-    return session["cwd"]
-
-
-def cd(session, path):
-    cwd = session["cwd"]
-
-    if path == "..":
-        if cwd == "/":
-            return ""
-        new_path = "/".join(cwd.rstrip("/").split("/")[:-1])
-        session["cwd"] = new_path if new_path else "/"
-        return ""
-
-    if path.startswith("/"):
-        new_path = path
-    else:
-        if cwd == "/":
-            new_path = f"/{path}"
-        else:
-            new_path = f"{cwd}/{path}"
-
-    # normalize path (remove double slashes)
-    new_path = new_path.replace("//", "/")
-
-    if new_path in filesystem:
-        session["cwd"] = new_path
-        return ""
-    else:
-        return f"cd: no such file or directory: {path}"
-
-
-def cat(session, filename):
-    cwd = session["cwd"]
-    path = f"{cwd}/{filename}"
-
-    if path in file_contents:
-        return file_contents[path]
-    else:
-        return f"cat: {filename}: No such file"

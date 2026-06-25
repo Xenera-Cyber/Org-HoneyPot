@@ -1,88 +1,214 @@
 import socket
-import threading
 
-from session_manager import create_session, get_session, add_command
 from command_router import route_command
+
+from session_manager import SessionManager
+
+from attack_analyzer import (
+    classify,
+    threat_score
+)
+
+from logger import log_command
+
 
 HOST = "0.0.0.0"
 PORT = 2222
 
 
-def handle_client(conn, addr):
-    ip = addr[0]
-    print(f"[+] Connection from {ip}")
-
-    session_id = create_session(ip)
-    session = get_session(session_id)
-
-    try:
-        # banner
-        conn.send(b"Welcome to Ubuntu 22.04.3 LTS\n")
-        conn.send(b"Last login: Tue Mar 17 10:22:11 2026\n")
-
-        while True:
-            prompt = f"ubuntu@server:{session['cwd']}$ "
-            conn.send(prompt.encode())
-
-            data = conn.recv(1024)
-            if not data:
-                break
-
-            command = data.decode().strip()
-            print(f"[{ip}] {command}")
-
-            # exit
-            if command.lower() in ["exit", "quit"]:
-                conn.send(b"logout\n")
-                break
-
-            # store command
-            add_command(session_id, command)
-
-            # history log (ASCII only)
-            history = session["commands"][-5:]
-            print(f"[HISTORY] {ip} -> {history}")
-
-            # 🔥 route command (correct way)
-            response, attack_type = route_command(command, session)
-
-            # log attack
-            print(f"[ATTACK] {ip} -> {attack_type}")
-
-            # send response safely
-            if response:
-                formatted = response.replace("\n", "\r\n")
-                conn.send((formatted + "\r\n").encode())
-            else:
-                conn.send(b"\r\n")
-
-    except Exception as e:
-        print(f"[!] Error: {e}")
-
-    finally:
-        conn.close()
-        print(f"[-] Disconnected {ip}")
-
-
 def start_server():
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-    server.bind((HOST, PORT))
+    server = socket.socket(
+        socket.AF_INET,
+        socket.SOCK_STREAM
+    )
+
+    server.setsockopt(
+        socket.SOL_SOCKET,
+        socket.SO_REUSEADDR,
+        1
+    )
+
+    server.bind(
+        (HOST, PORT)
+    )
+
     server.listen(5)
 
-    print(f"[+] Honeypot running on {HOST}:{PORT}")
+    print(
+        f"[+] Listening on {HOST}:{PORT}"
+    )
 
     while True:
+
         conn, addr = server.accept()
 
-        thread = threading.Thread(
-            target=handle_client,
-            args=(conn, addr),
-            daemon=True
+        attacker_ip = addr[0]
+
+        print(
+            f"[+] Connection from "
+            f"{attacker_ip}"
         )
-        thread.start()
+
+        session_manager = SessionManager(
+            attacker_ip
+        )
+
+        session = (
+            session_manager
+            .get_session()
+        )
+
+        conn.send(
+            b"Welcome to XYNERA Honeypot\n"
+        )
+
+        try:
+
+            while True:
+
+                current_dir = (
+                    session_manager
+                    .get_cwd()
+                )
+
+                prompt = (
+                    f"ubuntu@web-prod-01:"
+                    f"{current_dir}$ "
+                )
+
+                conn.send(
+                    prompt.encode()
+                )
+
+                data = conn.recv(
+                    1024
+                )
+
+                if not data:
+                    break
+
+                command = (
+                    data.decode()
+                    .strip()
+                )
+
+                if command.lower() == "exit":
+
+                    conn.send(
+                        b"logout\n"
+                    )
+
+                    break
+
+                # ---------------------
+                # Session Tracking
+                # ---------------------
+
+                session_manager.add_command(
+                    command
+                )
+
+                # ---------------------
+                # Attack Analysis
+                # ---------------------
+
+                attack_type = classify(
+                    command
+                )
+
+                session_manager.add_attack_type(
+                    attack_type
+                )
+
+                score = threat_score(
+                    attack_type
+                )
+
+                session_manager.update_threat_score(
+                    score
+                )
+
+                # ---------------------
+                # Logging
+                # ---------------------
+
+                log_command(
+                    command=command,
+                    attack_type=attack_type,
+                    ip_address=attacker_ip,
+                    session_id=session[
+                        "session_id"
+                    ]
+                )
+
+                # ---------------------
+                # Console Monitoring
+                # ---------------------
+
+                print(
+                    f"[COMMAND] "
+                    f"{command}"
+                )
+
+                print(
+                    f"[ATTACK] "
+                    f"{attack_type}"
+                )
+
+                print(
+                    f"[THREAT SCORE] "
+                    f"{session['threat_score']}"
+                )
+
+                # ---------------------
+                # Route Command
+                # ---------------------
+
+                response = route_command(
+                    command,
+                    session_manager
+                )
+
+                conn.send(
+                    (
+                        response + "\n"
+                    ).encode()
+                )
+
+        except Exception as e:
+
+            print(
+                f"[ERROR] {e}"
+            )
+
+        finally:
+
+            session_manager.close_session()
+
+            print(
+                "\n========== "
+                "SESSION SUMMARY "
+                "=========="
+            )
+
+            print(
+                session_manager.summary()
+            )
+
+            print(
+                "=============================\n"
+            )
+
+            conn.close()
+
+            print(
+                f"[-] "
+                f"{attacker_ip} "
+                f"disconnected"
+            )
 
 
 if __name__ == "__main__":
+
     start_server()
