@@ -396,3 +396,55 @@ rag_engine.py
 <img width="1262" height="941" alt="Screenshot from 2026-03-18 19-21-16" src="https://github.com/user-attachments/assets/84650c4f-0b1d-4346-9029-c1c3fedaf02b" />
 <img width="1267" height="906" alt="Screenshot from 2026-03-18 19-20-46" src="https://github.com/user-attachments/assets/e249d548-84f9-4920-a94b-9e9da52a9093" />
 <img width="1261" height="940" alt="Screenshot from 2026-03-18 10-50-25" src="https://github.com/user-attachments/assets/3c3128af-a32a-4b53-8287-a1b2c1a877a6" />
+
+
+
+//Updates from cyber team(Author- Hriday):
+1. fake_filesystem.py
+Expanded the fake Linux filesystem to resemble a realistic enterprise server.
+Added multiple directories such as /bin, /boot, /opt, /usr, /var/log, and backup locations.
+Introduced realistic files including employee records, meeting notes, server inventory, authentication logs, database backups, and bash history.
+Improved file contents to provide more believable information during attacker interaction.
+
+2. fake_process.py
+Increased the number of simulated running processes to better mimic a production Linux environment.
+Added common system services such as cron, rsyslog, fail2ban, PostgreSQL, Redis, and multiple Nginx worker processes.
+Implemented support for the ps aux command in addition to the existing ps command.
+
+3. fake_network.py
+Enhanced simulated network services by adding HTTPS, PostgreSQL, Redis, Jenkins, and Prometheus ports.
+Added support for additional networking commands including netstat -tulpn, ifconfig, and ip addr.
+Improved network responses with realistic interface configurations and service information.
+
+4. session_manager.py
+Redesigned session handling using an object-oriented SessionManager class.
+Added session metadata including session ID, attacker IP, timestamps, threat score, attack history, and session status.
+Implemented dedicated methods for command tracking, directory management, attack recording, session summary generation, and session closure.
+
+5. logger.py
+Introduced a dedicated logging module for structured attack logging.
+Implemented rotating log files with automatic log directory creation.
+Added timestamped logging of attacker IP, session ID, attack type, and executed command for improved monitoring and forensic analysis.
+
+6. attack_analyzer.py
+Expanded attack classification by adding Privilege Escalation and Reverse Shell Activity detection.
+Introduced a threat scoring mechanism to assign severity levels to different attack categories.
+Improved the foundation for future threat monitoring and reporting.
+
+7. command_router.py
+Reorganized command handling into logical categories for better readability and maintainability.
+Added support for several new Linux commands including users, ls -la, ps aux, netstat -tulpn, hostname, uname -a, uptime, systemctl, ifconfig, and ip addr.
+Improved path handling for cd and enhanced file access logic for cat.
+Extended support for common attacker commands such as wget, curl, chmod, and nc.
+
+8. server.py
+Improved overall server workflow by integrating session tracking, attack classification, threat scoring, and centralized logging.
+Added real-time console monitoring of attacker commands and detected attack types.
+Implemented automatic session summary generation upon client disconnection.
+Improved modular interaction between the server and supporting components.
+
+Overall Project Enhancements
+Improved code modularity and separation of responsibilities across all components.
+Increased realism of the honeypot environment to provide a more convincing attacker experience.
+Enhanced scalability by preparing the architecture for future integration with SQLite, AI-based deception, dashboards, and advanced threat analysis.
+Maintained compatibility with the existing project structure while providing a stronger and more extensible baseline for future development.
