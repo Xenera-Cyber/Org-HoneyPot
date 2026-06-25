@@ -10,7 +10,7 @@ from attack_analyzer import (
 )
 
 from logger import log_command
-
+import malware_detector
 
 HOST = "0.0.0.0"
 PORT = 2222
