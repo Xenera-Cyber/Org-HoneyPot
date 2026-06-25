@@ -1,14 +1,12 @@
 import socket
+from datetime import datetime
 
 from command_router import route_command
-
 from session_manager import SessionManager
-
 from attack_analyzer import (
     classify,
     threat_score
 )
-
 from logger import log_command
 
 
@@ -39,6 +37,16 @@ def start_server():
         f"[+] Listening on {HOST}:{PORT}"
     )
 
+    # Print the table header once
+    print(
+        f"\n{'Timestamp':<22}"
+        f"{'IP':<18}"
+        f"{'Command':<18}"
+        f"{'Attack Type':<25}"
+        f"{'Score'}"
+    )
+    print("-" * 95)
+
     while True:
 
         conn, addr = server.accept()
@@ -46,8 +54,7 @@ def start_server():
         attacker_ip = addr[0]
 
         print(
-            f"[+] Connection from "
-            f"{attacker_ip}"
+            f"\n[+] Connection from {attacker_ip}"
         )
 
         session_manager = SessionManager(
@@ -146,19 +153,16 @@ def start_server():
                 # Console Monitoring
                 # ---------------------
 
-                print(
-                    f"[COMMAND] "
-                    f"{command}"
+                timestamp = datetime.now().strftime(
+                    "%Y-%m-%d %H:%M:%S"
                 )
 
                 print(
-                    f"[ATTACK] "
-                    f"{attack_type}"
-                )
-
-                print(
-                    f"[THREAT SCORE] "
-                    f"{session['threat_score']}"
+                    f"{timestamp:<22}"
+                    f"{attacker_ip:<18}"
+                    f"{command:<18}"
+                    f"{attack_type:<25}"
+                    f"{score}"
                 )
 
                 # ---------------------
@@ -203,9 +207,7 @@ def start_server():
             conn.close()
 
             print(
-                f"[-] "
-                f"{attacker_ip} "
-                f"disconnected"
+                f"[-] {attacker_ip} disconnected"
             )
 
 
