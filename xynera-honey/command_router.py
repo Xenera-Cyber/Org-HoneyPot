@@ -28,6 +28,9 @@ def route_command(command, session_manager):
 
     if command == "whoami":
         return "ubuntu"
+    
+    elif command == "groups":
+        return "ubuntu sudo docker"
 
     elif command == "id":
         return (

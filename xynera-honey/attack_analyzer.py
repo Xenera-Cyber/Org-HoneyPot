@@ -11,8 +11,18 @@ def classify(command):
     elif "curl" in cmd:
         return "Malware Download"
 
-    elif "/etc/passwd" in cmd:
+    elif (
+        cmd in ["whoami", "id", "groups"]
+        or "/etc/passwd" in cmd
+    ):
         return "Privilege Enumeration"
+
+    elif cmd in [
+        "hostname",
+        "uname -a",
+        "pwd"
+    ]:
+        return "System Enumeration"
 
     elif "ssh" in cmd:
         return "Lateral Movement"
@@ -31,6 +41,8 @@ def threat_score(attack_type):
     scores = {
 
         "Reconnaissance": 1,
+
+        "System Enumeration": 2,
 
         "Privilege Enumeration": 3,
 
