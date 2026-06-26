@@ -22,6 +22,15 @@ def classify(command):
 
     elif cmd.startswith("nc"):
         return "Reverse Shell Activity"
+   
+    elif "bash -i" in cmd:
+        return "Reverse Shell Activity"
+   
+    elif "netstat" in cmd:
+        return "Reconnaissance"
+   
+    elif "socket" in cmd:
+        return "Reverse Shell Activity"
 
     return "Unknown"
 
@@ -49,9 +58,4 @@ def threat_score(attack_type):
         attack_type,
         0
     )
-    elif "bash -i" in cmd:
-        return "Reverse Shell Activity"
-    elif "netstat" in cmd:
-        return "Reconnaissance"
-    elif "socket" in cmd:
-        return "Reverse Shell Activity"
+    
