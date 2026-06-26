@@ -22,7 +22,16 @@ def classify(command):
 
     elif cmd.startswith("nc"):
         return "Reverse Shell Activity"
+        
+    elif "bash -i" in cmd:
+        return "Reverse Shell Activity"
 
+    elif "netstat" in cmd:
+        return "Reconnaissance"
+
+    elif "socket" in cmd:
+        return "Reverse Shell Activity"
+        
     return "Unknown"
 
 
