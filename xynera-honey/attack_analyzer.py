@@ -2,7 +2,13 @@ def classify(command):
 
     cmd = command.lower()
 
-    if "nmap" in cmd:
+    if any(tool in cmd for tool in [
+        "nmap",
+        "traceroute",
+        "whois",
+        "dig",
+        "nslookup"
+    ]):
         return "Reconnaissance"
 
     elif "wget" in cmd:
