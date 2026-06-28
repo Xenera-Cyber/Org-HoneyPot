@@ -1,33 +1,222 @@
-def adapt_response(command, session, attack_type):
-    history = session.get("commands", [])
+# def adapt_response(command, session, attack_type):
+#     history = session.get("commands", [])
 
-    # ===== RECON PHASE =====
-    if attack_type == "Reconnaissance":
-        return None  
-        # let AI handle (normal behavior)
+#     # ===== RECON PHASE =====
+#     if attack_type == "Reconnaissance":
+#         return None  
+#         # let AI handle (normal behavior)
 
-    # ===== PRIVILEGE ENUMERATION =====
-    elif attack_type == "Privilege Enumeration":
-        if "/etc/passwd" in command:
-            return """root:x:0:0:root:/root:/bin/bash
+#     # ===== PRIVILEGE ENUMERATION =====
+#     elif attack_type == "Privilege Enumeration":
+#         if "/etc/passwd" in command:
+#             return """root:x:0:0:root:/root:/bin/bash
+# ubuntu:x:1000:1000::/home/ubuntu:/bin/bash
+# dev:x:1001:1001::/home/dev:/bin/bash"""
+
+#     # ===== MALWARE DOWNLOAD =====
+#     elif attack_type == "Malware Download":
+#         return """--2026-- Downloading http://malware.sh
+# Resolving malware.sh... 192.168.1.10
+# Connecting... connected.
+# HTTP request sent, awaiting response... 200 OK
+# Length: 2048 (2.0K) [application/x-sh]
+# Saving to: ‘malware.sh’
+
+# malware.sh        100%[==================>] 2.00K  --.-KB/s
+
+# Download complete."""
+
+#     # ===== LATERAL MOVEMENT =====
+#     elif attack_type == "Lateral Movement":
+#         return "ssh: connect to host 192.168.1.5 port 22: Connection timed out"
+
+#     return None
+
+"""
+deception_engine.py
+
+Purpose:
+    Generates deceptive responses based on detected attack types.
+
+Future Architecture:
+    - AI-powered adaptive deception
+    - RAG-based context retrieval
+    - Session-aware deception strategies
+    - Threat intelligence integration
+"""
+
+
+# ==========================================================
+# Reconnaissance Deception
+# ==========================================================
+
+def reconnaissance_deception(command, session):
+    """
+    Placeholder.
+
+    Future AI/RAG:
+    - Analyze attacker reconnaissance behaviour
+    - Generate adaptive system responses
+    - Simulate realistic infrastructure discovery
+    """
+    return None
+
+
+# ==========================================================
+# Privilege Enumeration Deception
+# ==========================================================
+
+def privilege_enumeration_deception(command, session):
+
+    if "/etc/passwd" in command:
+        return """root:x:0:0:root:/root:/bin/bash
 ubuntu:x:1000:1000::/home/ubuntu:/bin/bash
 dev:x:1001:1001::/home/dev:/bin/bash"""
 
-    # ===== MALWARE DOWNLOAD =====
-    elif attack_type == "Malware Download":
-        return """--2026-- Downloading http://malware.sh
+    return None
+
+
+# ==========================================================
+# Malware Download Deception
+# ==========================================================
+
+def malware_download_deception(command, session):
+
+    return """--2026-- Downloading http://malware.sh
 Resolving malware.sh... 192.168.1.10
 Connecting... connected.
 HTTP request sent, awaiting response... 200 OK
 Length: 2048 (2.0K) [application/x-sh]
-Saving to: ‘malware.sh’
+Saving to: 'malware.sh'
 
 malware.sh        100%[==================>] 2.00K  --.-KB/s
 
-Download complete."""
+Download complete.
+"""
 
-    # ===== LATERAL MOVEMENT =====
-    elif attack_type == "Lateral Movement":
-        return "ssh: connect to host 192.168.1.5 port 22: Connection timed out"
+
+# ==========================================================
+# Lateral Movement Deception
+# ==========================================================
+
+def lateral_movement_deception(command, session):
+
+    return (
+        "ssh: connect to host "
+        "192.168.1.5 port 22: "
+        "Connection timed out"
+    )
+
+
+# ==========================================================
+# Reverse Shell Deception
+# ==========================================================
+
+def reverse_shell_deception(command, session):
+    """
+    Placeholder.
+
+    Future AI/RAG:
+    - Simulate compromised shell
+    - Generate believable shell responses
+    - Maintain attacker interaction
+    """
+    return None
+
+
+# ==========================================================
+# Privilege Escalation Deception
+# ==========================================================
+
+def privilege_escalation_deception(command, session):
+    """
+    Placeholder.
+
+    Future:
+    - Fake sudo execution
+    - Simulate permission changes
+    - AI-generated privilege escalation behaviour
+    """
+    return None
+
+
+# ==========================================================
+# Default Deception
+# ==========================================================
+
+def default_deception(command, session):
 
     return None
+
+
+# ==========================================================
+# Future AI / RAG Integration
+# ==========================================================
+
+def ai_deception_handler(command, session, attack_type):
+    """
+    Placeholder for future AI/RAG integration.
+
+    Planned Features:
+    -----------------
+    - Retrieve context using RAG
+    - Generate adaptive deception
+    - Session-aware responses
+    - Threat intelligence enrichment
+    - LLM-powered command simulation
+    """
+    pass
+
+
+# ==========================================================
+# Future RAG Context Retrieval
+# ==========================================================
+
+def rag_context_lookup(command, session):
+    """
+    Placeholder.
+
+    Future:
+    - Query vector database
+    - Retrieve similar attacker behaviour
+    - Provide context for AI deception engine
+    """
+    pass
+
+
+# ==========================================================
+# Attack Type Dispatcher
+# ==========================================================
+
+DECEPTION_HANDLERS = {
+
+    "Reconnaissance": reconnaissance_deception,
+
+    "Privilege Enumeration": privilege_enumeration_deception,
+
+    "Malware Download": malware_download_deception,
+
+    "Lateral Movement": lateral_movement_deception,
+
+    "Reverse Shell Activity": reverse_shell_deception,
+
+    "Privilege Escalation": privilege_escalation_deception,
+}
+
+
+# ==========================================================
+# Main Deception Engine
+# ==========================================================
+
+def adapt_response(command, session, attack_type):
+    """
+    Routes each detected attack type
+    to its respective deception handler.
+    """
+
+    handler = DECEPTION_HANDLERS.get(
+        attack_type,
+        default_deception
+    )
+
+    return handler(command, session)
