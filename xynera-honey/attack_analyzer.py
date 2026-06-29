@@ -1,57 +1,95 @@
 def classify(command):
+    cmd = command.lower().strip()
 
-    cmd = command.lower()
-
-    if "nmap" in cmd:
+    # --------------------------
+    # Reconnaissance
+    # --------------------------
+    if (
+        cmd in [
+            "ls",
+            "pwd",
+            "whoami",
+            "id",
+            "groups",
+            "hostname",
+            "users"
+        ]
+        or cmd.startswith("uname")
+        or cmd.startswith("ifconfig")
+        or cmd.startswith("ip ")
+        or cmd.startswith("netstat")
+        or cmd.startswith("ss")
+        or cmd.startswith("ps")
+        or any(tool in cmd for tool in [
+            "nmap",
+            "traceroute",
+            "whois",
+            "dig",
+            "nslookup"
+        ])
+    ):
         return "Reconnaissance"
 
-    elif "wget" in cmd:
+    # --------------------------
+    # Directory Navigation
+    # --------------------------
+    elif cmd.startswith("cd"):
+        return "Directory Navigation"
+
+    # --------------------------
+    # Credential Enumeration
+    # --------------------------
+    elif "/etc/passwd" in cmd or "/etc/shadow" in cmd:
+        return "Credential Enumeration"
+
+    # --------------------------
+    # Malware Download
+    # --------------------------
+    elif "wget" in cmd or "curl" in cmd:
         return "Malware Download"
 
-    elif "curl" in cmd:
-        return "Malware Download"
+    # --------------------------
+    # Privilege Escalation
+    # --------------------------
+    elif (
+        "sudo" in cmd
+        or "chmod" in cmd
+        or cmd.startswith("su")
+    ):
+        return "Privilege Escalation"
 
-    elif "/etc/passwd" in cmd:
-        return "Privilege Enumeration"
+    # --------------------------
+    # Reverse Shell Activity
+    # --------------------------
+    elif (
+        cmd.startswith("nc")
+        or "bash -i" in cmd
+        or "socket" in cmd
+    ):
+        return "Reverse Shell Activity"
 
+    # --------------------------
+    # Lateral Movement
+    # --------------------------
     elif "ssh" in cmd:
         return "Lateral Movement"
 
-    elif "chmod" in cmd:
-        return "Privilege Escalation"
-
-    elif cmd.startswith("nc"):
-        return "Reverse Shell Activity"
-
+    # --------------------------
+    # Unknown
+    # --------------------------
     return "Unknown"
 
 
 def threat_score(attack_type):
-
     scores = {
-
-        "Reconnaissance": 1,
-
-        "Privilege Enumeration": 3,
-
-        "Malware Download": 5,
-
-        "Privilege Escalation": 6,
-
-        "Lateral Movement": 7,
-
-        "Reverse Shell Activity": 10,
-
-        "Unknown": 0
+        "Reconnaissance": 20,
+        "Directory Navigation": 10,
+        "Credential Enumeration": 60,
+        "Malware Download": 90,
+        "Privilege Escalation": 95,
+        "Lateral Movement": 80,
+        "Reverse Shell Activity": 100,
+        "Unknown": 5,
     }
 
-    return scores.get(
-        attack_type,
-        0
-    )
-    elif "bash -i" in cmd:
-        return "Reverse Shell Activity"
-    elif "netstat" in cmd:
-        return "Reconnaissance"
-    elif "socket" in cmd:
-        return "Reverse Shell Activity"
+    return scores.get(attack_type, 5)
