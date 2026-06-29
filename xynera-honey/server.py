@@ -3,15 +3,12 @@ from datetime import datetime
 
 from command_router import route_command
 from session_manager import SessionManager
-from attack_analyzer import (
-    classify,
-    threat_score
-)
 from attack_analyzer import classify, threat_score
 from logger import log_command
 
 HOST = "0.0.0.0"
 PORT = 2222
+
 
 def start_server():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -20,6 +17,7 @@ def start_server():
     server.listen(5)
 
     print(f"[+] Listening on {HOST}:{PORT}")
+
     print(
         f"\n{'Timestamp':<22}"
         f"{'IP':<18}"
@@ -29,23 +27,10 @@ def start_server():
     )
     print("-" * 105)
 
-    # Print the table header once
-    print(
-        f"\n{'Timestamp':<22}"
-        f"{'IP':<18}"
-        f"{'Command':<18}"
-        f"{'Attack Type':<25}"
-        f"{'Score'}"
-    )
-    print("-" * 95)
-
     while True:
         conn, addr = server.accept()
         attacker_ip = addr[0]
 
-        print(
-            f"\n[+] Connection from {attacker_ip}"
-        )
         print(f"\n[+] Connection from {attacker_ip}")
 
         session_manager = SessionManager(attacker_ip)
@@ -60,6 +45,7 @@ def start_server():
                 conn.send(prompt.encode())
 
                 data = conn.recv(1024)
+
                 if not data:
                     break
 
@@ -69,17 +55,25 @@ def start_server():
                     conn.send(b"logout\n")
                     break
 
-                # Session tracking
+                # ----------------------------
+                # Session Tracking
+                # ----------------------------
                 session_manager.add_command(command)
 
-                # Attack analysis
+                # ----------------------------
+                # Attack Analysis
+                # ----------------------------
                 attack_type = classify(command)
+
                 session_manager.add_attack_type(attack_type)
 
                 score = threat_score(attack_type)
+
                 session_manager.update_threat_score(score)
 
-                # Log attack
+                # ----------------------------
+                # Logging
+                # ----------------------------
                 log_command(
                     command=command,
                     attack_type=attack_type,
@@ -87,38 +81,11 @@ def start_server():
                     session_id=session["session_id"],
                 )
 
-                # ---------------------
+                # ----------------------------
                 # Console Monitoring
-                # ---------------------
-
-                timestamp = datetime.now().strftime(
-                    "%Y-%m-%d %H:%M:%S"
-                )
-
-                print(
-                    f"{timestamp:<22}"
-                    f"{attacker_ip:<18}"
-                    f"{command:<18}"
-                    f"{attack_type:<25}"
-                    f"{score}"
-                )
-
-                # ---------------------
-                # Route Command
-                # ---------------------
-
-                response = route_command(
-                    command,
-                    session_manager
-                )
-
-                conn.send(
-                    (
-                        response + "\n"
-                    ).encode()
-                )
-                # Console monitoring
+                # ----------------------------
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
                 print(
                     f"{timestamp:<22}"
                     f"{attacker_ip:<18}"
@@ -127,8 +94,14 @@ def start_server():
                     f"{score}"
                 )
 
-                # Route command
-                response = route_command(command, session_manager)
+                # ----------------------------
+                # Route Command
+                # ----------------------------
+                response = route_command(
+                    command,
+                    session_manager
+                )
+
                 conn.send((response + "\n").encode())
 
         except Exception as e:
@@ -143,15 +116,8 @@ def start_server():
 
             conn.close()
 
-            print(
-                f"[-] {attacker_ip} disconnected"
-            )
-
-
-if __name__ == "__main__":
-
-    start_server()
             print(f"[-] {attacker_ip} disconnected")
+
 
 if __name__ == "__main__":
     start_server()

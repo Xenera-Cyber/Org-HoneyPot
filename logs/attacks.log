@@ -57,3 +57,19 @@ Score       : 5
 2026-06-26 14:31:00   127.0.0.1         cd etc            Directory Navigation     10
 2026-06-26 14:31:04   127.0.0.1         ls                Reconnaissance           20
 2026-06-26 14:31:23   127.0.0.1         cat passwd        Unknown                  5
+[2026-06-29 16:13:37] [INFO] 2026-06-29 16:13:37   127.0.0.1         whoami            Reconnaissance           20
+[2026-06-29 16:13:37] [INFO] IP=127.0.0.1 | SESSION=585ced1a-f200-48ee-aefc-74e863c8387d | TYPE=Reconnaissance | SCORE=20 | CMD=whoami
+[2026-06-29 16:13:44] [INFO] 2026-06-29 16:13:44   127.0.0.1         pwd               Reconnaissance           20
+[2026-06-29 16:13:44] [INFO] IP=127.0.0.1 | SESSION=585ced1a-f200-48ee-aefc-74e863c8387d | TYPE=Reconnaissance | SCORE=20 | CMD=pwd
+[2026-06-29 16:13:51] [INFO] 2026-06-29 16:13:51   127.0.0.1         ls                Reconnaissance           20
+[2026-06-29 16:13:51] [INFO] IP=127.0.0.1 | SESSION=585ced1a-f200-48ee-aefc-74e863c8387d | TYPE=Reconnaissance | SCORE=20 | CMD=ls
+[2026-06-29 16:14:01] [INFO] 2026-06-29 16:14:01   127.0.0.1         uname -a          Reconnaissance           20
+[2026-06-29 16:14:01] [INFO] IP=127.0.0.1 | SESSION=585ced1a-f200-48ee-aefc-74e863c8387d | TYPE=Reconnaissance | SCORE=20 | CMD=uname -a
+[2026-06-29 16:19:22] [INFO] 2026-06-29 16:19:22   127.0.0.1         whoami            Reconnaissance           20
+[2026-06-29 16:19:22] [INFO] IP=127.0.0.1 | SESSION=70e25ef9-ece5-4738-b85a-5d5094275951 | TYPE=Reconnaissance | SCORE=20 | CMD=whoami
+[2026-06-29 16:19:25] [INFO] 2026-06-29 16:19:25   127.0.0.1         pwd               Reconnaissance           20
+[2026-06-29 16:19:25] [INFO] IP=127.0.0.1 | SESSION=70e25ef9-ece5-4738-b85a-5d5094275951 | TYPE=Reconnaissance | SCORE=20 | CMD=pwd
+[2026-06-29 16:19:33] [INFO] 2026-06-29 16:19:33   127.0.0.1         ls                Reconnaissance           20
+[2026-06-29 16:19:33] [INFO] IP=127.0.0.1 | SESSION=70e25ef9-ece5-4738-b85a-5d5094275951 | TYPE=Reconnaissance | SCORE=20 | CMD=ls
+[2026-06-29 16:19:37] [INFO] 2026-06-29 16:19:37   127.0.0.1         uname -a          Reconnaissance           20
+[2026-06-29 16:19:37] [INFO] IP=127.0.0.1 | SESSION=70e25ef9-ece5-4738-b85a-5d5094275951 | TYPE=Reconnaissance | SCORE=20 | CMD=uname -a

@@ -1,0 +1,31 @@
+{
+    "session_id": "585ced1a-f200-48ee-aefc-74e863c8387d",
+    "ip": "127.0.0.1",
+    "commands": [
+        {
+            "command": "whoami",
+            "timestamp": "2026-06-29T16:13:37.787605",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "pwd",
+            "timestamp": "2026-06-29T16:13:44.892822",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "ls",
+            "timestamp": "2026-06-29T16:13:51.845517",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "uname -a",
+            "timestamp": "2026-06-29T16:14:01.265352",
+            "cwd": "/home/ubuntu"
+        }
+    ],
+    "threat_score": 80,
+    "attack_types": [
+        "Reconnaissance"
+    ],
+    "session_duration": "0:01:54.712521"
+}
