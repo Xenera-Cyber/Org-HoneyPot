@@ -1,3 +1,4 @@
+import random
 def netstat():
     return """Active Internet connections (only servers)
 Proto Local Address State
@@ -53,12 +54,50 @@ def ip_addr():
 """
 
 def ssh(host="192.168.1.10", user="root"):
+    responses = [
+        f"Permission denied, please try again.",
+        f"Authentication failed.",
+        f"Connection refused.",
+        f"Host unreachable."
+    ]
+    msg = random.choice(responses)
     return f"""SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.6
 Warning: Permanently added '{host}' (ED25519) to the list of known hosts.
-{user}@{host}'s password: 
-Permission denied, please try again.
-{user}@{host}'s password: 
-Permission denied, please try again.
-{user}@{host}'s password: 
+{user}@{host}'s password:
+{msg}
+{user}@{host}'s password:
+{msg}
+{user}@{host}'s password:
 {user}@{host}: Permission denied (publickey,password).
+"""
+
+def scp(host="192.168.1.10", user="root", filename="file.txt"):
+    responses = [
+        f"ssh: connect to host {host} port 22: Connection refused\nlost connection",
+        f"ssh: connect to host {host} port 22: No route to host\nlost connection",
+        f"ssh: connect to host {host} port 22: Connection timed out\nlost connection",
+    ]
+    return random.choice(responses)
+
+def ping(host="192.168.1.10"):
+    t1 = round(random.uniform(0.5, 9.9), 3)
+    t2 = round(random.uniform(0.5, 9.9), 3)
+    t3 = round(random.uniform(0.5, 9.9), 3)
+    loss = random.choice([0, 33, 66, 100])
+    return f"""PING {host} ({host}) 56(84) bytes of data.
+64 bytes from {host}: icmp_seq=1 ttl=64 time={t1} ms
+64 bytes from {host}: icmp_seq=2 ttl=64 time={t2} ms
+64 bytes from {host}: icmp_seq=3 ttl=64 time={t3} ms
+--- {host} ping statistics ---
+3 packets transmitted, {3 - loss//33} received, {loss}% packet loss
+"""
+
+def traceroute(host="192.168.1.10"):
+    hops = random.randint(3, 6)
+    route = ""
+    for i in range(1, hops):
+        t = round(random.uniform(1.0, 50.0), 3)
+        route += f"{i}  192.168.1.{random.randint(1,254)}  {t} ms\n"
+    return f"""traceroute to {host} ({host}), 30 hops max
+{route}{hops}  {host}  No route to host
 """
