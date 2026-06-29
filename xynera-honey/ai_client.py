@@ -49,10 +49,9 @@ def send_to_ai(ip, command, history=None, attack_type=None):
             return None
 
         reply = data.get("reply")
-
         cleaned = clean_response(reply)
 
-        return cleaned  # can be None
+        return cleaned
 
     except requests.exceptions.Timeout:
         print("[AI ERROR] Timeout")
