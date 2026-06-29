@@ -51,3 +51,14 @@ def ip_addr():
  inet 192.168.1.25/24
  brd 192.168.1.255
 """
+
+def ssh(host="192.168.1.10", user="root"):
+    return f"""SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.6
+Warning: Permanently added '{host}' (ED25519) to the list of known hosts.
+{user}@{host}'s password: 
+Permission denied, please try again.
+{user}@{host}'s password: 
+Permission denied, please try again.
+{user}@{host}'s password: 
+{user}@{host}: Permission denied (publickey,password).
+"""
