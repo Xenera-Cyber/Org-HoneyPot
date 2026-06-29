@@ -3,11 +3,11 @@ def adapt_response(command, session, attack_type):
 
     # ===== RECON PHASE =====
     if attack_type == "Reconnaissance":
-        return None  
-        # let AI handle (normal behavior)
+        # Let AI generate realistic responses
+        return None
 
     # ===== PRIVILEGE ENUMERATION =====
-    elif attack_type == "Privilege Enumeration":
+    elif attack_type == "Credential Enumeration":
         if "/etc/passwd" in command:
             return """root:x:0:0:root:/root:/bin/bash
 ubuntu:x:1000:1000::/home/ubuntu:/bin/bash
@@ -20,14 +20,18 @@ Resolving malware.sh... 192.168.1.10
 Connecting... connected.
 HTTP request sent, awaiting response... 200 OK
 Length: 2048 (2.0K) [application/x-sh]
-Saving to: ‘malware.sh’
+Saving to: 'malware.sh'
 
-malware.sh        100%[==================>] 2.00K  --.-KB/s
+malware.sh 100%[==================>] 2.00K --.-KB/s
 
 Download complete."""
 
     # ===== LATERAL MOVEMENT =====
     elif attack_type == "Lateral Movement":
-        return "ssh: connect to host 192.168.1.5 port 22: Connection timed out"
+        return (
+            "ssh: connect to host 192.168.1.5 "
+            "port 22: Connection timed out"
+        )
 
+    # ===== DEFAULT =====
     return None
