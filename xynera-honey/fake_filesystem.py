@@ -10,55 +10,45 @@ filesystem = {
         "usr",
         "var"
     ],
-
     "/home": [
         "ubuntu",
         "dev",
         "backup"
     ],
-
     "/home/ubuntu": [
         "Documents",
         "Downloads",
         "projects",
         ".bash_history"
     ],
-
     "/home/ubuntu/Documents": [
         "employee_directory.csv",
         "meeting_notes.txt",
         "server_inventory.csv"
     ],
-
     "/etc": [
         "passwd",
         "hosts",
         "hostname"
     ],
-
     "/var": [
         "log",
         "www"
     ],
-
     "/var/log": [
         "auth.log",
         "syslog"
     ],
-
     "/opt": [
         "backups"
     ],
-
     "/opt/backups": [
         "db_backup.sql",
         "weekly_backup.tar.gz"
     ]
 }
 
-
 file_contents = {
-
     "/home/ubuntu/Documents/employee_directory.csv": """
 ID,Name,Department,Email
 1001,Alice Johnson,Finance,alice.johnson@xynera.local
@@ -70,7 +60,6 @@ ID,Name,Department,Email
 
     "/home/ubuntu/Documents/meeting_notes.txt": """
 Infrastructure Weekly Review
-
 - nginx upgrade planned next month
 - verify backup integrity
 - review SSL renewal process
@@ -159,13 +148,11 @@ Jun 15 backup completed successfully
 
     "/opt/backups/db_backup.sql": """
 CREATE DATABASE customers;
-
 USE customers;
-
 CREATE TABLE users(
-    id INT PRIMARY KEY,
-    name VARCHAR(100),
-    email VARCHAR(100)
+ id INT PRIMARY KEY,
+ name VARCHAR(100),
+ email VARCHAR(100)
 );
 """
 }

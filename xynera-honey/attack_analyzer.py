@@ -1,78 +1,50 @@
 def classify(command):
 
-    cmd = command.lower().strip()
+    cmd = command.lower()
 
-    # Reconnaissance
-    if (
-        cmd == "ls" or
-        cmd == "pwd" or
-        cmd == "whoami" or
-        cmd == "id" or
-        cmd == "hostname" or
-        cmd.startswith("uname") or
-        cmd.startswith("ifconfig") or
-        cmd.startswith("ip ") or
-        cmd.startswith("netstat") or
-        cmd.startswith("ss") or
-        cmd.startswith("ps") or
-        "nmap" in cmd
-    ):
+    if "nmap" in cmd:
         return "Reconnaissance"
 
-    # Directory Navigation
-    elif cmd.startswith("cd"):
-        return "Directory Navigation"
-
-    # Credential Enumeration
-    elif "/etc/passwd" in cmd or "/etc/shadow" in cmd:
-        return "Credential Enumeration"
-
-    # Malware Download
-    elif "wget" in cmd or "curl" in cmd:
+    elif "wget" in cmd:
         return "Malware Download"
 
-    # Privilege Escalation
-    elif (
-        "sudo" in cmd or
-        "chmod" in cmd or
-        cmd.startswith("su")
-    ):
-        return "Privilege Escalation"
+    elif "curl" in cmd:
+        return "Malware Download"
 
-    # Reverse Shell
-    elif cmd.startswith("nc"):
-        return "Reverse Shell Activity"
+    elif "/etc/passwd" in cmd:
+        return "Privilege Enumeration"
 
-    # SSH / Lateral Movement
     elif "ssh" in cmd:
         return "Lateral Movement"
+
+    elif "chmod" in cmd:
+        return "Privilege Escalation"
+
+    elif cmd.startswith("nc"):
+        return "Reverse Shell Activity"
 
     return "Unknown"
 
 
 def threat_score(attack_type):
-
     scores = {
 
-        "Reconnaissance": 20,
+        "Reconnaissance": 1,
 
-        "Directory Navigation": 10,
+        "Privilege Enumeration": 3,
 
-        "Credential Enumeration": 60,
+        "Malware Download": 5,
 
-        "Malware Download": 90,
+        "Privilege Escalation": 6,
 
-        "Privilege Escalation": 95,
+        "Lateral Movement": 7,
 
-        "Lateral Movement": 80,
+        "Reverse Shell Activity": 10,
 
-        "Reverse Shell Activity": 100,
-
-        "Unknown": 5
-
+        "Unknown": 0
     }
 
     return scores.get(
         attack_type,
-        5
+        0
     )

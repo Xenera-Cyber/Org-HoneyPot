@@ -4,17 +4,26 @@ from logging.handlers import RotatingFileHandler
 from datetime import datetime
 
 LOG_DIR = "logs"
-
-LOG_FILE = os.path.join(
-    LOG_DIR,
-    "attacks.log"
-)
+LOG_FILE = os.path.join(LOG_DIR, "attacks.log")
 
 MAX_BYTES = 5 * 1024 * 1024
 BACKUP_COUNT = 3
 
 
+ATTACK_SCORES = {
+    "Reconnaissance": 20,
+    "Directory Navigation": 10,
+    "Credential Enumeration": 60,
+    "Malware Download": 90,
+    "Privilege Escalation": 95,
+    "Lateral Movement": 80,
+    "Reverse Shell Activity": 100,
+    "Unknown": 5,
+}
+
+
 def setup_logger():
+    os.makedirs(LOG_DIR, exist_ok=True)
 
     os.makedirs(
         LOG_DIR,
@@ -28,6 +37,8 @@ def setup_logger():
     logger.setLevel(
         logging.INFO
     )
+    logger = logging.getLogger("attack_logger")
+    logger.setLevel(logging.DEBUG)
 
     if logger.handlers:
         return logger
@@ -46,6 +57,13 @@ def setup_logger():
     logger.addHandler(
         handler
     )
+    formatter = logging.Formatter(
+        "[%(asctime)s] [%(levelname)s] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
+
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
     # Write the table header only once
     if not os.path.exists(LOG_FILE) or os.path.getsize(LOG_FILE) == 0:
@@ -85,6 +103,7 @@ def log_command(
     session_id="NO-SESSION",
     severity="INFO"
 ):
+    score = ATTACK_SCORES.get(attack_type, 5)
 
     score = ATTACK_SCORES.get(
         attack_type,
@@ -111,3 +130,12 @@ def log_command(
         level,
         log
     )
+    message = (
+        f"IP={ip_address} | "
+        f"SESSION={session_id} | "
+        f"TYPE={attack_type} | "
+        f"SCORE={score} | "
+        f"CMD={command}"
+    )
+
+    _logger.log(level, message)
