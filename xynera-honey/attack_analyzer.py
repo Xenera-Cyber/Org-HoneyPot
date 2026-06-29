@@ -58,7 +58,6 @@ def classify(command):
     ):
         return "Privilege Escalation"
 
-<<<<<<< HEAD
     elif (
         cmd in ["whoami", "id", "groups"]
         or "/etc/passwd" in cmd
@@ -72,7 +71,6 @@ def classify(command):
     ]:
         return "System Enumeration"
 
-=======
     # --------------------------
     # Reverse Shell Activity
     # --------------------------
@@ -86,7 +84,6 @@ def classify(command):
     # --------------------------
     # Lateral Movement
     # --------------------------
->>>>>>> main
     elif "ssh" in cmd:
         return "Lateral Movement"
 
@@ -98,30 +95,6 @@ def classify(command):
 
 def threat_score(attack_type):
     scores = {
-<<<<<<< HEAD
-
-        "Reconnaissance": 1,
-
-        "System Enumeration": 2,
-
-        "Privilege Enumeration": 3,
-
-        "Malware Download": 5,
-
-        "Privilege Escalation": 6,
-
-        "Lateral Movement": 7,
-
-        "Reverse Shell Activity": 10,
-
-        "Unknown": 0
-    }
-
-    return scores.get(
-        attack_type,
-        0
-    )
-=======
         "Reconnaissance": 20,
         "Directory Navigation": 10,
         "Credential Enumeration": 60,
@@ -133,4 +106,3 @@ def threat_score(attack_type):
     }
 
     return scores.get(attack_type, 5)
->>>>>>> main

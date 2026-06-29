@@ -1,3 +1,4 @@
+import time
 from fake_filesystem import filesystem, file_contents
 from fake_process import ps, ps_aux
 from fake_network import (
@@ -9,10 +10,57 @@ from fake_network import (
 )
 import malware_detector
 
+COMMAND_DELAYS = {
+    "default": 0.2,
+
+    "whoami": 0.2,
+    "groups": 0.2,
+    "id": 0.2,
+    "users": 0.2,
+
+    "pwd": 0.2,
+    "ls": 0.2,
+    "ls -la": 0.3,
+    "cd": 0.2,
+    "cat": 0.4,
+
+    "ps": 0.5,
+    "ps aux": 0.7,
+
+    "netstat": 0.8,
+    "netstat -tulpn": 1.0,
+    "ss": 0.8,
+    "ifconfig": 0.8,
+    "ip addr": 0.8,
+
+    "hostname": 0.2,
+    "uname -a": 0.3,
+    "uptime": 0.3,
+    "systemctl": 0.7,
+
+    "wget": 2.0,
+    "curl": 2.0,
+    "scp": 2.0,
+    "chmod": 0.3,
+    "nc": 1.5,
+}
+
 def route_command(command, session_manager):
     session = session_manager.get_session()
     cwd = session["cwd"]
     command = command.strip()
+
+    base_command = command.split()[0] if command else ""
+
+    delay = COMMAND_DELAYS.get(
+    command,
+    COMMAND_DELAYS.get(
+        base_command,
+        COMMAND_DELAYS["default"]
+    )
+)
+
+    time.sleep(delay)
 
     # --------------------------
     # USER COMMANDS
