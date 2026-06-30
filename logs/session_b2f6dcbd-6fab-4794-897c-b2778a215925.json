@@ -1,0 +1,313 @@
+{
+    "session_id": "b2f6dcbd-6fab-4794-897c-b2778a215925",
+    "ip": "127.0.0.1",
+    "commands": [
+        {
+            "command": "ls",
+            "timestamp": "2026-06-30T13:00:10.155355",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "pwd",
+            "timestamp": "2026-06-30T13:00:12.578070",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "cd..",
+            "timestamp": "2026-06-30T13:00:16.507913",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "cd ..",
+            "timestamp": "2026-06-30T13:00:20.790427",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "\\ls",
+            "timestamp": "2026-06-30T13:00:23.109126",
+            "cwd": "/home"
+        },
+        {
+            "command": "unameimport json",
+            "timestamp": "2026-06-30T13:00:39.086209",
+            "cwd": "/home"
+        },
+        {
+            "command": "import time",
+            "timestamp": "2026-06-30T13:00:39.114035",
+            "cwd": "/home"
+        },
+        {
+            "command": "from datetime import datetime",
+            "timestamp": "2026-06-30T13:00:39.114851",
+            "cwd": "/home"
+        },
+        {
+            "command": "def get_replay_speed():\r\n    print(\"\\n========== Select Replay Speed ==========\")",
+            "timestamp": "2026-06-30T13:00:39.115495",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(\"1. 0.5x (Slow)\")\r\n    print(\"2. 1x   (Normal)\")\r\n    print(\"3. 1.5x (Fast)\")\r\n    print(\"4. 2x   (Very Fast)\")",
+            "timestamp": "2026-06-30T13:00:39.116233",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(\"5. 3x   (Maximum)\")\r\n\r\n    choice = input(\"\\nEnter your choice (1-5): \")",
+            "timestamp": "2026-06-30T13:00:39.117006",
+            "cwd": "/home"
+        },
+        {
+            "command": "speed_map = {\r\n        \"1\": 0.5,",
+            "timestamp": "2026-06-30T13:00:39.117695",
+            "cwd": "/home"
+        },
+        {
+            "command": "\"2\": 1,\r\n        \"3\": 1.5,\r\n        \"4\": 2,",
+            "timestamp": "2026-06-30T13:00:39.118339",
+            "cwd": "/home"
+        },
+        {
+            "command": "\"5\": 3\r\n    }\r\n\r\n    return speed_map.get(choice, 1)",
+            "timestamp": "2026-06-30T13:00:39.118994",
+            "cwd": "/home"
+        },
+        {
+            "command": "def replay_session(file_path):",
+            "timestamp": "2026-06-30T13:00:39.119768",
+            "cwd": "/home"
+        },
+        {
+            "command": "speed = get_replay_speed()",
+            "timestamp": "2026-06-30T13:00:39.120399",
+            "cwd": "/home"
+        },
+        {
+            "command": "with open(file_path, \"r\") as f:\r\n        session = json.load(f)",
+            "timestamp": "2026-06-30T13:00:39.121051",
+            "cwd": "/home"
+        },
+        {
+            "command": "commands = session[\"commands\"]\r\n    total_commands = len(commands)",
+            "timestamp": "2026-06-30T13:00:39.121885",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(\"\\n\" + \"=\" * 60)\r\n    print(\"                 SESSION REPLAY\")",
+            "timestamp": "2026-06-30T13:00:39.123942",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(\"=\" * 60)\r\n    print(f\"Session ID       : {session['session_id']}\")",
+            "timestamp": "2026-06-30T13:00:39.124632",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(f\"Attacker IP      : {session['ip']}\")",
+            "timestamp": "2026-06-30T13:00:39.125341",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(f\"Attack Types     : {', '.join(session['attack_types'])}\")\r\n    print(f\"Session Duration : {session['session_duration']}\")\r\n    print(f\"Replay Speed     : {speed}x\")\r\n    print(\"=\" * 60)",
+            "timestamp": "2026-06-30T13:00:39.126083",
+            "cwd": "/home"
+        },
+        {
+            "command": "final_score = session[\"threat_score\"]\r\n\r\n    score_per_command = (",
+            "timestamp": "2026-06-30T13:00:39.127027",
+            "cwd": "/home"
+        },
+        {
+            "command": "final_score / total_commands\r\n        if total_commands > 0",
+            "timestamp": "2026-06-30T13:00:39.128258",
+            "cwd": "/home"
+        },
+        {
+            "command": "else 0\r\n    )",
+            "timestamp": "2026-06-30T13:00:39.129189",
+            "cwd": "/home"
+        },
+        {
+            "command": "current_score = 0\r\n\r\n    for i, cmd in enumerate(commands):",
+            "timestamp": "2026-06-30T13:00:39.130699",
+            "cwd": "/home"
+        },
+        {
+            "command": "current_score += score_per_command",
+            "timestamp": "2026-06-30T13:00:39.132149",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(\"\\n\" + \"-\" * 50)",
+            "timestamp": "2026-06-30T13:00:39.132748",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(f\"Command Counter : {i+1}/{total_commands}\")",
+            "timestamp": "2026-06-30T13:00:39.133599",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(f\"Timestamp       : {cmd['timestamp']}\")",
+            "timestamp": "2026-06-30T13:00:39.134129",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(f\"Threat Score    : {int(current_score)}\")\r\n        print(\"-\" * 50)",
+            "timestamp": "2026-06-30T13:00:39.135012",
+            "cwd": "/home"
+        },
+        {
+            "command": "",
+            "timestamp": "2026-06-30T13:00:39.135521",
+            "cwd": "/home"
+        },
+        {
+            "command": "cwd = cmd.get(\"cwd\", \"/home/ubuntu\")",
+            "timestamp": "2026-06-30T13:00:39.136095",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(f\"ubuntu@web-prod-01:{cwd}$ {cmd['command']}\")",
+            "timestamp": "2026-06-30T13:00:39.136513",
+            "cwd": "/home"
+        },
+        {
+            "command": "# Pause / Resume",
+            "timestamp": "2026-06-30T13:00:39.136890",
+            "cwd": "/home"
+        },
+        {
+            "command": "while True:\r\n\r\n            option = input(",
+            "timestamp": "2026-06-30T13:00:39.137993",
+            "cwd": "/home"
+        },
+        {
+            "command": "\"\\n[ENTER] Continue | [P] Pause | [Q] Quit : \"\r\n            ).strip().lower()\r\n\r\n            if option == \"\":",
+            "timestamp": "2026-06-30T13:00:39.139098",
+            "cwd": "/home"
+        },
+        {
+            "command": "break\r\n\r\n            elif option == \"p\":",
+            "timestamp": "2026-06-30T13:00:39.139735",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(\"\\n========== REPLAY PAUSED ==========\")",
+            "timestamp": "2026-06-30T13:00:39.140418",
+            "cwd": "/home"
+        },
+        {
+            "command": "while True:\r\n\r\n                    resume = input(",
+            "timestamp": "2026-06-30T13:00:39.140977",
+            "cwd": "/home"
+        },
+        {
+            "command": "\"Press R to Resume : \"\r\n                    ).strip().lower()",
+            "timestamp": "2026-06-30T13:00:39.141373",
+            "cwd": "/home"
+        },
+        {
+            "command": "if resume == \"r\":\r\n                        print(\"\\nReplay Resumed...\")",
+            "timestamp": "2026-06-30T13:00:39.141738",
+            "cwd": "/home"
+        },
+        {
+            "command": "break\r\n                    else:\r\n                        print(\"Invalid Input!\")",
+            "timestamp": "2026-06-30T13:00:39.142144",
+            "cwd": "/home"
+        },
+        {
+            "command": "break",
+            "timestamp": "2026-06-30T13:00:39.142510",
+            "cwd": "/home"
+        },
+        {
+            "command": "elif option == \"q\":",
+            "timestamp": "2026-06-30T13:00:39.142785",
+            "cwd": "/home"
+        },
+        {
+            "command": "",
+            "timestamp": "2026-06-30T13:00:39.143082",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(\"\\nReplay Cancelled.\")",
+            "timestamp": "2026-06-30T13:00:39.143316",
+            "cwd": "/home"
+        },
+        {
+            "command": "return\r\n\r\n            else:",
+            "timestamp": "2026-06-30T13:00:39.143836",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(\"Invalid Choice!\")\r\n\r\n        if i < total_commands - 1:",
+            "timestamp": "2026-06-30T13:00:39.144222",
+            "cwd": "/home"
+        },
+        {
+            "command": "t1 = datetime.fromisoformat(\r\n                cmd[\"timestamp\"]\r\n            )",
+            "timestamp": "2026-06-30T13:00:39.144583",
+            "cwd": "/home"
+        },
+        {
+            "command": "t2 = datetime.fromisoformat(\r\n                commands[i + 1][\"timestamp\"]\r\n            )",
+            "timestamp": "2026-06-30T13:00:39.145251",
+            "cwd": "/home"
+        },
+        {
+            "command": "delay = (\r\n                t2 - t1\r\n            ).total_seconds()\r\n\r\n            delay = delay / speed\r\n\r\n            time.sleep(min(delay, 5))\r\n\r\n    print(\"\\n\" + \"=\" * 60)\r\n    print(\"                 REPLAY SUMMARY\")\r\n    print(\"=\" * 60)",
+            "timestamp": "2026-06-30T13:00:39.146249",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(\"Replay Status      : Completed Successfully\")",
+            "timestamp": "2026-06-30T13:00:39.146837",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(f\"Replay Speed       : {speed}x\")",
+            "timestamp": "2026-06-30T13:00:39.147657",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(f\"Session ID         : {session['session_id']}\")",
+            "timestamp": "2026-06-30T13:00:39.148430",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(f\"Attacker IP        : {session['ip']}\")\r\n    print(f\"Total Commands     : {total_commands}\")",
+            "timestamp": "2026-06-30T13:00:39.148892",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(f\"Commands Replayed  : {total_commands}\")",
+            "timestamp": "2026-06-30T13:00:39.149519",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(f\"Attack Types       : {', '.join(session['attack_types'])}\")\r\n    print(f\"Final Threat Score : {session['threat_score']}\")\r\n    print(f\"Session Duration   : {session['session_duration']}\")",
+            "timestamp": "2026-06-30T13:00:39.149935",
+            "cwd": "/home"
+        },
+        {
+            "command": "print(\"=\" * 60)\r\n    print(\"Replay Completed Successfully\")\r\n    print(\"=\" * 60)",
+            "timestamp": "2026-06-30T13:00:39.150402",
+            "cwd": "/home"
+        },
+        {
+            "command": "if __name__ == \"__main__\":\r\n    replay_session(\r\n        \"logs/session_585ced1a-f200-48ee-aefc-74e863c8387d.json\"",
+            "timestamp": "2026-06-30T13:00:39.150891",
+            "cwd": "/home"
+        }
+    ],
+    "threat_score": 355,
+    "attack_types": [
+        "Reconnaissance",
+        "Directory Navigation",
+        "Unknown"
+    ],
+    "session_duration": "0:01:11.535231"
+}

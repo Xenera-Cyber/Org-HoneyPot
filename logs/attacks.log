@@ -73,3 +73,251 @@ Score       : 5
 [2026-06-29 16:19:33] [INFO] IP=127.0.0.1 | SESSION=70e25ef9-ece5-4738-b85a-5d5094275951 | TYPE=Reconnaissance | SCORE=20 | CMD=ls
 [2026-06-29 16:19:37] [INFO] 2026-06-29 16:19:37   127.0.0.1         uname -a          Reconnaissance           20
 [2026-06-29 16:19:37] [INFO] IP=127.0.0.1 | SESSION=70e25ef9-ece5-4738-b85a-5d5094275951 | TYPE=Reconnaissance | SCORE=20 | CMD=uname -a
+[2026-06-30 13:00:10] [INFO] 2026-06-30 13:00:10   127.0.0.1         ls                Reconnaissance           20
+[2026-06-30 13:00:10] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Reconnaissance | SCORE=20 | CMD=ls
+[2026-06-30 13:00:12] [INFO] 2026-06-30 13:00:12   127.0.0.1         pwd               Reconnaissance           20
+[2026-06-30 13:00:12] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Reconnaissance | SCORE=20 | CMD=pwd
+[2026-06-30 13:00:16] [INFO] 2026-06-30 13:00:16   127.0.0.1         cd..              Directory Navigation     10
+[2026-06-30 13:00:16] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Directory Navigation | SCORE=10 | CMD=cd..
+[2026-06-30 13:00:20] [INFO] 2026-06-30 13:00:20   127.0.0.1         cd ..             Directory Navigation     10
+[2026-06-30 13:00:20] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Directory Navigation | SCORE=10 | CMD=cd ..
+[2026-06-30 13:00:23] [INFO] 2026-06-30 13:00:23   127.0.0.1         \ls               Unknown                  5
+[2026-06-30 13:00:23] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=\ls
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         unameimport json  Reconnaissance           20
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Reconnaissance | SCORE=20 | CMD=unameimport json
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         import time       Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=import time
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         from datetime import datetimeUnknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=from datetime import datetime
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         def get_replay_speed():
+    print("\n========== Select Replay Speed ==========")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=def get_replay_speed():
+    print("\n========== Select Replay Speed ==========")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print("1. 0.5x (Slow)")
+    print("2. 1x   (Normal)")
+    print("3. 1.5x (Fast)")
+    print("4. 2x   (Very Fast)")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print("1. 0.5x (Slow)")
+    print("2. 1x   (Normal)")
+    print("3. 1.5x (Fast)")
+    print("4. 2x   (Very Fast)")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print("5. 3x   (Maximum)")
+
+    choice = input("\nEnter your choice (1-5): ")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print("5. 3x   (Maximum)")
+
+    choice = input("\nEnter your choice (1-5): ")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         speed_map = {
+        "1": 0.5,Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=speed_map = {
+        "1": 0.5,
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         "2": 1,
+        "3": 1.5,
+        "4": 2,Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD="2": 1,
+        "3": 1.5,
+        "4": 2,
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         "5": 3
+    }
+
+    return speed_map.get(choice, 1)Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD="5": 3
+    }
+
+    return speed_map.get(choice, 1)
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         def replay_session(file_path):Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=def replay_session(file_path):
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         speed = get_replay_speed()Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=speed = get_replay_speed()
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         with open(file_path, "r") as f:
+        session = json.load(f)Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=with open(file_path, "r") as f:
+        session = json.load(f)
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         commands = session["commands"]
+    total_commands = len(commands)Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=commands = session["commands"]
+    total_commands = len(commands)
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print("\n" + "=" * 60)
+    print("                 SESSION REPLAY")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print("\n" + "=" * 60)
+    print("                 SESSION REPLAY")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print("=" * 60)
+    print(f"Session ID       : {session['session_id']}")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print("=" * 60)
+    print(f"Session ID       : {session['session_id']}")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print(f"Attacker IP      : {session['ip']}")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print(f"Attacker IP      : {session['ip']}")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print(f"Attack Types     : {', '.join(session['attack_types'])}")
+    print(f"Session Duration : {session['session_duration']}")
+    print(f"Replay Speed     : {speed}x")
+    print("=" * 60)Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print(f"Attack Types     : {', '.join(session['attack_types'])}")
+    print(f"Session Duration : {session['session_duration']}")
+    print(f"Replay Speed     : {speed}x")
+    print("=" * 60)
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         final_score = session["threat_score"]
+
+    score_per_command = (Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=final_score = session["threat_score"]
+
+    score_per_command = (
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         final_score / total_commands
+        if total_commands > 0Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=final_score / total_commands
+        if total_commands > 0
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         else 0
+    )     Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=else 0
+    )
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         current_score = 0
+
+    for i, cmd in enumerate(commands):Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=current_score = 0
+
+    for i, cmd in enumerate(commands):
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         current_score += score_per_commandUnknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=current_score += score_per_command
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print("\n" + "-" * 50)Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print("\n" + "-" * 50)
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print(f"Command Counter : {i+1}/{total_commands}")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print(f"Command Counter : {i+1}/{total_commands}")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print(f"Timestamp       : {cmd['timestamp']}")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print(f"Timestamp       : {cmd['timestamp']}")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print(f"Threat Score    : {int(current_score)}")
+        print("-" * 50)Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print(f"Threat Score    : {int(current_score)}")
+        print("-" * 50)
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1                           Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         cwd = cmd.get("cwd", "/home/ubuntu")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=cwd = cmd.get("cwd", "/home/ubuntu")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print(f"ubuntu@web-prod-01:{cwd}$ {cmd['command']}")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print(f"ubuntu@web-prod-01:{cwd}$ {cmd['command']}")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         # Pause / Resume  Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=# Pause / Resume
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         while True:
+
+            option = input(Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=while True:
+
+            option = input(
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         "\n[ENTER] Continue | [P] Pause | [Q] Quit : "
+            ).strip().lower()
+
+            if option == "":Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD="\n[ENTER] Continue | [P] Pause | [Q] Quit : "
+            ).strip().lower()
+
+            if option == "":
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         break
+
+            elif option == "p":Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=break
+
+            elif option == "p":
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print("\n========== REPLAY PAUSED ==========")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print("\n========== REPLAY PAUSED ==========")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         while True:
+
+                    resume = input(Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=while True:
+
+                    resume = input(
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         "Press R to Resume : "
+                    ).strip().lower()Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD="Press R to Resume : "
+                    ).strip().lower()
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         if resume == "r":
+                        print("\nReplay Resumed...")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=if resume == "r":
+                        print("\nReplay Resumed...")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         break
+                    else:
+                        print("Invalid Input!")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=break
+                    else:
+                        print("Invalid Input!")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         break             Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=break
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         elif option == "q":Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=elif option == "q":
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1                           Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print("\nReplay Cancelled.")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print("\nReplay Cancelled.")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         return
+
+            else:Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=return
+
+            else:
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print("Invalid Choice!")
+
+        if i < total_commands - 1:Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print("Invalid Choice!")
+
+        if i < total_commands - 1:
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         t1 = datetime.fromisoformat(
+                cmd["timestamp"]
+            )Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=t1 = datetime.fromisoformat(
+                cmd["timestamp"]
+            )
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         t2 = datetime.fromisoformat(
+                commands[i + 1]["timestamp"]
+            )Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=t2 = datetime.fromisoformat(
+                commands[i + 1]["timestamp"]
+            )
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         delay = (
+                t2 - t1
+            ).total_seconds()
+
+            delay = delay / speed
+
+            time.sleep(min(delay, 5))
+
+    print("\n" + "=" * 60)
+    print("                 REPLAY SUMMARY")
+    print("=" * 60)Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=delay = (
+                t2 - t1
+            ).total_seconds()
+
+            delay = delay / speed
+
+            time.sleep(min(delay, 5))
+
+    print("\n" + "=" * 60)
+    print("                 REPLAY SUMMARY")
+    print("=" * 60)
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print("Replay Status      : Completed Successfully")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print("Replay Status      : Completed Successfully")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print(f"Replay Speed       : {speed}x")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print(f"Replay Speed       : {speed}x")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print(f"Session ID         : {session['session_id']}")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print(f"Session ID         : {session['session_id']}")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print(f"Attacker IP        : {session['ip']}")
+    print(f"Total Commands     : {total_commands}")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print(f"Attacker IP        : {session['ip']}")
+    print(f"Total Commands     : {total_commands}")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print(f"Commands Replayed  : {total_commands}")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print(f"Commands Replayed  : {total_commands}")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print(f"Attack Types       : {', '.join(session['attack_types'])}")
+    print(f"Final Threat Score : {session['threat_score']}")
+    print(f"Session Duration   : {session['session_duration']}")Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print(f"Attack Types       : {', '.join(session['attack_types'])}")
+    print(f"Final Threat Score : {session['threat_score']}")
+    print(f"Session Duration   : {session['session_duration']}")
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         print("=" * 60)
+    print("Replay Completed Successfully")
+    print("=" * 60)Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=print("=" * 60)
+    print("Replay Completed Successfully")
+    print("=" * 60)
+[2026-06-30 13:00:39] [INFO] 2026-06-30 13:00:39   127.0.0.1         if __name__ == "__main__":
+    replay_session(
+        "logs/session_585ced1a-f200-48ee-aefc-74e863c8387d.json"Unknown                  5
+[2026-06-30 13:00:39] [INFO] IP=127.0.0.1 | SESSION=b2f6dcbd-6fab-4794-897c-b2778a215925 | TYPE=Unknown | SCORE=5 | CMD=if __name__ == "__main__":
+    replay_session(
+        "logs/session_585ced1a-f200-48ee-aefc-74e863c8387d.json"
