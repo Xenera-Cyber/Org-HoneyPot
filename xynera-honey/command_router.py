@@ -6,6 +6,11 @@ from fake_network import (
     ss,
     ifconfig,
     ip_addr,
+    telnet,
+    ftp,
+    dig,
+    nslookup,
+    host
 )
 import malware_detector
 
@@ -111,6 +116,27 @@ def route_command(command, session_manager):
 
     elif command == "ip addr":
         return ip_addr()
+    
+    elif command.startswith("telnet"):
+        return telnet()
+
+    elif command.startswith("ftp"):
+        return ftp()
+
+    elif command.startswith("dig"):
+        parts = command.split()
+        domain = parts[1] if len(parts) > 1 else "example.com"
+        return dig(domain)
+
+    elif command.startswith("nslookup"):
+        parts = command.split()
+        domain = parts[1] if len(parts) > 1 else "example.com"
+        return nslookup(domain)
+
+    elif command.startswith("host"):
+        parts = command.split()
+        domain = parts[1] if len(parts) > 1 else "example.com"
+        return host(domain)
 
     # --------------------------
     # SYSTEM DISCOVERY
