@@ -101,3 +101,53 @@ def traceroute(host="192.168.1.10"):
     return f"""traceroute to {host} ({host}), 30 hops max
 {route}{hops}  {host}  No route to host
 """
+
+def telnet(host="192.168.1.10", port=23):
+    responses = [
+        f"Trying {host}...\ntelnet: connect to address {host}: Connection refused",
+        f"Trying {host}...\ntelnet: connect to address {host}: Connection timed out",
+        f"Trying {host}...\ntelnet: connect to address {host}: No route to host",
+    ]
+    return random.choice(responses)
+
+
+def ftp(host="192.168.1.10"):
+    responses = [
+        f"ftp: connect: Connection refused",
+        f"ftp: connect: Connection timed out",
+        f"421 Service not available, closing control connection.",
+    ]
+    return random.choice(responses)
+
+
+def dig(domain="example.com"):
+    ip = f"192.168.1.{random.randint(2, 254)}"
+    return f""";<<>> DiG 9.18.1 <<>> {domain}
+;; ANSWER SECTION:
+{domain}.        300    IN    A    {ip}
+;; Query time: {random.randint(10, 80)} msec
+"""
+
+def nslookup(domain="example.com"):
+    if random.choice([True, False]):
+        ip = f"192.168.1.{random.randint(2, 254)}"
+        return f"""Server:  127.0.0.53
+Address: 127.0.0.53#53
+
+Non-authoritative answer:
+Name:    {domain}
+Address: {ip}
+"""
+    else:
+        return f"""Server:  127.0.0.53
+Address: 127.0.0.53#53
+
+** server can't find {domain}: NXDOMAIN
+"""
+
+def host(domain="example.com"):
+    if random.choice([True, False]):
+        ip = f"192.168.1.{random.randint(2, 254)}"
+        return f"{domain} has address {ip}"
+    else:
+        return f"Host {domain} not found: 3(NXDOMAIN)"
