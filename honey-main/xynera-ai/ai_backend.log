@@ -1,0 +1,29 @@
+2026-06-08 15:52:42,417 - IP: 127.0.0.1 | CMD: uname -a | TYPE: Unknown | SCORE: 1 | LEVEL: LOW
+2026-06-08 15:52:42,951 - IP: 127.0.0.1 | CMD: invalidcommand | TYPE: Unknown | SCORE: 2 | LEVEL: LOW
+2026-06-08 16:08:04,893 - IP: 127.0.0.1 | CMD: uname -a | TYPE: Unknown | SCORE: 1 | LEVEL: LOW
+2026-06-08 16:08:13,465 - IP: 127.0.0.1 | CMD: invalidcommand | TYPE: Unknown | SCORE: 2 | LEVEL: LOW
+2026-06-16 14:07:40,396 - IP: 10.200.200.10 | CMD: nmap target | TYPE: Reconnaissance | SCORE: 2 | LEVEL: LOW
+2026-06-16 14:08:02,892 - IP: 10.200.200.10 | CMD: hello | TYPE: Unknown | SCORE: 3 | LEVEL: LOW
+2026-06-17 15:31:25,174 - IP: 10.200.200.10 | CMD: nmap 192.168.1.99 | TYPE: Reconnaissance | SCORE: 2 | LEVEL: LOW
+2026-06-17 15:31:35,659 - IP: 10.200.200.10 | CMD: nmap 192.168.1.99 | TYPE: Reconnaissance | SCORE: 4 | LEVEL: LOW
+2026-06-17 15:31:47,404 - IP: 10.200.200.10 | CMD: ls -la /var | TYPE: Unknown | SCORE: 5 | LEVEL: LOW
+2026-06-17 15:32:03,506 - IP: 10.200.200.10 | CMD: unknowncommandxyz | TYPE: Reverse Shell Attempt | SCORE: 15 | LEVEL: MEDIUM
+2026-06-17 15:32:26,275 - IP: 10.200.200.10 | CMD: ping -invalidflag | TYPE: Unknown | SCORE: 16 | LEVEL: HIGH
+2026-06-17 15:32:45,999 - IP: 127.0.0.1 | CMD: whoami --help | TYPE: Unknown | SCORE: 1 | LEVEL: LOW
+2026-06-17 15:32:54,065 - IP: 127.0.0.1 | CMD: ls -la /var | TYPE: Unknown | SCORE: 2 | LEVEL: LOW
+2026-06-17 15:33:00,744 - IP: 127.0.0.1 | CMD: nmap 10.10.10.5 | TYPE: Reconnaissance | SCORE: 4 | LEVEL: LOW
+2026-06-17 15:33:17,988 - IP: 10.200.200.10 | CMD: nmap 10.10.10.5 | TYPE: Reconnaissance | SCORE: 18 | LEVEL: HIGH
+2026-06-17 15:35:07,568 - IP: 127.0.0.1 | CMD: whoami --help | TYPE: Unknown | SCORE: 1 | LEVEL: LOW
+2026-06-17 15:35:14,995 - IP: 127.0.0.1 | CMD: ls -la /var | TYPE: Unknown | SCORE: 2 | LEVEL: LOW
+2026-06-17 15:35:25,022 - IP: 127.0.0.1 | CMD: nmap 10.10.10.5 | TYPE: Reconnaissance | SCORE: 4 | LEVEL: LOW
+2026-06-17 15:36:56,849 - IP: 127.0.0.1 | CMD: whoami --help | TYPE: Unknown | SCORE: 5 | LEVEL: LOW
+2026-06-17 15:37:03,399 - IP: 127.0.0.1 | CMD: ls -la /var | TYPE: Unknown | SCORE: 6 | LEVEL: MEDIUM
+2026-06-17 15:37:09,659 - IP: 127.0.0.1 | CMD: nmap 10.10.10.5 | TYPE: Reconnaissance | SCORE: 8 | LEVEL: MEDIUM
+2026-06-17 15:37:36,975 - IP: 10.200.200.10 | CMD: whoami --help | TYPE: Unknown | SCORE: 1 | LEVEL: LOW
+2026-06-17 15:38:24,321 - IP: 127.0.0.1 | CMD: whoami --help | TYPE: Unknown | SCORE: 1 | LEVEL: LOW
+2026-06-17 15:38:30,284 - IP: 127.0.0.1 | CMD: ls -la /var | TYPE: Unknown | SCORE: 2 | LEVEL: LOW
+2026-06-17 15:38:36,672 - IP: 127.0.0.1 | CMD: nmap 10.10.10.5 | TYPE: Reconnaissance | SCORE: 4 | LEVEL: LOW
+2026-06-17 15:40:47,661 - IP: 127.0.0.1 | CMD: whoami --help | TYPE: Unknown | SCORE: 1 | LEVEL: LOW
+2026-06-17 15:40:54,044 - IP: 127.0.0.1 | CMD: ls -la /var | TYPE: Unknown | SCORE: 2 | LEVEL: LOW
+2026-06-17 15:41:00,064 - IP: 127.0.0.1 | CMD: nmap 10.10.10.5 | TYPE: Reconnaissance | SCORE: 4 | LEVEL: LOW
+2026-06-26 13:14:31,528 - IP: 192.168.1.100 | CMD: ls -la | TYPE: Unknown | SCORE: 1 | LEVEL: LOW
