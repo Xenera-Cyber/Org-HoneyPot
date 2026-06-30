@@ -1,4 +1,5 @@
 import time
+import random
 from fake_filesystem import filesystem, file_contents
 from fake_process import ps, ps_aux
 from fake_network import (
@@ -9,6 +10,12 @@ from fake_network import (
     ip_addr,
 )
 import malware_detector
+# --------------------------
+# Delay Configuration
+# --------------------------
+
+ENABLE_RANDOM_DELAY = True
+DELAY_VARIATION = 0.15
 
 COMMAND_DELAYS = {
     "default": 0.2,
@@ -45,22 +52,39 @@ COMMAND_DELAYS = {
     "nc": 1.5,
 }
 
+
+
+def get_command_delay(command):
+    command = command.strip()
+
+    if not command:
+        return COMMAND_DELAYS["default"]
+
+    base_command = command.split()[0]
+
+    base_delay = COMMAND_DELAYS.get(
+        command,
+        COMMAND_DELAYS.get(
+            base_command,
+            COMMAND_DELAYS["default"]
+        )
+    )
+
+    if ENABLE_RANDOM_DELAY:
+     variation = base_delay * DELAY_VARIATION
+     random_delay = random.uniform(-variation, variation)
+     return max(0, base_delay + random_delay)
+
+    return base_delay
+
+
+
 def route_command(command, session_manager):
     session = session_manager.get_session()
     cwd = session["cwd"]
     command = command.strip()
 
-    base_command = command.split()[0] if command else ""
-
-    delay = COMMAND_DELAYS.get(
-    command,
-    COMMAND_DELAYS.get(
-        base_command,
-        COMMAND_DELAYS["default"]
-    )
-)
-
-    time.sleep(delay)
+    time.sleep(get_command_delay(command))
 
     # --------------------------
     # USER COMMANDS
@@ -68,9 +92,6 @@ def route_command(command, session_manager):
     if command == "whoami":
         return "ubuntu"
     
-    elif command == "groups":
-        return "ubuntu sudo docker"
-
     elif command == "groups":
         return "ubuntu sudo docker"
 
