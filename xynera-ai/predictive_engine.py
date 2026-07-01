@@ -42,6 +42,53 @@ def deception_effectiveness_report():
     }
 
     return report
+def predictive_intelligence(
+    curiosity_score,
+    risk_score,
+    engagement_level
+):
+    """
+    Predict attacker behaviour and session outcome
+    """
+
+    # Predict next attacker action
+    if curiosity_score >= 80:
+        next_action = "Privilege Escalation"
+    elif curiosity_score >= 50:
+        next_action = "Credential Access"
+    else:
+        next_action = "Reconnaissance"
+
+    # Predict high-value target
+    if risk_score >= 80:
+        target = "Admin Credentials"
+    elif risk_score >= 50:
+        target = "Sensitive Files"
+    else:
+        target = "Public Directories"
+
+    # Deception success probability
+    if engagement_level == "HIGH":
+        deception_probability = "92%"
+    elif engagement_level == "MEDIUM":
+        deception_probability = "74%"
+    else:
+        deception_probability = "51%"
+
+    # Session outcome
+    if risk_score >= 80:
+        outcome = "High Risk Session"
+    elif risk_score >= 50:
+        outcome = "Medium Risk Session"
+    else:
+        outcome = "Low Risk Session"
+
+    return {
+        "next_probable_action": next_action,
+        "high_value_target": target,
+        "deception_success_probability": deception_probability,
+        "session_outcome": outcome
+    }
 if __name__ == "__main__":
 
     assets = {
@@ -67,3 +114,16 @@ if __name__ == "__main__":
     report = deception_effectiveness_report()
 
     print(json.dumps(report, indent=4))
+    print("\n========== Predictive Intelligence ==========\n")
+
+    prediction = predictive_intelligence(
+
+    curiosity_score=91,
+
+    risk_score=88,
+
+    engagement_level="HIGH"
+
+    )
+
+    print(json.dumps(prediction, indent=4))
