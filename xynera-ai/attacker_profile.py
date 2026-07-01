@@ -113,6 +113,53 @@ def calculate_engagement_score(
         "engagement_score": score,
         "engagement_level": engagement_level
     }
+def generate_behaviour_profile(
+    curiosity_score,
+    persistence_attempts,
+    interaction_depth,
+    risk_score,
+    session_complexity
+):
+    """
+    Generates an attacker behaviour profile
+    """
+
+    if persistence_attempts >= 5:
+        persistence = "HIGH"
+    elif persistence_attempts >= 3:
+        persistence = "MEDIUM"
+    else:
+        persistence = "LOW"
+
+    if interaction_depth >= 8:
+        interaction = "HIGH"
+    elif interaction_depth >= 5:
+        interaction = "MEDIUM"
+    else:
+        interaction = "LOW"
+
+    if session_complexity >= 8:
+        complexity = "HIGH"
+    elif session_complexity >= 5:
+        complexity = "MEDIUM"
+    else:
+        complexity = "LOW"
+
+    profile = {
+
+        "Curiosity Score": curiosity_score,
+
+        "Persistence Score": persistence,
+
+        "Interaction Depth": interaction,
+
+        "Risk Score": risk_score,
+
+        "Session Complexity": complexity
+
+    }
+
+    return profile
 if __name__ == "__main__":
 
     result = calculate_engagement_score(
@@ -144,3 +191,20 @@ if __name__ == "__main__":
     )
 
     print(json.dumps(result, indent=4))
+    print("\n========== Attacker Behaviour Profile ==========\n")
+
+    profile = generate_behaviour_profile(
+
+    curiosity_score=92,
+
+    persistence_attempts=5,
+
+    interaction_depth=9,
+
+    risk_score=87,
+
+    session_complexity=8
+
+)
+
+    print(json.dumps(profile, indent=4))
