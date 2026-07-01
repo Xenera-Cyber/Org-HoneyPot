@@ -1,9 +1,8 @@
 from coeai import LLMinfer
 from knowledge_base import knowledge_documents
 from config import COEAI_API_KEY
-
+from guardrails import apply_guardrails
 llm = LLMinfer(api_key=COEAI_API_KEY)
-
 
 def retrieve_context(command):
 
@@ -37,12 +36,16 @@ Output format:
 """
 
     response = llm.generate(
-        model="deepseek-r1:70b",
-        prompt=prompt,
-        max_tokens=20000
-    )
+    model="deepseek-r1:70b",
+    prompt=prompt,
+    max_tokens=20000
+)
 
-    return response["choices"][0]["message"]["content"].strip()
+    output = response["choices"][0]["message"]["content"].strip()
+
+    output = apply_guardrails(command, output)
+
+    return output
 
 
 def generate_deception(command):
@@ -84,5 +87,6 @@ def generate_deception(command):
         prompt=prompt,
         max_tokens=20000
     )
-
-    return response["choices"][0]["message"]["content"].strip()
+    output = response["choices"][0]["message"]["content"].strip()
+    output = apply_guardrails(command,output)
+    return output
