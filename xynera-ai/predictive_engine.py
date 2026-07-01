@@ -89,6 +89,60 @@ def predictive_intelligence(
         "deception_success_probability": deception_probability,
         "session_outcome": outcome
     }
+def performance_analytics(
+    ai_response_time,
+    session_duration,
+    conversation_quality,
+    cpu_usage,
+    memory_usage,
+    detection_accuracy
+):
+    """
+    Performance Analytics Module
+    """
+
+    if ai_response_time < 2:
+        response_status = "Excellent"
+    elif ai_response_time < 5:
+        response_status = "Good"
+    else:
+        response_status = "Needs Optimization"
+
+    if detection_accuracy >= 90:
+        accuracy_status = "High"
+    elif detection_accuracy >= 75:
+        accuracy_status = "Medium"
+    else:
+        accuracy_status = "Low"
+
+    recommendations = []
+
+    if ai_response_time > 5:
+        recommendations.append("Optimize AI response generation.")
+
+    if cpu_usage > 80:
+        recommendations.append("Reduce CPU utilization.")
+
+    if memory_usage > 80:
+        recommendations.append("Optimize memory consumption.")
+
+    if detection_accuracy < 90:
+        recommendations.append("Improve detection model accuracy.")
+
+    if not recommendations:
+        recommendations.append("System performance is optimal.")
+
+    return {
+        "AI Response Time": f"{ai_response_time} sec",
+        "Response Status": response_status,
+        "Session Duration": f"{session_duration} min",
+        "Conversation Quality": conversation_quality,
+        "CPU Usage": f"{cpu_usage}%",
+        "Memory Usage": f"{memory_usage}%",
+        "Detection Accuracy": f"{detection_accuracy}%",
+        "Accuracy Status": accuracy_status,
+        "Optimization Recommendations": recommendations
+    }
 if __name__ == "__main__":
 
     assets = {
@@ -127,3 +181,22 @@ if __name__ == "__main__":
     )
 
     print(json.dumps(prediction, indent=4))
+    print("\n========== Performance Analytics ==========\n")
+
+    analytics = performance_analytics(
+
+    ai_response_time=1.8,
+
+    session_duration=18,
+
+    conversation_quality="High",
+
+    cpu_usage=42,
+
+    memory_usage=38,
+
+    detection_accuracy=95
+
+    )
+
+    print(json.dumps(analytics, indent=4))
