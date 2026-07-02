@@ -10,10 +10,10 @@ pdf_files = [
     r"c:\Users\VIDIT RATURI\Downloads\honey-main\Xynera_Upgrade_History_and_Benefits_Report.pdf",
     # Subdirectory PDFs
     r"c:\Users\VIDIT RATURI\Downloads\honey-main\honey-main\doc of Xynera.pdf",
-    r"c:\Users\VIDIT RATURI\Downloads\honey-main\honey-main\xynera-ai\Xynera_Attack_Deception_Report.pdf",
-    r"c:\Users\VIDIT RATURI\Downloads\honey-main\honey-main\xynera-ai\Xynera_Knowledge_Base.pdf",
-    r"c:\Users\VIDIT RATURI\Downloads\honey-main\honey-main\xynera-ai\Xynera_Vector_Store_Optimization_Report.pdf",
-    r"c:\Users\VIDIT RATURI\Downloads\honey-main\honey-main\xynera-ai\evaluation_report.pdf",
+    r"c:\Users\VIDIT RATURI\Downloads\honey-main\honey-main\xynera_ai\Xynera_Attack_Deception_Report.pdf",
+    r"c:\Users\VIDIT RATURI\Downloads\honey-main\honey-main\xynera_ai\Xynera_Knowledge_Base.pdf",
+    r"c:\Users\VIDIT RATURI\Downloads\honey-main\honey-main\xynera_ai\Xynera_Vector_Store_Optimization_Report.pdf",
+    r"c:\Users\VIDIT RATURI\Downloads\honey-main\honey-main\xynera_ai\evaluation_report.pdf",
 ]
 
 search_terms = ["monday", "tuesday", "wednesday", "employee", "ecosystem", "incident", "client", "vendor"]

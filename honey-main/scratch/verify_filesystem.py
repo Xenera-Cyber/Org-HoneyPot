@@ -2,7 +2,7 @@ import sys
 import os
 
 # Set up paths
-sys.path.append(r"c:\Users\VIDIT RATURI\Downloads\honey-main\honey-main\xynera-honey")
+sys.path.append(r"c:\Users\VIDIT RATURI\Downloads\honey-main\honey-main\xynera_honey")
 
 from fake_filesystem import ls, cd, cat, resolve_path, filesystem, file_contents
 

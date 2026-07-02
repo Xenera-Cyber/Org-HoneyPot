@@ -424,7 +424,20 @@ try:
         "vpn_access_guidelines.md": "/home/ubuntu/documents/technical_docs/vpn_access_guidelines.md",
         "api_gateway_setup.md": "/home/ubuntu/documents/technical_docs/api_gateway_setup.md",
         "incident_2026_05_12_ddos.md": "/home/ubuntu/documents/incident_reports/incident_2026_05_12_ddos.md",
-        "incident_2026_06_01_phishing.md": "/home/ubuntu/documents/incident_reports/incident_2026_06_01_phishing.md"
+        "incident_2026_06_01_phishing.md": "/home/ubuntu/documents/incident_reports/incident_2026_06_01_phishing.md",
+        "remote_work_policy.md": "/home/ubuntu/documents/policies/remote_work_policy.md",
+        "incident_response_policy.md": "/home/ubuntu/documents/policies/incident_response_policy.md",
+        "password_policy.md": "/home/ubuntu/documents/policies/password_policy.md",
+        "database_recovery_manual.md": "/home/ubuntu/documents/technical_docs/database_recovery_manual.md",
+        "kubernetes_deployment_guide.md": "/home/ubuntu/documents/technical_docs/kubernetes_deployment_guide.md",
+        "incident_2026_06_18_malware.md": "/home/ubuntu/documents/incident_reports/incident_2026_06_18_malware.md",
+        "incident_2026_06_24_leak.md": "/home/ubuntu/documents/incident_reports/incident_2026_06_24_leak.md",
+        "employee_onboarding_guide.md": "/home/ubuntu/documents/hr/employee_onboarding_guide.md",
+        "performance_review_template.md": "/home/ubuntu/documents/hr/performance_review_template.md",
+        "cloudscale_solutions_sla.md": "/home/ubuntu/documents/contracts/cloudscale_solutions_sla.md",
+        "netguard_security_agreement.md": "/home/ubuntu/documents/contracts/netguard_security_agreement.md",
+        "network_topology_guide.md": "/home/ubuntu/documents/network/network_topology_guide.md",
+        "subnets_routing_map.md": "/home/ubuntu/documents/network/subnets_routing_map.md"
     }
     
     for key, path in doc_paths.items():
@@ -505,6 +518,50 @@ try:
         "command": "cat /home/dev/backup_status.txt",
         "description": "Displays the backup node system backup status and S3 encryption passphrase.",
         "example_output": gen_data["backup_status_txt"]
+    })
+
+    # New config files
+    knowledge_documents.append({
+        "command": "cat /etc/ssh/sshd_config",
+        "description": "Displays the SSH server daemon configuration file.",
+        "example_output": gen_data["sshd_config"]
+    })
+    knowledge_documents.append({
+        "command": "cat /etc/redis/redis.conf",
+        "description": "Displays the Redis server configuration file.",
+        "example_output": gen_data["redis_config"]
+    })
+    knowledge_documents.append({
+        "command": "cat /etc/postgresql/14/main/postgresql.conf",
+        "description": "Displays the PostgreSQL server configuration file.",
+        "example_output": gen_data["postgresql_config"]
+    })
+
+    # Emails
+    knowledge_documents.append({
+        "command": "cat /home/ubuntu/emails/inbox_summary.txt",
+        "description": "Displays the summary directory listing of corporate emails.",
+        "example_output": gen_data["emails"]["inbox_summary.txt"]
+    })
+    knowledge_documents.append({
+        "command": "cat /home/ubuntu/emails/security_phishing_alert.txt",
+        "description": "Displays the phishing security alert email from the CISO.",
+        "example_output": gen_data["emails"]["security_phishing_alert.txt"]
+    })
+    knowledge_documents.append({
+        "command": "cat /home/ubuntu/emails/staging_db_access.txt",
+        "description": "Displays the staging database access credentials email from the Operations Director.",
+        "example_output": gen_data["emails"]["staging_db_access.txt"]
+    })
+    knowledge_documents.append({
+        "command": "cat /home/ubuntu/emails/performance_review_cycle.txt",
+        "description": "Displays the performance review cycle email from the HR Manager.",
+        "example_output": gen_data["emails"]["performance_review_cycle.txt"]
+    })
+    knowledge_documents.append({
+        "command": "cat /home/ubuntu/emails/vendor_contract_renewal.txt",
+        "description": "Displays the vendor hosting contract review email from the CFO.",
+        "example_output": gen_data["emails"]["vendor_contract_renewal.txt"]
     })
 except Exception as e:
     import sys

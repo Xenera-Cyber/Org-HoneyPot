@@ -1,5 +1,5 @@
 from fake_filesystem import filesystem, file_contents
-from fake_process import ps, ps_aux
+from fake_process import ps, ps_aux, top
 from fake_network import (
     netstat,
     netstat_tulpn,
@@ -8,11 +8,18 @@ from fake_network import (
     ip_addr,
 )
 import malware_detector
+import deception_engine
+import ai_client
 
-def route_command(command, session_manager):
+def route_command(command, session_manager, attack_type=None):
     session = session_manager.get_session()
     cwd = session["cwd"]
     command = command.strip()
+    hostname = "web-prod-01"
+
+    if attack_type is None:
+        from attack_analyzer import classify
+        attack_type = classify(command)
 
     # --------------------------
     # USER COMMANDS
@@ -70,8 +77,6 @@ def route_command(command, session_manager):
             session_manager.change_directory(new_path)
             return ""
 
-        return f"cd: no such file or directory: {path}"
-
     # --------------------------
     # FILE COMMANDS
     # --------------------------
@@ -80,10 +85,11 @@ def route_command(command, session_manager):
         full_path = filename if filename.startswith("/") else f"{cwd}/{filename}"
         full_path = full_path.replace("//", "/")
 
+        if full_path == "/etc/hostname":
+            return (hostname if hostname else "ubuntu-server") + "\n"
+
         if full_path in file_contents:
             return file_contents[full_path]
-
-        return f"cat: {filename}: No such file"
 
     # --------------------------
     # PROCESS COMMANDS
@@ -93,6 +99,9 @@ def route_command(command, session_manager):
 
     elif command == "ps aux":
         return ps_aux()
+
+    elif command == "top" or command.startswith("top "):
+        return top()
 
     # --------------------------
     # NETWORK COMMANDS
@@ -131,8 +140,42 @@ mysql.service active
 redis.service active"""
 
     # --------------------------
-    # ATTACKER COMMANDS
+    # DECEPTION ENGINE & AI BACKEND ROUTING
     # --------------------------
+    history = [c["command"] for c in session.get("command_history", [])]
+
+    # Try Deception Engine overrides first
+    deception_resp = deception_engine.adapt_response(command, session, attack_type)
+    if deception_resp is not None:
+        return deception_resp
+
+    # Try AI Backend for adaptive, contextual simulation
+    hostname = "web-prod-01"
+    username = "ubuntu"
+
+    ai_resp = ai_client.send_to_ai(
+        ip=session.get("attacker_ip", "UNKNOWN"),
+        command=command,
+        history=history,
+        attack_type=attack_type,
+        cwd=cwd,
+        hostname=hostname,
+        username=username
+    )
+    if ai_resp is not None:
+        return ai_resp
+
+    # --------------------------
+    # LOCAL FALLBACKS
+    # --------------------------
+    if command.startswith("cd "):
+        path = command[3:].strip()
+        return f"cd: no such file or directory: {path}"
+
+    elif command.startswith("cat "):
+        filename = command[4:].strip()
+        return f"cat: {filename}: No such file"
+
     elif command.startswith("wget"):
         return malware_detector.handle_wget(command)[0]
 

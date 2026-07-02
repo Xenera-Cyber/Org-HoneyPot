@@ -398,6 +398,276 @@ An HR representative received a spoofed email claiming to be from "e-signature-p
 - No indicators of compromise or lateral movement found.
 """
 
+    # Internal Policies
+    docs["remote_work_policy.md"] = """# Xynera Corporate Policy: Remote Work Security Policy
+**Document ID:** POL-2026-012  
+**Effective Date:** January 1, 2026  
+**Author:** Steve Williams, CISO  
+**Classification:** Confidential - Internal Use Only
+
+## 1. Purpose & Scope
+This policy defines the security requirements for Xynera employees accessing corporate resources from remote locations. It applies to all full-time, part-time, and contract employees.
+
+## 2. Remote Access Requirements
+- All remote connections to internal servers and databases MUST route through the corporate OpenVPN gateway (`vpn-gw-01.xynera.local` / `10.200.100.5`) on port 1194 UDP.
+- Multi-Factor Authentication (MFA) must be enabled and enforced for all remote access sessions.
+- Users must only connect from corporate-managed and hardened endpoints running up-to-date antivirus software.
+
+## 3. Local Endpoint Hardening
+- Automatic OS security updates must be enabled.
+- Hard drive encryption (FileVault/BitLocker) must be active.
+- Local firewalls must be turned on, blocking all unauthorized inbound traffic.
+- Never share corporate credentials or leave devices unattended.
+"""
+
+    docs["incident_response_policy.md"] = """# Xynera Corporate Policy: Incident Response Policy
+**Document ID:** POL-2026-015  
+**Effective Date:** March 15, 2026  
+**Author:** Steve Williams, CISO  
+**Classification:** Confidential - Internal Use Only
+
+## 1. Classification of Incidents
+Incidents are categorized by severity to determine escalation and resources:
+- **Sev-1 (Critical):** Active breach of production databases, critical ransomware, or loss of access to primary systems. Immediate CISO notification.
+- **Sev-2 (High):** Localized malware infection on dev/staging server, compromised developer credentials, or unauthorized access to staging environment. Escalation within 2 hours.
+- **Sev-3 (Medium):** Standard phishing attempts, blocked firewall sweeps, or minor service outages. Investigation within 24 hours.
+- **Sev-4 (Low):** Minor anomalies, port scanning, or unsuccessful brute-force attempts. Weekly log review.
+
+## 2. Escalation Contacts
+- **IT Security Lead:** Steve Williams (CISO) - steve.williams@xynera.local
+- **Infrastructure Lead:** Carlos Rodriguez (Operations) - carlos.rodriguez@xynera.local
+- **Engineering Lead:** Marcus Davis - marcus.davis@xynera.local
+"""
+
+    docs["password_policy.md"] = """# Xynera Corporate Policy: Password and Credential Policy
+**Document ID:** POL-2026-003  
+**Effective Date:** February 10, 2026  
+**Author:** Steve Williams, CISO  
+**Classification:** Confidential - Internal Use Only
+
+## 1. Password Complexity Requirements
+All local, Active Directory, and service passwords must satisfy the following minimum requirements:
+- Minimum length: 14 characters.
+- Must contain at least one uppercase letter, one lowercase letter, one number, and one special character.
+- Must not contain dictionary words or the employee's name.
+
+## 2. Rotation & Lockouts
+- Passwords must be rotated every 90 days.
+- Re-use of the last 10 passwords is prohibited.
+- Accounts will be automatically locked after 5 consecutive failed login attempts. Lockout duration is set to 30 minutes.
+- Service account passwords must be managed using the Project Pegasus corporate vault.
+"""
+
+    # Technical Manuals
+    docs["database_recovery_manual.md"] = """# Technical Manual: PostgreSQL Backup & Recovery Guide
+**Document ID:** MAN-2026-044  
+**Version:** 2.1  
+**Last Updated:** June 18, 2026  
+**Author:** Carlos Rodriguez, Operations Director  
+
+## 1. Overview
+This manual details the step-by-step procedure to restore the production PostgreSQL database (`db-prod-01.xynera.local`) from daily logical backups.
+
+## 2. Backup Location
+- Local backups: `/var/www/internal/db_backup.sql`
+- S3 Bucket: `s3://xynera-secure-vault-backup-2026/` (Glacier archiving active)
+
+## 3. Restore Procedures
+To restore the database on a clean server:
+1. Set environment variables using `/home/ubuntu/.env`.
+2. Terminate active sessions:
+   ```sql
+   SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'customers';
+   ```
+3. Drop and recreate database:
+   ```bash
+   dropdb -h localhost -U db_user customers
+   createdb -h localhost -U db_user customers
+   ```
+4. Restore SQL dump:
+   ```bash
+   psql -h localhost -U db_user -d customers -f /var/www/internal/db_backup.sql
+   ```
+5. Verify count of tables and run sanity test queries.
+"""
+
+    docs["kubernetes_deployment_guide.md"] = """# Technical Manual: Production Kubernetes Deployment Guide
+**Document ID:** MAN-2026-039  
+**Version:** 1.2  
+**Last Updated:** May 22, 2026  
+**Author:** Carlos Rodriguez, Operations Director  
+
+## 1. Architecture Overview
+Xynera uses a Managed Kubernetes (EKS) cluster in AWS to orchestrate core API microservices. The production namespaces are divided into `prod` and `staging`.
+
+## 2. Deployment Instructions
+Deployments are managed using YAML manifests:
+1. Verify resource parameters in `k8s_deployment.yaml`.
+2. Apply changes:
+   ```bash
+   kubectl apply -f /home/ubuntu/documents/technical_docs/k8s_deployment.yaml --namespace=prod
+   ```
+3. Monitor rolling update status:
+   ```bash
+   kubectl rollout status deployment/xynera-api-deployment --namespace=prod
+   ```
+
+## 3. Secret Injection Configuration
+Credentials must not be committed to Git. The EKS pod fetches the database URI and key variables dynamically from AWS Secrets Manager using IAM roles mapped to service accounts.
+"""
+
+    # Incident Reports
+    docs["incident_2026_06_18_malware.md"] = """# Incident Report: Staging Server Malware Detection
+**Incident ID:** INC-2026-008  
+**Date of Incident:** June 18, 2026  
+**Reporter:** Fiona Garcia, Security Engineer  
+
+## Description
+At 22:10 UTC, the file integrity monitoring agent on `staging-api-01` (`10.200.100.22`) triggered a Sev-2 alert. An unauthorized script was identified under `/tmp/miner.sh` executing in the background.
+
+## Analysis
+Investigation showed the script was downloaded via `wget` from a known malicious IP (`192.168.1.100`). The attacker gained access by brute-forcing the weak SSH password of the `ubuntu` test account, which had not been hardened. A crontab entry was added to re-download the miner every 5 minutes.
+
+## Mitigation
+- Terminated the execution processes of `/tmp/miner.sh` and deleted the file.
+- Cleaned the user crontab and deleted the backdoor crontab entry.
+- Hardened SSH configuration on `staging-api-01` by disabling password-based authentication.
+- Rotated all local user passwords.
+"""
+
+    docs["incident_2026_06_24_leak.md"] = """# Incident Report: Accidental Credential Leak on Public Repository
+**Incident ID:** INC-2026-009  
+**Date of Incident:** June 24, 2026  
+**Reporter:** Steve Williams, CISO  
+
+## Description
+At 10:15 UTC, GitGuardian automated tools alerted that a developer had pushed code to a public GitHub repository containing a production Slack Webhook URL and a mock Stripe Secret API Key.
+
+## Analysis
+The developer was testing integrations for Project Phoenix and accidentally included active credentials in the config.json file within the commit history. The commit was public for approximately 42 minutes before detection.
+
+## Mitigation
+- Revoked and rotated the Stripe secret API keys immediately.
+- Deleted the exposed Slack Webhook URL and provisioned a new one.
+- Performed a repository clean using BFG Repo-Cleaner to completely remove history secrets.
+- Re-trained developers on using `.env` files and environment variables.
+"""
+
+    # HR Documents
+    docs["employee_onboarding_guide.md"] = """# HR Onboarding: New Employee IT & Security Onboarding Guide
+**Document ID:** HR-2026-001  
+**Version:** 3.0  
+**Author:** Diana Taylor, HR Manager  
+
+## Welcome to Xynera!
+This onboarding guide outlines the mandatory setup tasks to ensure compliance with our security and engineering guidelines.
+
+## First-Week Action Items
+1. **Security Policy Review:** Read and sign the Remote Work Policy (POL-2026-012) and Password Policy (POL-2026-003).
+2. **IT Provisioning:** Your laptop has been pre-configured by IT Security with standard antivirus and OS hardening profiles.
+3. **VPN Profile Setup:** Submit a ticket to support@xynera.local to obtain your `.ovpn` configuration file for the OpenVPN gateway (`10.200.100.5`).
+4. **MFA Enrolment:** Scan the QR code provided by the administrator to set up Google Authenticator or Duo on your mobile device.
+5. **Git Setup:** Clone your assigned repositories under `https://github.com/xynera-corp/` and configure your GPG signing keys.
+"""
+
+    docs["performance_review_template.md"] = """# HR Template: Biannual Employee Performance Review Template
+**Document ID:** HR-2026-004  
+**Author:** Diana Taylor, HR Manager  
+
+## Employee Review Structure
+This template is used by managers to conduct performance evaluations every 6 months.
+
+### Section A: General Information
+- Employee Name:
+- Job Title:
+- Department:
+- Date of Evaluation:
+
+### Section B: Core Performance Metrics (Scale 1-5)
+1. **Technical Delivery & Execution:** Quality of code, design choices, and adherence to milestones.
+2. **Collaboration & Leadership:** Team communication, peer reviews, and mentorship.
+3. **Security Hygiene & Compliance:** Adherence to SSH practices, key management, and zero credential leak occurrences.
+
+### Section C: Goal Realization
+- Summary of Q1/Q2 achievements.
+- Future development targets and objectives.
+"""
+
+    # Vendor Contracts
+    docs["cloudscale_solutions_sla.md"] = """# Vendor Contract: CloudScale Solutions Service Level Agreement (SLA)
+**Contract ID:** CON-2026-099  
+**Effective Date:** April 1, 2026  
+**Vendor:** CloudScale Solutions Inc.  
+**Client:** Xynera Ltd.  
+
+## 1. Scope of Services
+CloudScale Solutions provides cloud virtual machine instances, PostgreSQL database hosting, and high-performance load balancers in the AWS us-east-1 region.
+
+## 2. Service Level Commitments
+- **Uptime SLA:** Vendor commits to a 99.9% monthly uptime SLA for all database nodes.
+- **Service Credits:** If uptime falls below 99.9%, a 10% refund of monthly billing applies. If below 99.0%, a 25% refund applies.
+
+## 3. Incident Support Response Times
+- **Severity-1 (Critical):** Immediate response within 30 minutes (24/7 support line active).
+- **Severity-2 (High):** Response within 2 hours.
+- **Severity-3 (Normal):** Response within 24 hours.
+"""
+
+    docs["netguard_security_agreement.md"] = """# Vendor Contract: NetGuard Security Penetration Testing Agreement
+**Contract ID:** CON-2026-104  
+**Effective Date:** May 10, 2026  
+**Vendor:** NetGuard Security Consultants LLC  
+**Client:** Xynera Ltd.  
+
+## 1. Scope of Testing
+NetGuard Security is contracted to perform annual external and internal penetration testing against the following target IP scopes:
+- Public Web Gateway: `10.200.100.10`
+- OpenVPN Endpoint: `10.200.100.5`
+- Staging API Gateway: `10.200.100.22`
+
+## 2. Limitation of Liability
+Testing is executed using standard cyber exploit simulations. The vendor is not liable for incidental system downtime or temporary packet loss if scan sweeps execute during business hours.
+
+## 3. Payment Milestones
+- 30% upfront payment upon execution of the agreement.
+- 40% upon completion of scanning and report generation.
+- 30% upon presentation of re-test results for patched items.
+"""
+
+    # Network Documentation
+    docs["network_topology_guide.md"] = """# Network Documentation: Xynera Corporate Network Topology Guide
+**Document ID:** NET-2026-001  
+**Version:** 1.5  
+**Last Updated:** June 15, 2026  
+**Author:** IT Security Team  
+
+## 1. VPC Network Layout
+Xynera operates within a single virtual private cloud (VPC) split into three security zones:
+- **Public Subnet (DMZ):** Houses public gateways, ELB load balancers, and external routing interfaces.
+- **Private App Subnet:** Houses API gateway microservices (`staging-api-01` / `10.200.100.22`) and core logic.
+- **Secure Database Subnet:** Houses backend databases (`prod-db-01` / `10.200.100.15`) with access limited to staging-api subnets.
+
+## 2. Firewall and Access Controls
+- All outbound traffic is routed through NAT gateways.
+- SSH access requires connection to the OpenVPN gateway (`10.200.100.5`) first. Direct SSH from the public internet is blocked.
+"""
+
+    docs["subnets_routing_map.md"] = """# Network Documentation: CIDR Subnets and Routing Map
+**Document ID:** NET-2026-002  
+**Last Updated:** June 18, 2026  
+**Author:** IT Security Team  
+
+## CIDR Subnet Mappings
+| Subnet Name | CIDR Range | Gateway IP | Primary Description | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| Public-DMZ | `10.200.100.0/28` | `10.200.100.1` | Public API & load balancer ingress | Active |
+| Secure-VPN | `10.200.100.4/30` | `10.200.100.5` | Corporate OpenVPN Gateway interface | Active |
+| SIEM-Log | `10.200.100.8/29` | `10.200.100.9` | Splunk and SIEM log aggregation endpoints | Active |
+| Database-Prod | `10.200.100.12/29` | `10.200.100.13` | Production PostgreSQL data cluster | Active |
+| Gateway-Staging | `10.200.100.20/29` | `10.200.100.21` | Staging testing endpoints & API GATEWAY | Active |
+| Backup-Vault | `10.200.100.32/28` | `10.200.100.33` | Encrypted Backup and Glacier sync nodes | Active |
+"""
+
     return docs
 
 def generate_ssh_private_key():
@@ -414,21 +684,31 @@ dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dk
 """
 
 def generate_shadow_file():
+    # Passwords:
+    # root: [SUPER SECURE - UNCRACKABLE]
+    # ubuntu: [SSH-ONLY / DISABLED PASSWORD]
+    # dev: devPassword2026!
+    # admin: adminSecurePassword2026#
+    # support: supportHelpdesk2026$
+    # backupuser: backupOperator2026
     return """root:$6$rounds=40000$saltsaltsalt$M1U5B2r7s7d1i9s1j2k3l4m5n6o7p8q9r0s1t2u3v4w5x6y7z8a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2:19000:0:99999:7:::
 ubuntu:$6$rounds=40000$anothersalt$v4w5x6y7z8a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2g3h4i5j6k7l8m9n0o1p2q3r4s5t6u7v8w9x0y1z2a3b4c5d6e7f8:19000:0:99999:7:::
 dev:$6$rounds=40000$yetanothersalt$f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2g3h4i5j6k7l8m9n0o1p2q3r4s5t6u7v8w9x0y1z2a3b4c5d6e7f8g9h0i1j2k3l4m5n6o7:19000:0:99999:7:::
+admin:$6$rounds=40000$adminsalt$M6t8Y9d0e1f2g3h4i5j6k7l8m9n0o1p2q3r4s5t6u7v8w9x0y1z2a3b4c5d6e7f8g9h0i1j2k3l4m5n6o7p8q9r0s1t2u3v4w5x6y7z8a1b2c3d4e5f6g7h8:19000:0:99999:7:::
+support:$6$rounds=40000$supportsalt$p8q9r0s1t2u3v4w5x6y7z8a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2g3h4i5j6k7l8m9n0o1p2q3r4s5t6u7v8w9:19000:0:99999:7:::
+backupuser:$6$rounds=40000$backupsalt$y2z3A4B5C6D7E8F9G0H1I2J3K4L5M6N7O8P9Q0R1S2T3U4V5W6X7Y8Z9a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1:19000:0:99999:7:::
 """
 
 def generate_aws_credentials():
     return """[default]
-aws_access_key_id = AKIAIOSFODNN7EXAMPLE
-aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+aws_access_key_id = AKIA2T3U4V5W6X7Y8Z9A
+aws_secret_access_key = pT2d+G8fL9K1j4h3M7N6q9z2R5t8v1w4x7Y0z3A1
 region = us-east-1
 """
 
 def generate_slack_config():
     config = {
-        "slack_webhook_url": "https://hooks.slack.com/services/T01234567/B01234567/mockWebhookSecretKeyXYZ123",
+        "slack_webhook_url": "https://hooks.slack.com/services/T_MOCK_DEV/B_MOCK_DEV/s8D9f0G1h2J3k4L5m6N7o8P9_MOCK",
         "channel": "#alerts-security",
         "username": "Xynera-Deception-Bot"
     }
@@ -436,14 +716,37 @@ def generate_slack_config():
 
 def generate_stripe_config():
     config = {
-        "stripe_publishable_key": "mock_publishable_key_xynera_development_12345",
-        "stripe_secret_key": "mock_secret_key_xynera_development_12345",
+        "stripe_publishable_key": "pk_tst_51NvA01B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3X4Y5Z6a7b8c9d0e1f2g3h4i5j6k7l8m9n0o1p2q3r",
+        "stripe_secret_key": "sk_tst_51NvA01B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3X4Y5Z6a7b8c9d0e1f2g3h4i5j6k7l8m9n0o1p2q3r",
         "api_version": "2023-10-16"
     }
     return json.dumps(config, indent=2)
 
-def generate_db_backup_sql():
-    return """-- PostgreSQL Database Dump
+
+
+def generate_db_backup_sql(employees=None):
+    if not employees:
+        employees = [
+            {"EmployeeID": "EMP100", "Name": "Robert Vance", "Email": "robert.vance@xynera.local", "Role": "CEO"},
+            {"EmployeeID": "EMP101", "Name": "Marcus Davis", "Email": "marcus.davis@xynera.local", "Role": "Engineering Director"},
+            {"EmployeeID": "EMP102", "Name": "Fiona Garcia", "Email": "fiona.garcia@xynera.local", "Role": "Security Engineer"}
+        ]
+    
+    insert_rows = []
+    insert_rows.append("(1, 'admin', '$2b$12$eImiTXAk4VMV619eFv02eO/J5jVv2uHj2.Hn2s994m8.O/eX/f6H.', 'admin@xynera.local', 'administrator')")
+    
+    id_counter = 2
+    for emp in employees:
+        username = emp["Email"].split("@")[0]
+        email = emp["Email"]
+        role = emp["Role"].lower().replace(" ", "_")
+        pwd_hash = f"$2b$12$K3h9j2H8s2h1i9s1j2k3l4m5n6o7p8q9r{id_counter:02d}s1t2u3v4w5x6y7z8"
+        insert_rows.append(f"({id_counter}, '{username}', '{pwd_hash}', '{email}', '{role}')")
+        id_counter += 1
+        
+    users_insert_statement = "INSERT INTO public.users (id, username, password_hash, email, role) VALUES\n" + ",\n".join(insert_rows) + ";"
+
+    return f"""-- PostgreSQL Database Dump
 -- Dumped by pg_dump version 14.5 (Ubuntu 14.5-0ubuntu0.22.04.1)
 
 SET statement_timeout = 0;
@@ -468,9 +771,7 @@ CREATE TABLE public.users (
 
 ALTER TABLE public.users OWNER TO db_user;
 
-INSERT INTO public.users (id, username, password_hash, email, role) VALUES
-(1, 'admin', '$2b$12$eImiTXAk4VMV619eFv02eO/J5jVv2uHj2.Hn2s994m8.O/eX/f6H.', 'admin@xynera.local', 'administrator'),
-(2, 'db_user', '$2b$12$K3h9j2H8s2h1i9s1j2k3l4m5n6o7p8q9r0s1t2u3v4w5x6y7z8a1b', 'db_user@xynera.local', 'developer');
+{users_insert_statement}
 
 CREATE TABLE public.transactions (
     transaction_id character varying(36) NOT NULL,
@@ -567,8 +868,71 @@ PORT=8080
 DATABASE_URL=postgresql://db_user:securePassword123@prod-db-01.xynera.local:5432/xynera_prod
 
 # Third-party APIs
-STRIPE_API_KEY=mock_stripe_api_key_for_testing
-SLACK_WEBHOOK_URL=https://hooks.slack.com/services/T01234567/B01234567/mockWebhookSecretKeyXYZ123
+STRIPE_API_KEY=sk_tst_51NvA01B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3X4Y5Z6a7b8c9d0e1f2g3h4i5j6k7l8m9n0o1p2q3r
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/T_MOCK_DEV/B_MOCK_DEV/s8D9f0G1h2J3k4L5m6N7o8P9_MOCK
+GITHUB_TOKEN=ghp_DECEPTION_MOCK_TOKEN_XYNERA_DECOY
+OPENAI_API_KEY=sk-proj-DECEPTION_MOCK_OPENAI_KEY_XYNERA_DECOY
+"""
+
+def generate_aws_config():
+    return """[default]
+region = us-east-1
+output = json
+"""
+
+def generate_kube_config():
+    return """apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCg==
+    server: https://k8s-cluster.xynera.local:6443
+  name: xynera-prod-cluster
+contexts:
+- context:
+    cluster: xynera-prod-cluster
+    namespace: prod
+    user: kubernetes-admin
+  name: xynera-prod-context
+current-context: xynera-prod-context
+kind: Config
+preferences: {}
+users:
+- name: kubernetes-admin
+  user:
+    token: eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJib290c3RyYXAtdG9rZW4tOTk5OTkiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2VhY2NvdW50Lm5hbWUiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlYWNjb3VudC51aWQiOiI5OTk5OTk5OS05OTk5LTk5OTktOTk5OS05OTk5OTk5OTk5OTkiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06ZGVmYXVsdCJ9.signature
+"""
+
+def generate_netplan_config():
+    return """network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eth0:
+      dhcp4: no
+      addresses:
+        - 10.200.100.10/28
+      nameservers:
+        addresses:
+          - 10.200.100.1
+          - 1.1.1.1
+      routes:
+        - to: default
+          via: 10.200.100.1
+"""
+
+def generate_hosts_file():
+    return """127.0.0.1 localhost
+127.0.1.1 web-prod-01
+10.200.100.15 prod-db-01.xynera.local prod-db-01
+10.200.100.22 staging-api-01.xynera.local staging-api-01
+10.200.100.5 vpn-gw-01.xynera.local vpn-gw-01
+10.200.100.40 backup-node-02.xynera.local backup-node-02
+10.200.100.10 security-siem-01.xynera.local security-siem-01
+"""
+
+def generate_pgpass_file():
+    return """prod-db-01.xynera.local:5432:xynera_prod:db_user:securePassword123
+staging-db-01.xynera.local:5432:xynera_staging:staging_developer:TemporaryStagingPassword2026!
 """
 
 def generate_dev_tasks_md():
@@ -674,6 +1038,211 @@ support:x:1003:1003:Support Engineer:/home/support:/bin/bash
 backupuser:x:1004:1004:Backup Operator:/home/backupuser:/bin/bash
 """
 
+def generate_sshd_config():
+    return """# SSH Server Configuration File for Xynera Production Servers
+Port 22
+Protocol 2
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+
+# Logging Configuration
+SyslogFacility AUTH
+LogLevel INFO
+
+# Authentication Settings
+LoginGraceTime 120
+PermitRootLogin no
+StrictModes yes
+MaxAuthTries 3
+PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys
+
+# Password Authentication Configuration
+PasswordAuthentication no
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+UsePAM yes
+
+# Access Control
+AllowUsers ubuntu dev admin support
+X11Forwarding no
+PrintMotd no
+AcceptEnv LANG LC_*
+Subsystem sftp /usr/lib/openssh/sftp-server
+ClientAliveInterval 300
+ClientAliveCountMax 2
+"""
+
+def generate_redis_conf():
+    return """# Redis configuration file for Xynera Local Cache Service
+bind 127.0.0.1 10.200.100.15
+protected-mode yes
+port 6379
+tcp-backlog 511
+timeout 0
+tcp-keepalive 300
+daemonize yes
+supervised systemd
+pidfile /var/run/redis_6379.pid
+loglevel notice
+logfile /var/log/redis/redis-server.log
+databases 16
+always-show-logo no
+
+# Snapshotting / Persistence
+save 900 1
+save 300 10
+save 60 10000
+stop-writes-on-bgsave-error yes
+rdbcompression yes
+rdbchecksum yes
+dbfilename dump.rdb
+dir /var/lib/redis
+
+# Security
+requirepass superSecureRedisPassword2026
+
+# Clients Limit
+maxclients 10000
+maxmemory 536870912
+maxmemory-policy allkeys-lru
+"""
+
+def generate_postgresql_conf():
+    return """# PostgreSQL Configuration File for db-prod-01.xynera.local
+listen_addresses = '10.200.100.15,127.0.0.1'
+port = 5432
+max_connections = 100
+shared_buffers = 512MB
+effective_cache_size = 1536MB
+maintenance_work_mem = 128MB
+checkpoint_completion_target = 0.9
+wal_buffers = 16MB
+default_statistics_target = 100
+random_page_cost = 1.1
+effective_io_concurrency = 200
+work_mem = 5242kB
+min_wal_size = 1GB
+max_wal_size = 4GB
+
+# Logging Configuration
+log_destination = 'stderr'
+logging_collector = on
+log_directory = 'log'
+log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+log_min_messages = warning
+log_min_error_statement = error
+log_min_duration_statement = 250
+
+# Replication Configuration
+wal_level = replica
+max_wal_senders = 10
+hot_standby = on
+"""
+
+def generate_emails():
+    emails = {}
+    emails["inbox_summary.txt"] = """Xynera Corporate Mail Server - Inbox for user ubuntu
+Total Unread: 4 | Last Synchronized: 2026-07-01 10:15:00 UTC
+
+[1] Received: 2026-06-23 09:15:00 UTC | From: steve.williams@xynera.local | Subject: Urgent: Phishing Attempt Targeting HR Department
+[2] Received: 2026-06-18 11:22:00 UTC | From: carlos.rodriguez@xynera.local | Subject: Staging Database Access Info
+[3] Received: 2026-06-12 14:05:00 UTC | From: diana.taylor@xynera.local | Subject: Action Required: Q2 Performance Review Cycle
+[4] Received: 2026-06-05 16:30:00 UTC | From: julia.miller@xynera.local | Subject: CloudScale Solutions Contract & SLA Renewal
+"""
+
+    emails["security_phishing_alert.txt"] = """From: Steve Williams <steve.williams@xynera.local>
+To: employees@xynera.local
+Date: 2026-06-23 09:15:00 UTC
+Subject: Urgent: Phishing Attempt Targeting HR Department
+
+Dear Team,
+
+It has come to the attention of the IT Security Team that several employees within our Human Resources department have received sophisticated phishing emails over the past 24 hours. These emails claim to be from "e-signature-portal.com" and prompt users to verify their Active Directory credentials to sign an urgent employee policy document.
+
+If you received this message, DO NOT click any links and DO NOT enter your credentials. Our automated identity defenses successfully flagged and locked one compromised account, and we are auditing active directory logs for lateral movement.
+
+As a reminder, all remote authentication must go through our corporate OpenVPN gateway (vpn-gw-01.xynera.local / 10.200.100.5) and is subject to Multi-Factor Authentication (MFA) enforcement. Please review our Remote Work Security Policy and Password Policy under /home/ubuntu/documents/policies/ for standard procedures.
+
+Report any suspicious emails immediately to security@xynera.local.
+
+Best regards,
+Steve Williams
+Chief Information Security Officer (CISO)
+Xynera Ltd.
+"""
+
+    emails["staging_db_access.txt"] = """From: Carlos Rodriguez <carlos.rodriguez@xynera.local>
+To: dev-team@xynera.local
+Date: 2026-06-18 11:22:00 UTC
+Subject: Staging Database Access Info
+
+Hey team,
+
+To facilitate the ongoing cloud migration under Project Aurora, we have deployed a replica staging database.
+
+You can connect to the database host at staging-db-01.xynera.local (IP: 10.200.100.22, Port: 5432).
+Credentials:
+- Database: xynera_staging
+- Username: staging_developer
+- Password: TemporaryStagingPassword2026! (Remember to rotate this!)
+
+The database schemas match the production snapshot. Please run your validation queries against this host. For details on server tasks, credentials sync, and backups verification, refer to /var/www/internal/dev_tasks.md.
+
+Reach out to me if you face any connection timeouts or firewall blocking issues.
+
+Thanks,
+Carlos Rodriguez
+Operations Director
+Xynera Ltd.
+"""
+
+    emails["performance_review_cycle.txt"] = """From: Diana Taylor <diana.taylor@xynera.local>
+To: managers@xynera.local
+Date: 2026-06-12 14:05:00 UTC
+Subject: Action Required: Q2 Performance Review Cycle
+
+Hi Managers,
+
+Our Q2 Performance Review Cycle is officially open today. 
+
+Please ensure that you schedule 1-on-1 reviews with all direct reports in your respective departments before July 15. The evaluations should be filled out using the standard corporate evaluation template. You can find the template on the local file server at /home/ubuntu/documents/hr/performance_review_template.md.
+
+For new employees onboarding this month, please refer to the /home/ubuntu/documents/hr/employee_onboarding_guide.md to complete their IT provisioning and policy sign-offs.
+
+All completed evaluations must be sent to hr@xynera.local.
+
+Thanks,
+Diana Taylor
+HR Manager
+Xynera Ltd.
+"""
+
+    emails["vendor_contract_renewal.txt"] = """From: Julia Miller <julia.miller@xynera.local>
+To: steve.williams@xynera.local, carlos.rodriguez@xynera.local
+Date: 2026-06-05 16:30:00 UTC
+Subject: CloudScale Solutions Contract & SLA Renewal
+
+Hi Steve, Carlos,
+
+We are in the process of finalizing our infrastructure hosting contract renewal with CloudScale Solutions. 
+
+Before I sign the new agreement, I need you both to review the updated Service Level Agreement (SLA). The draft document has been uploaded to /home/ubuntu/documents/contracts/cloudscale_solutions_sla.md. 
+
+Specifically, please verify:
+1. If the 99.9% uptime commitment is sufficient for our production PostgreSQL databases.
+2. If the support response times (Sev-1 incident response within 30 minutes) align with our Incident Response Policy.
+
+Please send me your feedback by next Tuesday so we can execute the contract.
+
+Regards,
+Julia Miller
+CFO
+Xynera Ltd.
+"""
+    return emails
+
 def get_generated_all():
     csv_emp, list_emp = generate_employee_data()
     dept_json = generate_department_data(list_emp)
@@ -687,9 +1256,15 @@ def get_generated_all():
     shadow = generate_shadow_file()
     passwd = generate_passwd_file()
     aws_creds = generate_aws_credentials()
+    aws_config = generate_aws_config()
+    kube_config = generate_kube_config()
+    netplan_config = generate_netplan_config()
+    hosts_file = generate_hosts_file()
+    pgpass_file = generate_pgpass_file()
+    
     slack_conf = generate_slack_config()
     stripe_conf = generate_stripe_config()
-    db_backup = generate_db_backup_sql()
+    db_backup = generate_db_backup_sql(list_emp)
     audit_log = generate_audit_log_csv()
     nginx = generate_nginx_conf()
     k8s = generate_kubernetes_yaml()
@@ -699,6 +1274,11 @@ def get_generated_all():
     gateway_conf = generate_gateway_router_conf()
     bkey = generate_backup_key()
     bstatus = generate_backup_status_txt()
+
+    sshd_config = generate_sshd_config()
+    redis_conf = generate_redis_conf()
+    postgresql_conf = generate_postgresql_conf()
+    emails = generate_emails()
     
     return {
         "employees_csv": csv_emp,
@@ -712,6 +1292,11 @@ def get_generated_all():
         "shadow_file": shadow,
         "passwd_file": passwd,
         "aws_credentials": aws_creds,
+        "aws_config": aws_config,
+        "kube_config": kube_config,
+        "netplan_config": netplan_config,
+        "hosts_file": hosts_file,
+        "pgpass_file": pgpass_file,
         "slack_config_json": slack_conf,
         "stripe_config_json": stripe_conf,
         "db_backup_sql": db_backup,
@@ -722,7 +1307,11 @@ def get_generated_all():
         "dev_tasks_md": dev_tasks,
         "gateway_router_conf": gateway_conf,
         "backup_key": bkey,
-        "backup_status_txt": bstatus
+        "backup_status_txt": bstatus,
+        "sshd_config": sshd_config,
+        "redis_config": redis_conf,
+        "postgresql_config": postgresql_conf,
+        "emails": emails
     }
 
 if __name__ == "__main__":
@@ -735,6 +1324,11 @@ if __name__ == "__main__":
     print("SSH Private Key length:", len(data["ssh_private_key"]))
     print("Shadow File length:", len(data["shadow_file"]))
     print("AWS Credentials length:", len(data["aws_credentials"]))
+    print("AWS Config length:", len(data["aws_config"]))
+    print("Kube Config length:", len(data["kube_config"]))
+    print("Netplan Config length:", len(data["netplan_config"]))
+    print("Hosts File length:", len(data["hosts_file"]))
+    print("PGPass File length:", len(data["pgpass_file"]))
     print("Slack Webhook config length:", len(data["slack_config_json"]))
     print("Stripe config length:", len(data["stripe_config_json"]))
     print("DB Backup length:", len(data["db_backup_sql"]))

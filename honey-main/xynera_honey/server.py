@@ -18,7 +18,6 @@ def handle_client(conn, addr):
     session = session_manager.get_session()
 
     try:
-        conn.send(b"Welcome to XYNERA Honeypot\n")
 
         while True:
             current_dir = session_manager.get_cwd()

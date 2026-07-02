@@ -33,11 +33,20 @@ def send_to_ai(ip, command, history=None, attack_type=None, cwd=None, hostname=N
 
         print(f"[AI REQUEST] {payload}")
 
-        response = requests.post(
-            AI_BACKEND_URL,
-            json=payload,
-            timeout=TIMEOUT
-        )
+        try:
+            response = requests.post(
+                AI_BACKEND_URL,
+                json=payload,
+                timeout=2.0
+            )
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            # Fallback to local loopback if running in a local dev environment
+            fallback_url = "http://127.0.0.1:5000/process"
+            response = requests.post(
+                fallback_url,
+                json=payload,
+                timeout=TIMEOUT
+            )
 
         print(f"[AI STATUS] {response.status_code}")
 
