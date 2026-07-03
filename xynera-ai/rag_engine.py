@@ -2,6 +2,7 @@ import httpx
 import re
 from knowledge_base import knowledge_documents
 from config import GROQ_API_KEY, GROQ_MODEL
+from guardrails import apply_guardrails
 import vector_store
 
 async def call_groq_api(prompt, max_tokens=1024):
