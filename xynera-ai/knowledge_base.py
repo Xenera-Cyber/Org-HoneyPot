@@ -631,13 +631,13 @@ try:
     knowledge_documents.append({
         "command": "cat /home/ubuntu/notes.txt",
         "description": "Displays the notes file with instructions about system updates and tasks.",
-        "example_output": "Remember to update the server.\nCheck the internal admin scripts under /var/www/internal/dev_tasks.md for migration tasks and access credentials.\n"
+        "example_output": "Remember to update the server.\\nCheck the internal admin scripts under /var/www/internal/dev_tasks.md for migration tasks and access credentials.\\n"
     })
     
     knowledge_documents.append({
         "command": "cat /home/ubuntu/script.sh",
         "description": "Displays the shell script content.",
-        "example_output": "#!/bin/bash\necho Hello World\n"
+        "example_output": "#!/bin/bash\\necho Hello World\\n"
     })
     
     knowledge_documents.append({
@@ -676,4 +676,3 @@ try:
 except Exception as e:
     import sys
     print(f"Error loading dynamic knowledge documents: {e}", file=sys.stderr)
-
