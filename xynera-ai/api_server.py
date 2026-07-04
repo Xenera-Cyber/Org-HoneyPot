@@ -7,7 +7,7 @@ from rag_engine import generate_deception
 from threat_engine import get_threat_level
 from attacker_profile import update_profile
 from classifier import classify_command
-from logger import log_event
+from logger import log_event, log_ai_decision
 from config import SERVER_HOST, SERVER_PORT
 
 
@@ -17,6 +17,7 @@ app = FastAPI(title="Xynera AI Backend")
 class ProcessRequest(BaseModel):
     ip: str
     command: str
+    session_id: Optional[str] = None
     history: Optional[List[str]] = None
     local_attack_type: Optional[str] = None
     cwd: Optional[str] = None
@@ -45,8 +46,12 @@ async def process_command(payload: ProcessRequest):
 
     threat_level = get_threat_level(score)
 
-    log_event(
-        f"IP: {ip} | CMD: {command} | TYPE: {attack_type} | SCORE: {score} | LEVEL: {threat_level}"
+    log_ai_decision(
+        session_id=payload.session_id or "UNKNOWN",
+        command=command,
+        attack_type=attack_type,
+        risk_score=score,
+        threat_level=threat_level
     )
 
     reply = await generate_deception(
