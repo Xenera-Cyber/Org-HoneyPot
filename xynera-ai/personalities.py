@@ -31,7 +31,6 @@ PERSONALITIES = {
         "description": "Banking / Corporate production server",
         "response_style": "very cautious, professional, minimal information"
     },
-    # New Personalities - Thursday Task
     "corporate": {
         "name": "Corporate Enterprise Server",
         "hostname": "corp-mail-01",
@@ -66,18 +65,71 @@ PERSONALITIES = {
     }
 }
 
+HIGHVALUE_THRESHOLD = 35
+DEVELOPER_THRESHOLD = 20
+CORPORATE_THRESHOLD = 15
+BANKING_THRESHOLD = 10
+NEWBIE_THRESHOLD = 6
+
+HIGHVALUE_ATTACKS = (
+    "suspicion",
+    "privilege",
+    "exploit",
+)
+
+DEVELOPER_ATTACKS = (
+    "nmap",
+    "wget",
+    "curl",
+    "git",
+    "python",
+)
+
+CLOUD_ATTACKS = (
+    "aws",
+    "docker",
+    "kubernetes",
+    "kubectl",
+    "cloud",
+)
+
+UNIVERSITY_ATTACKS = (
+    "research",
+    "university",
+    "academic",
+    "student",
+    "lab",
+)
+
 
 def get_personality(ip=None, attack_type=None, score=0):
-    """Dynamic Persona Management"""
-    if score >= 35 or (attack_type and "suspicion" in str(attack_type).lower()):
+    attack = str(attack_type).lower() if attack_type else ""
+
+    if (
+        score >= HIGHVALUE_THRESHOLD
+        or any(keyword in attack for keyword in HIGHVALUE_ATTACKS)
+    ):
         return PERSONALITIES["highvalue"]
-    elif score >= 20 or (attack_type and ("nmap" in str(attack_type).lower() or "wget" in str(attack_type).lower())):
+
+    if any(keyword in attack for keyword in CLOUD_ATTACKS):
+        return PERSONALITIES["cloud"]
+
+    if any(keyword in attack for keyword in UNIVERSITY_ATTACKS):
+        return PERSONALITIES["university"]
+
+    if (
+        score >= DEVELOPER_THRESHOLD
+        or any(keyword in attack for keyword in DEVELOPER_ATTACKS)
+    ):
         return PERSONALITIES["developer"]
-    elif score >= 15:
+
+    if score >= CORPORATE_THRESHOLD:
         return PERSONALITIES["corporate"]
-    elif score >= 10:
+
+    if score >= BANKING_THRESHOLD:
         return PERSONALITIES["banking"]
-    elif score <= 6:
+
+    if score <= NEWBIE_THRESHOLD:
         return PERSONALITIES["newbie"]
-    else:
-        return PERSONALITIES["default"]
+
+    return PERSONALITIES["default"]
