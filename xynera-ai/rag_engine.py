@@ -5,6 +5,9 @@ from config import GROQ_API_KEY, GROQ_MODEL
 from guardrails import apply_guardrails
 import vector_store
 
+# Pre-sort the knowledge documents by command length in reverse order once at module-load time
+sorted_docs = sorted(knowledge_documents, key=lambda x: len(x["command"]), reverse=True)
+
 async def call_groq_api(prompt, max_tokens=1024):
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
@@ -107,7 +110,6 @@ def retrieve_context(command):
     
     query_cmd_name = parts[0]
     import os
-    sorted_docs = sorted(knowledge_documents, key=lambda x: len(x["command"]), reverse=True)
 
     # 1. Strict cat file matching first to prevent incorrect document leaks
     if query_cmd_name == "cat":
