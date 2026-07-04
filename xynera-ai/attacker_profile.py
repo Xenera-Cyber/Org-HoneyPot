@@ -5,6 +5,11 @@ SCORES = {
     "Malware Download Attempt": 7,
     "Permission Manipulation": 5,
     "Reverse Shell Attempt": 10,
+    "SQL Injection Attempt": 8,
+    "Defense Evasion": 6,
+    "Persistence Creation": 9,
+    "Privilege Escalation Attempt": 9,
+    "Malware Execution Attempt": 9,
     "Unknown": 1
 }
 

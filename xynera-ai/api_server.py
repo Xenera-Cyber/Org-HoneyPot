@@ -1,4 +1,7 @@
-from flask import Flask, request, jsonify
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import List, Optional
+import uvicorn
 
 from rag_engine import generate_deception
 from threat_engine import get_threat_level
@@ -8,21 +11,33 @@ from logger import log_event
 from config import SERVER_HOST, SERVER_PORT
 
 
-app = Flask(__name__)
+app = FastAPI(title="Xynera AI Backend")
 
 
-@app.route("/health", methods=["GET"])
-def health():
-    return jsonify({"status": "AI Backend Running"})
+class ProcessRequest(BaseModel):
+    ip: str
+    command: str
+    history: Optional[List[str]] = None
+    local_attack_type: Optional[str] = None
+    cwd: Optional[str] = None
+    hostname: Optional[str] = None
+    username: Optional[str] = None
 
 
-@app.route("/process", methods=["POST"])
-def process_command():
+class ProcessResponse(BaseModel):
+    reply: Optional[str] = None
+    attack_type: str
 
-    data = request.json
 
-    ip = data.get("ip")
-    command = data.get("command")
+@app.get("/health")
+async def health():
+    return {"status": "AI Backend Running"}
+
+
+@app.post("/process", response_model=ProcessResponse)
+async def process_command(payload: ProcessRequest):
+    ip = payload.ip
+    command = payload.command
 
     attack_type = classify_command(command)
 
@@ -34,13 +49,20 @@ def process_command():
         f"IP: {ip} | CMD: {command} | TYPE: {attack_type} | SCORE: {score} | LEVEL: {threat_level}"
     )
 
-    reply = generate_deception(command)
+    reply = await generate_deception(
+        command=command,
+        history=payload.history,
+        cwd=payload.cwd,
+        attack_type=attack_type,
+        hostname=payload.hostname,
+        username=payload.username
+    )
 
-    return jsonify({
-        "reply": reply,
-        "attack_type": attack_type
-    })
+    return ProcessResponse(
+        reply=reply,
+        attack_type=attack_type
+    )
 
 
 if __name__ == "__main__":
-    app.run(host=SERVER_HOST, port=SERVER_PORT)
+    uvicorn.run("api_server:app", host=SERVER_HOST, port=SERVER_PORT, reload=False)
