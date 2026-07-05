@@ -21,6 +21,8 @@ from fake_network import (
 )
 import malware_detector
 
+HOME_DIR = "/home/ubuntu"
+
 # ==========================================================
 # Delay Configuration (configurable, never hardcoded)
 # ==========================================================
@@ -193,6 +195,24 @@ def handle_history(command, session_manager):
     )
 
 
+def handle_chmod(command):
+    """
+    Bug fix: chmod previously reported "Permissions updated" for any
+    input at all, including missing or nonsensical modes. It now
+    validates the mode argument like a real chmod would.
+    """
+    parts = command.split()
+    if len(parts) < 3:
+        return "chmod: missing operand"
+
+    permission = parts[1]
+    valid_permissions = ["+x", "-x", "777", "755", "644", "600"]
+    if permission not in valid_permissions:
+        return f"chmod: invalid mode: '{permission}'"
+
+    return "Permissions updated"
+
+
 # ==========================================================
 # Network Command Helpers (shared arg-parsing, avoids duplication)
 # ==========================================================
@@ -239,6 +259,38 @@ def handle_host(command):
 
 
 # ==========================================================
+# Path Resolution Helpers (shared by cd and cat)
+# ==========================================================
+def _resolve_path(cwd, path):
+    """
+    Resolve a user-supplied path (bare, '.', '..', '~', '~/x', absolute,
+    or relative) against the current working directory.
+
+    A bare/empty path (plain "cd") goes to HOME_DIR, matching real
+    shell behaviour. A literal "." means "stay put" and is signalled
+    by returning None (distinct from an empty path).
+    """
+    if path == "":
+        return HOME_DIR
+    if path == ".":
+        return None
+    if path == "~":
+        return HOME_DIR
+    if path.startswith("~/"):
+        return f"{HOME_DIR}/{path[2:]}"
+    if path == "..":
+        if cwd == "/":
+            return "/"
+        parent = "/".join(cwd.rstrip("/").split("/")[:-1])
+        return parent if parent else "/"
+    if path.startswith("/"):
+        new_path = path
+    else:
+        new_path = f"/{path}" if cwd == "/" else f"{cwd}/{path}"
+    return new_path.replace("//", "/")
+
+
+# ==========================================================
 # Main Router Logic
 # ==========================================================
 def route_command(command, session_manager):
@@ -281,17 +333,11 @@ def route_command(command, session_manager):
     # --------------------------
     # CHANGE DIRECTORY
     # --------------------------
-    elif command.startswith("cd "):
-        path = command[3:].strip()
-        if path == "..":
-            if cwd != "/":
-                parent = "/".join(cwd.rstrip("/").split("/")[:-1])
-                session_manager.change_directory(parent if parent else "/")
+    elif command == "cd" or command.startswith("cd "):
+        path = command[2:].strip()
+        new_path = _resolve_path(cwd, path)
+        if new_path is None:
             return ""
-        new_path = path if path.startswith("/") else (
-            f"/{path}" if cwd == "/" else f"{cwd}/{path}"
-        )
-        new_path = new_path.replace("//", "/")
         if new_path in filesystem:
             session_manager.change_directory(new_path)
             return ""
@@ -302,8 +348,7 @@ def route_command(command, session_manager):
     # --------------------------
     elif command.startswith("cat "):
         filename = command[4:].strip()
-        full_path = filename if filename.startswith("/") else f"{cwd}/{filename}"
-        full_path = full_path.replace("//", "/")
+        full_path = _resolve_path(cwd, filename) or cwd
         if full_path in file_contents:
             return file_contents[full_path]
         return f"cat: {filename}: No such file"
@@ -397,7 +442,7 @@ redis.service active"""
     elif command.startswith("scp"):
         return malware_detector.handle_scp(command)[0]
     elif command.startswith("chmod"):
-        return "Permissions updated"
+        return handle_chmod(command)
     elif command.startswith("nc"):
         return "Connection established"
 

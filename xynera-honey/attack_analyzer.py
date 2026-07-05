@@ -49,6 +49,12 @@ def classify(command):
         return "Malware Download"
 
     # --------------------------
+    # File Transfer
+    # --------------------------
+    elif cmd.startswith("scp"):
+        return "File Transfer"
+
+    # --------------------------
     # Privilege Escalation
     # --------------------------
     elif (
@@ -86,6 +92,7 @@ def threat_score(attack_type):
         "Directory Navigation": 10,
         "Credential Enumeration": 60,
         "Malware Download": 90,
+        "File Transfer": 80,
         "Privilege Escalation": 95,
         "Lateral Movement": 80,
         "Reverse Shell Activity": 100,

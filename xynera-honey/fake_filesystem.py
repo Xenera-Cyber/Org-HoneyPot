@@ -16,16 +16,45 @@ filesystem = {
         "backup"
     ],
     "/home/ubuntu": [
+        "Desktop",
         "Documents",
         "Downloads",
+        "Music",
+        "Pictures",
+        "Videos",
         "projects",
-        ".bash_history"
+        ".ssh",
+        ".config",
+        ".cache",
+        ".bash_history",
+        ".bashrc",
+        ".profile"
+    ],
+    "/home/ubuntu/Desktop": [
+        "todo.txt"
     ],
     "/home/ubuntu/Documents": [
         "employee_directory.csv",
         "meeting_notes.txt",
         "server_inventory.csv"
     ],
+    "/home/ubuntu/Downloads": [
+        "ubuntu_server_notes.pdf",
+        "backup.zip"
+    ],
+    "/home/ubuntu/Music": [],
+    "/home/ubuntu/Pictures": [
+        "office.jpg"
+    ],
+    "/home/ubuntu/Videos": [],
+    "/home/ubuntu/.ssh": [
+        "authorized_keys",
+        "id_rsa.pub"
+    ],
+    "/home/ubuntu/.config": [
+        "user-dirs.dirs"
+    ],
+    "/home/ubuntu/.cache": [],
     "/etc": [
         "passwd",
         "hosts",
@@ -49,6 +78,12 @@ filesystem = {
 }
 
 file_contents = {
+    "/home/ubuntu/Desktop/todo.txt": """
+- Patch nginx
+- Review firewall rules
+- Rotate SSH keys
+""",
+
     "/home/ubuntu/Documents/employee_directory.csv": """
 ID,Name,Department,Email
 1001,Alice Johnson,Finance,alice.johnson@xynera.local
@@ -80,6 +115,34 @@ systemctl restart nginx
 nano /etc/nginx/nginx.conf
 tail -f /var/log/auth.log
 mysql -u root
+""",
+
+    "/home/ubuntu/.bashrc": """
+# ~/.bashrc
+export PATH=$PATH:/usr/local/bin
+alias ll='ls -la'
+alias grep='grep --color=auto'
+""",
+
+    "/home/ubuntu/.profile": """
+# ~/.profile
+if [ -f ~/.bashrc ]; then
+    . ~/.bashrc
+fi
+""",
+
+    "/home/ubuntu/.ssh/authorized_keys": """
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCxxxxxxxxxxxxxxxxxxxxxxxx ubuntu@web-prod-01
+""",
+
+    "/home/ubuntu/.ssh/id_rsa.pub": """
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCyyyyyyyyyyyyyyyyyyyyyyyy ubuntu@web-prod-01
+""",
+
+    "/home/ubuntu/.config/user-dirs.dirs": """
+XDG_DESKTOP_DIR="$HOME/Desktop"
+XDG_DOWNLOAD_DIR="$HOME/Downloads"
+XDG_DOCUMENTS_DIR="$HOME/Documents"
 """,
 
     "/etc/passwd": """
