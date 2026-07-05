@@ -9,6 +9,7 @@ from logger import log_command
 HOST = "0.0.0.0"
 PORT = 2222
 
+
 def start_server():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -28,12 +29,10 @@ def start_server():
     while True:
         conn, addr = server.accept()
         attacker_ip = addr[0]
-
         print(f"\n[+] Connection from {attacker_ip}")
 
         session_manager = SessionManager(attacker_ip)
         session = session_manager.get_session()
-
         conn.send(b"Welcome to XYNERA Honeypot\n")
 
         try:
@@ -47,7 +46,6 @@ def start_server():
                     break
 
                 command = data.decode().strip()
-
                 if command.lower() == "exit":
                     conn.send(b"logout\n")
                     break
@@ -58,7 +56,6 @@ def start_server():
                 # Attack analysis
                 attack_type = classify(command)
                 session_manager.add_attack_type(attack_type)
-
                 score = threat_score(attack_type)
                 session_manager.update_threat_score(score)
 
@@ -86,16 +83,14 @@ def start_server():
 
         except Exception as e:
             print(f"[ERROR] {e}")
-
         finally:
             session_manager.close_session()
-
             print("\n========== SESSION SUMMARY ==========")
             print(session_manager.summary())
             print("=====================================\n")
-
             conn.close()
             print(f"[-] {attacker_ip} disconnected")
+
 
 if __name__ == "__main__":
     start_server()
