@@ -3,6 +3,8 @@ import json
 import os
 from datetime import datetime
 
+HOME_DIR = "/home/ubuntu"
+
 
 class SessionManager:
     def __init__(self, attacker_ip):
@@ -11,7 +13,7 @@ class SessionManager:
             "attacker_ip": attacker_ip,
             "start_time": datetime.now().isoformat(),
             "end_time": None,
-            "cwd": "/home/ubuntu",
+            "cwd": HOME_DIR,
             "command_history": [],
             "attack_types": [],
             "threat_score": 0,
@@ -42,6 +44,12 @@ class SessionManager:
         self.session["threat_score"] += score
 
     def close_session(self):
+        # Bug fix: close_session() could previously be invoked more than
+        # once (e.g. an exception during cleanup triggering a second call),
+        # which re-exported the session and overwrote its end_time / duration.
+        # Once closed, further calls are a no-op.
+        if not self.session["is_active"]:
+            return
         self.session["is_active"] = False
         self.session["end_time"] = datetime.now().isoformat()
         self.export_session()
@@ -57,6 +65,9 @@ class SessionManager:
         session_data = {
             "session_id": self.session["session_id"],
             "ip": self.session["attacker_ip"],
+            "start_time": self.session["start_time"],
+            "end_time": self.session["end_time"],
+            "current_directory": self.session["cwd"],
             "commands": self.session["command_history"],
             "threat_score": self.session["threat_score"],
             "attack_types": self.session["attack_types"],
@@ -73,9 +84,11 @@ class SessionManager:
         return {
             "session_id": self.session["session_id"],
             "attacker_ip": self.session["attacker_ip"],
+            "current_directory": self.session["cwd"],
             "commands_executed": len(
                 self.session["command_history"]
             ),
             "attack_types": self.session["attack_types"],
-            "threat_score": self.session["threat_score"]
+            "threat_score": self.session["threat_score"],
+            "is_active": self.session["is_active"]
         }
