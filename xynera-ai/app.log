@@ -1,0 +1,51 @@
+2026-06-15 09:53:53,088 - Logger Test
+2026-06-15 09:59:18,080 - Logger Test
+2026-06-15 09:59:18,080 - {"session_id": "a77d62a0", "command": "sudo su", "attack_type": "Privilege Escalation Attempt", "risk_score": 26, "threat_level": "HIGH"}
+2026-06-29 14:36:48,401 - Logger Test
+2026-06-29 14:36:48,402 - {"session_id": "A102", "command": "sudo su", "attack_type": "Privilege Escalation", "risk_score": 82, "threat_level": "HIGH"}
+2026-06-29 14:36:48,402 - {
+    "session_id": "A102",
+    "command": "sudo su",
+    "ai_decision": "Privilege Escalation Detected",
+    "confidence_score": 0.96,
+    "conversation_metadata": {
+        "conversation_id": "SESSION_001",
+        "interaction_count": 7
+    },
+    "prediction_result": {
+        "next_prediction": "Credential Access",
+        "prediction_confidence": 0.89
+    },
+    "risk_score": 82,
+    "threat_level": "HIGH"
+}
+2026-07-01 08:22:43,178 - Logger Test
+2026-07-01 08:22:43,183 - {"session_id": "A102", "command": "sudo su", "attack_type": "Privilege Escalation", "risk_score": 82, "threat_level": "HIGH"}
+2026-07-01 08:22:43,186 - {
+    "session_id": "A102",
+    "command": "sudo su",
+    "ai_decision": "Privilege Escalation Detected",
+    "confidence_score": 0.96,
+    "conversation_metadata": {
+        "conversation_id": "SESSION_001",
+        "interaction_count": 7
+    },
+    "prediction_result": {
+        "next_prediction": "Credential Access",
+        "prediction_confidence": 0.89
+    },
+    "risk_score": 82,
+    "threat_level": "HIGH"
+}
+2026-07-01 08:22:43,186 - {
+    "session_id": "SESSION_101",
+    "conversation_log": "Attacker executed sudo su",
+    "ai_decision": "Privilege Escalation Attempt",
+    "session_metadata": {
+        "prediction": "Credential Access"
+    },
+    "system_event": "AI Response Generated",
+    "security_event": "Privilege Escalation",
+    "warning": "High Risk Command",
+    "error": null
+}

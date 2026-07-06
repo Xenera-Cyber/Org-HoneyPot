@@ -1,4 +1,5 @@
 import json
+
 profiles = {}
 
 SCORES = {
@@ -11,6 +12,10 @@ SCORES = {
 
 
 def update_profile(ip, attack_type, command):
+    """
+    Updates attacker profile and cumulative score.
+    Existing function retained for backward compatibility.
+    """
 
     if ip not in profiles:
         profiles[ip] = {
@@ -34,39 +39,30 @@ def calculate_curiosity_score(
     recon_commands,
     persistence_attempts
 ):
+    """
+    Calculates attacker curiosity score.
+    """
 
     score = 0
 
     score += commands_executed * 2
-
     score += unique_commands * 3
-
     score += directories_visited * 2
-
     score += recon_commands * 5
-
     score += persistence_attempts * 8
 
-    if score > 100:
-        score = 100
+    score = min(score, 100)
 
-    result = {
-
+    return {
         "commands_executed": commands_executed,
-
         "unique_commands": unique_commands,
-
         "directories_visited": directories_visited,
-
         "recon_commands": recon_commands,
-
         "persistence_attempts": persistence_attempts,
-
         "curiosity_score": score
-
     }
 
-    return result
+
 def calculate_engagement_score(
     session_duration,
     commands_executed,
@@ -75,33 +71,26 @@ def calculate_engagement_score(
     files_accessed,
     services_accessed
 ):
+    """
+    Calculates attacker engagement score.
+    """
 
     score = 0
 
-    # Session duration
     score += min(session_duration // 2, 20)
-
-    # Commands executed
     score += min(commands_executed * 2, 30)
-
-    # Successful commands
     score += min(successful_commands * 2, 20)
-
-    # Files accessed
     score += min(files_accessed * 2, 15)
-
-    # Services accessed
     score += min(services_accessed * 3, 15)
 
-    if score > 100:
-        score = 100
-
-    engagement_level = "LOW"
+    score = min(score, 100)
 
     if score >= 80:
         engagement_level = "HIGH"
     elif score >= 50:
         engagement_level = "MEDIUM"
+    else:
+        engagement_level = "LOW"
 
     return {
         "session_duration": session_duration,
@@ -113,6 +102,8 @@ def calculate_engagement_score(
         "engagement_score": score,
         "engagement_level": engagement_level
     }
+
+
 def generate_behaviour_profile(
     curiosity_score,
     persistence_attempts,
@@ -121,7 +112,7 @@ def generate_behaviour_profile(
     session_complexity
 ):
     """
-    Generates an attacker behaviour profile
+    Generates attacker behaviour profile.
     """
 
     if persistence_attempts >= 5:
@@ -145,24 +136,26 @@ def generate_behaviour_profile(
     else:
         complexity = "LOW"
 
-    profile = {
-
+    return {
         "Curiosity Score": curiosity_score,
-
         "Persistence Score": persistence,
-
         "Interaction Depth": interaction,
-
         "Risk Score": risk_score,
-
         "Session Complexity": complexity
-
     }
 
-    return profile
+
 if __name__ == "__main__":
 
-    result = calculate_engagement_score(
+    curiosity = calculate_curiosity_score(
+        commands_executed=18,
+        unique_commands=11,
+        directories_visited=7,
+        recon_commands=5,
+        persistence_attempts=2
+    )
+
+    engagement = calculate_engagement_score(
         session_duration=42,
         commands_executed=18,
         successful_commands=15,
@@ -171,40 +164,19 @@ if __name__ == "__main__":
         services_accessed=4
     )
 
-    import json
-    print(json.dumps(result, indent=4))
-
-if __name__ == "__main__":
-
-    result = calculate_curiosity_score(
-
-        commands_executed=18,
-
-        unique_commands=11,
-
-        directories_visited=7,
-
-        recon_commands=5,
-
-        persistence_attempts=2
-
+    behaviour = generate_behaviour_profile(
+        curiosity_score=92,
+        persistence_attempts=5,
+        interaction_depth=9,
+        risk_score=87,
+        session_complexity=8
     )
 
-    print(json.dumps(result, indent=4))
-    print("\n========== Attacker Behaviour Profile ==========\n")
+    print("\n===== Curiosity Score =====")
+    print(json.dumps(curiosity, indent=4))
 
-    profile = generate_behaviour_profile(
+    print("\n===== Engagement Score =====")
+    print(json.dumps(engagement, indent=4))
 
-    curiosity_score=92,
-
-    persistence_attempts=5,
-
-    interaction_depth=9,
-
-    risk_score=87,
-
-    session_complexity=8
-
-)
-
-    print(json.dumps(profile, indent=4))
+    print("\n===== Behaviour Profile =====")
+    print(json.dumps(behaviour, indent=4))
