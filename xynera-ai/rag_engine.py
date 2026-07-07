@@ -285,10 +285,12 @@ async def generate_deception(command, history=None, cwd=None, attack_type=None, 
     if raw_response is None:
         # Fallback to example output directly if API call failed
         if context_doc:
-            return context_doc['example_output'].strip()
+            response = context_doc['example_output'].strip()
         else:
             parts = command.split()
             cmd_name = parts[0] if parts else command
-            return f"bash: {cmd_name}: command not found"
+            response = f"bash: {cmd_name}: command not found"
+    else:
+        response = clean_llm_output(raw_response, command)
 
-    return clean_llm_output(raw_response, command)
+    return apply_guardrails(command, response)
