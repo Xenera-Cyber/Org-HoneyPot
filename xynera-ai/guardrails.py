@@ -27,14 +27,19 @@ BLOCKED_KEYWORDS = [
 
 def apply_guardrails(command, response):
     """
-    Validates AI-generated responses before returning them
+    Validates commands and AI-generated responses
+    before sending them to the attacker.
+
+    This function is intentionally kept backward-compatible
+    with the main branch.
     """
 
-    command = command.lower()
+    # Safely handle None commands
+    command = (command or "").lower()
 
     # Dangerous command protection
-    for cmd in BLOCKED_COMMANDS:
-        if cmd in command:
+    for blocked_command in BLOCKED_COMMANDS:
+        if blocked_command in command:
             return "[Guardrail] Dangerous command detected. Response blocked."
 
     # Malware / exploit protection
@@ -43,7 +48,31 @@ def apply_guardrails(command, response):
             return "[Guardrail] Unsafe security request detected."
 
     # Empty response protection
-    if response is None or response.strip() == "":
+    if not str(response).strip():
         return "[Guardrail] No valid response generated."
 
     return response
+
+
+if __name__ == "__main__":
+
+    print(
+        apply_guardrails(
+            "sudo rm -rf /",
+            "Deleting..."
+        )
+    )
+
+    print(
+        apply_guardrails(
+            "ls -la",
+            "Directory listing..."
+        )
+    )
+
+    print(
+        apply_guardrails(
+            None,
+            ""
+        )
+    )
