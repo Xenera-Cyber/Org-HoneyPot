@@ -1,46 +1,111 @@
-from flask import Flask, request, jsonify
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import List, Optional
+import uvicorn
 
 from rag_engine import generate_deception
 from threat_engine import get_threat_level
-from attacker_profile import update_profile
+from attacker_profile import update_profile, update_profile_response, get_detailed_profile
 from classifier import classify_command
-from logger import log_event
+from logger import log_event, log_ai_decision, log_ai_analysis, log_centralized_event
 from config import SERVER_HOST, SERVER_PORT
 
 
-app = Flask(__name__)
+app = FastAPI(title="Xynera AI Backend")
 
 
-@app.route("/health", methods=["GET"])
-def health():
-    return jsonify({"status": "AI Backend Running"})
+class ProcessRequest(BaseModel):
+    ip: str
+    command: str
+    session_id: Optional[str] = None
+    history: Optional[List[str]] = None
+    local_attack_type: Optional[str] = None
+    cwd: Optional[str] = None
+    hostname: Optional[str] = None
+    username: Optional[str] = None
 
 
-@app.route("/process", methods=["POST"])
-def process_command():
+class ProcessResponse(BaseModel):
+    reply: Optional[str] = None
+    attack_type: str
 
-    data = request.json
 
-    ip = data.get("ip")
-    command = data.get("command")
+@app.get("/health")
+async def health():
+    return {"status": "AI Backend Running"}
+
+
+@app.post("/process", response_model=ProcessResponse)
+async def process_command(payload: ProcessRequest):
+    ip = payload.ip
+    command = payload.command
 
     attack_type = classify_command(command)
 
-    score = update_profile(ip, attack_type, command)
+    # Track detailed stats by passing payload.cwd
+    score = update_profile(ip, attack_type, command, cwd=payload.cwd)
 
     threat_level = get_threat_level(score)
 
-    log_event(
-        f"IP: {ip} | CMD: {command} | TYPE: {attack_type} | SCORE: {score} | LEVEL: {threat_level}"
+    log_ai_decision(
+        session_id=payload.session_id or "UNKNOWN",
+        command=command,
+        attack_type=attack_type,
+        risk_score=score,
+        threat_level=threat_level
     )
 
-    reply = generate_deception(command)
+    reply = await generate_deception(
+        command=command,
+        history=payload.history,
+        cwd=payload.cwd,
+        attack_type=attack_type,
+        hostname=payload.hostname,
+        username=payload.username
+    )
 
-    return jsonify({
-        "reply": reply,
-        "attack_type": attack_type
-    })
+    # Track response outcome (success/failure)
+    update_profile_response(ip, reply)
+
+    # Calculate advanced attacker profiling metrics
+    detailed = get_detailed_profile(ip, score, threat_level)
+    if detailed:
+        curiosity = detailed["curiosity"]
+        engagement = detailed["engagement"]
+        behaviour = detailed["behaviour"]
+
+        # Log advanced AI analysis
+        log_ai_analysis(
+            session_id=payload.session_id or "UNKNOWN",
+            command=command,
+            ai_decision=reply or "None",
+            confidence_score=0.95,
+            conversation_id=payload.session_id or "UNKNOWN",
+            interaction_count=curiosity["commands_executed"],
+            prediction_result=attack_type,
+            prediction_confidence=0.90,
+            risk_score=score,
+            threat_level=threat_level
+        )
+
+        # Log centralized system event
+        warning_msg = "High Threat Level" if threat_level in ["HIGH", "CRITICAL"] else None
+        log_centralized_event(
+            session_id=payload.session_id or "UNKNOWN",
+            conversation_log=f"Attacker executed: {command}",
+            ai_decision=reply or "None",
+            system_event="AI Deception Generated",
+            security_event=attack_type,
+            warning=warning_msg,
+            error=None,
+            prediction=attack_type
+        )
+
+    return ProcessResponse(
+        reply=reply,
+        attack_type=attack_type
+    )
 
 
 if __name__ == "__main__":
-    app.run(host=SERVER_HOST, port=SERVER_PORT)
+    uvicorn.run("api_server:app", host=SERVER_HOST, port=SERVER_PORT, reload=False)
