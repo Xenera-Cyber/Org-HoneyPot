@@ -27,7 +27,6 @@ def send_to_ai(ip, command, history=None, attack_type=None):
             "history": history or [],
             "local_attack_type": attack_type
         }
-
         print(f"[AI REQUEST] {payload}")
 
         response = requests.post(
@@ -35,7 +34,6 @@ def send_to_ai(ip, command, history=None, attack_type=None):
             json=payload,
             timeout=TIMEOUT
         )
-
         print(f"[AI STATUS] {response.status_code}")
 
         if response.status_code != 200:
@@ -50,17 +48,14 @@ def send_to_ai(ip, command, history=None, attack_type=None):
 
         reply = data.get("reply")
         cleaned = clean_response(reply)
-
         return cleaned
 
     except requests.exceptions.Timeout:
         print("[AI ERROR] Timeout")
         return None
-
     except requests.exceptions.ConnectionError:
         print("[AI ERROR] Connection failed")
         return None
-
     except Exception as e:
         print(f"[AI ERROR] {e}")
         return None

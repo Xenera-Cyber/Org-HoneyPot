@@ -1,4 +1,6 @@
 import uuid
+import json
+import os
 from datetime import datetime
 
 
@@ -28,7 +30,8 @@ class SessionManager:
     def add_command(self, command):
         self.session["command_history"].append({
             "command": command,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
+            "cwd": self.session["cwd"]
         })
 
     def add_attack_type(self, attack_type):
@@ -41,6 +44,30 @@ class SessionManager:
     def close_session(self):
         self.session["is_active"] = False
         self.session["end_time"] = datetime.now().isoformat()
+        self.export_session()
+
+    def export_session(self):
+        """Persist the completed session to disk as JSON for replay/analysis."""
+        log_dir = "logs"
+        os.makedirs(log_dir, exist_ok=True)
+        start = datetime.fromisoformat(self.session["start_time"])
+        end = datetime.fromisoformat(self.session["end_time"])
+        duration = str(end - start)
+
+        session_data = {
+            "session_id": self.session["session_id"],
+            "ip": self.session["attacker_ip"],
+            "commands": self.session["command_history"],
+            "threat_score": self.session["threat_score"],
+            "attack_types": self.session["attack_types"],
+            "session_duration": duration
+        }
+
+        filename = f"{log_dir}/session_{self.session['session_id']}.json"
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(session_data, f, indent=4)
+
+        print(f"[+] Session exported -> {filename}")
 
     def summary(self):
         return {

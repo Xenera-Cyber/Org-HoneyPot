@@ -4,10 +4,8 @@ from logging.handlers import RotatingFileHandler
 
 LOG_DIR = "logs"
 LOG_FILE = os.path.join(LOG_DIR, "attacks.log")
-
 MAX_BYTES = 5 * 1024 * 1024
 BACKUP_COUNT = 3
-
 
 ATTACK_SCORES = {
     "Reconnaissance": 20,
@@ -23,7 +21,6 @@ ATTACK_SCORES = {
 
 def setup_logger():
     os.makedirs(LOG_DIR, exist_ok=True)
-
     logger = logging.getLogger("attack_logger")
     logger.setLevel(logging.DEBUG)
 
@@ -36,15 +33,12 @@ def setup_logger():
         backupCount=BACKUP_COUNT,
         encoding="utf-8"
     )
-
     formatter = logging.Formatter(
         "[%(asctime)s] [%(levelname)s] %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S"
     )
-
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-
     return logger
 
 
@@ -59,7 +53,6 @@ def log_command(
     severity="INFO"
 ):
     score = ATTACK_SCORES.get(attack_type, 5)
-
     level = getattr(
         logging,
         severity.upper(),

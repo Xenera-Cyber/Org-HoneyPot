@@ -91,5 +91,4 @@ def threat_score(attack_type):
         "Reverse Shell Activity": 100,
         "Unknown": 5,
     }
-
     return scores.get(attack_type, 5)
