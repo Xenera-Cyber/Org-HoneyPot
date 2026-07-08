@@ -5,7 +5,7 @@ import uvicorn
 
 from rag_engine import generate_deception
 from threat_engine import get_threat_level
-from attacker_profile import update_profile, update_profile_response, get_detailed_profile
+from attacker_profile import update_profile, update_profile_response, get_detailed_profile, get_session_data
 from classifier import classify_command
 from logger import log_event, log_ai_decision, log_ai_analysis, log_centralized_event
 from config import SERVER_HOST, SERVER_PORT
@@ -40,15 +40,21 @@ async def process_command(payload: ProcessRequest):
     ip = payload.ip
     command = payload.command
 
-    attack_type = classify_command(command)
+    classification = classify_command(command, ip=ip)
+    attack_type = classification["attack_type"]
+    session_id = classification["session_id"]
+    score = classification["risk_score"]
+    threat_level = classification["threat_level"]
 
-    # Track detailed stats by passing payload.cwd
-    score = update_profile(ip, attack_type, command, cwd=payload.cwd)
+    # Dynamic data generation and command history tracking
+    commands_history = (payload.history or []) + [command]
+    get_session_data(session_id, commands=commands_history)
 
-    threat_level = get_threat_level(score)
+    # Track detailed stats by passing payload.cwd and the updated score
+    update_profile(ip, attack_type, command, cwd=payload.cwd, score=score)
 
     log_ai_decision(
-        session_id=payload.session_id or "UNKNOWN",
+        session_id=session_id,
         command=command,
         attack_type=attack_type,
         risk_score=score,
@@ -61,7 +67,8 @@ async def process_command(payload: ProcessRequest):
         cwd=payload.cwd,
         attack_type=attack_type,
         hostname=payload.hostname,
-        username=payload.username
+        username=payload.username,
+        session_id=session_id
     )
 
     # Track response outcome (success/failure)
@@ -76,11 +83,11 @@ async def process_command(payload: ProcessRequest):
 
         # Log advanced AI analysis
         log_ai_analysis(
-            session_id=payload.session_id or "UNKNOWN",
+            session_id=session_id,
             command=command,
             ai_decision=reply or "None",
             confidence_score=0.95,
-            conversation_id=payload.session_id or "UNKNOWN",
+            conversation_id=session_id,
             interaction_count=curiosity["commands_executed"],
             prediction_result=attack_type,
             prediction_confidence=0.90,
@@ -91,7 +98,7 @@ async def process_command(payload: ProcessRequest):
         # Log centralized system event
         warning_msg = "High Threat Level" if threat_level in ["HIGH", "CRITICAL"] else None
         log_centralized_event(
-            session_id=payload.session_id or "UNKNOWN",
+            session_id=session_id,
             conversation_log=f"Attacker executed: {command}",
             ai_decision=reply or "None",
             system_event="AI Deception Generated",

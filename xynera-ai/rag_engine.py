@@ -3,6 +3,7 @@ import re
 from knowledge_base import knowledge_documents
 from config import GROQ_API_KEY, GROQ_MODEL
 from guardrails import apply_guardrails
+from attacker_profile import get_session_data
 import vector_store
 
 # Pre-sort the knowledge documents by command length in reverse order once at module-load time
@@ -99,7 +100,46 @@ def clean_llm_output(text, command):
 
     return "\n".join(lines).strip()
 
-def retrieve_context(command):
+COMMAND_TO_DATA_KEY = {
+    "/home/ubuntu/company_directory/employees.csv": "employees_csv",
+    "/home/ubuntu/company_directory/projects.csv": "projects_csv",
+    "/home/ubuntu/company_directory/departments.json": "departments_json",
+    "/var/www/internal/clients.json": "clients_json",
+    "/var/www/internal/vendors.json": "vendors_json",
+    "/var/www/internal/infrastructure_assets.yaml": "infrastructure_yaml",
+    "/home/ubuntu/.ssh/id_rsa": "ssh_private_key",
+    "/etc/shadow": "shadow_file",
+    "/etc/passwd": "passwd_file",
+    "/home/ubuntu/.aws/credentials": "aws_credentials",
+    "/home/ubuntu/.aws/config": "aws_config",
+    "/home/ubuntu/.kube/config": "kube_config",
+    "/etc/netplan/01-netcfg.yaml": "netplan_config",
+    "/etc/hosts": "hosts_file",
+    "/home/ubuntu/.pgpass": "pgpass_file",
+    "/home/ubuntu/.slack/config.json": "slack_config_json",
+    "/home/ubuntu/documents/technical_docs/stripe_config.json": "stripe_config_json",
+    "/var/www/internal/db_backup.sql": "db_backup_sql",
+    "/home/ubuntu/company_directory/audit_log.csv": "audit_log_csv",
+    "/var/log/auth.log": "auth_log",
+    "/var/log/syslog": "syslog",
+    "/etc/nginx/nginx.conf": "nginx_conf",
+    "/home/ubuntu/documents/technical_docs/k8s_deployment.yaml": "kubernetes_yaml",
+    "/home/ubuntu/.env": "env_file",
+    "/var/www/internal/dev_tasks.md": "dev_tasks_md",
+    "/etc/gateway/router.conf": "gateway_router_conf",
+    "/home/ubuntu/.ssh/backup_key": "backup_key",
+    "/home/dev/backup_status.txt": "backup_status_txt",
+    "/etc/ssh/sshd_config": "sshd_config",
+    "/etc/redis/redis.conf": "redis_config",
+    "/etc/postgresql/14/main/postgresql.conf": "postgresql_config",
+    "/home/ubuntu/emails/inbox_summary.txt": ("emails", "inbox_summary.txt"),
+    "/home/ubuntu/emails/security_phishing_alert.txt": ("emails", "security_phishing_alert.txt"),
+    "/home/ubuntu/emails/staging_db_access.txt": ("emails", "staging_db_access.txt"),
+    "/home/ubuntu/emails/performance_review_cycle.txt": ("emails", "performance_review_cycle.txt"),
+    "/home/ubuntu/emails/vendor_contract_renewal.txt": ("emails", "vendor_contract_renewal.txt"),
+}
+
+def retrieve_context(command, session_id=None):
     if not command:
         return None
     
@@ -111,10 +151,43 @@ def retrieve_context(command):
     query_cmd_name = parts[0]
     import os
 
-    # 1. Strict cat file matching first to prevent incorrect document leaks
+    # Dynamic session lookup for files and documents
+    if session_id:
+        try:
+            session_data = get_session_data(session_id)
+            if query_cmd_name == "cat" and len(parts) > 1:
+                file_path = parts[1].strip().strip('"\'')
+                file_basename = os.path.basename(file_path)
+                
+                # Check command to data key mapping
+                for path, key in COMMAND_TO_DATA_KEY.items():
+                    if file_path == path or file_basename == os.path.basename(path):
+                        if isinstance(key, tuple):
+                            val = session_data.get(key[0], {}).get(key[1], "")
+                        else:
+                            val = session_data.get(key, "")
+                        return {
+                            "command": f"cat {path}",
+                            "description": "Dynamic file content",
+                            "example_output": val
+                        }
+                
+                # Check custom documents
+                if "documents" in session_data:
+                    for doc_path, doc_content in session_data["documents"].items():
+                        if file_path == doc_path or file_basename == os.path.basename(doc_path):
+                            return {
+                                "command": f"cat {doc_path}",
+                                "description": "Dynamic markdown document",
+                                "example_output": doc_content
+                            }
+        except Exception as e:
+            print(f"[Dynamic RAG Intercept Error] {e}")
+
+    # Fallback to static RAG if no session data matched
     if query_cmd_name == "cat":
         if len(parts) > 1:
-            query_file = parts[1].strip()
+            query_file = parts[1].strip().strip('"\'')
             query_filename = os.path.basename(query_file)
             for doc in sorted_docs:
                 doc_cmd = doc["command"].lower()
@@ -159,8 +232,8 @@ def retrieve_context(command):
     return None
 
 
-async def generate_deception(command, history=None, cwd=None, attack_type=None, hostname=None, username=None):
-    context_doc = retrieve_context(command)
+async def generate_deception(command, history=None, cwd=None, attack_type=None, hostname=None, username=None, session_id=None):
+    context_doc = retrieve_context(command, session_id=session_id)
 
     # Shortcut routing for exact command matches or static file reads to bypass LLM latency and safety blocks
     if context_doc:
