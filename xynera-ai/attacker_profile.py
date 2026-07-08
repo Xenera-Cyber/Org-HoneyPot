@@ -272,6 +272,25 @@ def generate_behaviour_profile(
         "Session Complexity": complexity
     }
 
+session_datasets = {}
+
+def get_session_data(session_id, commands=[]):
+    """
+    Generates and caches session-specific dynamic corporate data.
+    The seed is derived deterministically from the session_id to maintain consistency
+    across multiple commands within the same session.
+    """
+    if not session_id:
+        session_id = "default_session"
+        
+    import hashlib
+    h = hashlib.md5(session_id.encode()).hexdigest()
+    seed = int(h, 16) % 100000000
+    
+    from data_generator import get_generated_all
+    # Re-generate/update the dataset so that log files reflect the current command history
+    session_datasets[session_id] = get_generated_all(seed=seed, commands=commands)
+    return session_datasets[session_id]
 
 session_datasets = {}
 
