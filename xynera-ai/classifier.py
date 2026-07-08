@@ -17,6 +17,22 @@ RISK_SCORES = {
     "Unknown": 1
 }
 
+# Confidence Mapping
+CONFIDENCE_MAPPING = {
+    "Reconnaissance": 0.85,
+    "Privilege Enumeration": 0.90,
+    "System Enumeration": 0.85,
+    "Network/User Enumeration": 0.85,
+    "Malware Download Attempt": 0.95,
+    "Privilege Escalation Attempt": 0.95,
+    "Persistence Attempt": 0.90,
+    "Reverse Shell Attempt": 0.95,
+    "C2 / Backdoor Attempt": 0.95,
+    "System Destruction Attempt": 0.95,
+    "Suspicious Script Execution": 0.85,
+    "Unknown": 0.50
+}
+
 
 class AttackerSession:
     def __init__(self, ip):
@@ -99,6 +115,7 @@ def classify_command(command: str, ip: str = "192.168.1.100") -> dict:
         "ip": ip,
         "command": command,
         "attack_type": attack_type,
+        "confidence": CONFIDENCE_MAPPING.get(attack_type, 0.50),
         "risk_score": decision["risk_score"],
         "threat_level": decision["threat_level"],
         "timestamp": decision["timestamp"]
