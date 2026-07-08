@@ -17,7 +17,7 @@ SCORES = {
 }
 
 
-def update_profile(ip, attack_type, command, cwd=None):
+def update_profile(ip, attack_type, command, cwd=None, score=None):
     """
     Updates attacker profile and cumulative score.
     Existing function retained for backward compatibility.
@@ -56,8 +56,11 @@ def update_profile(ip, attack_type, command, cwd=None):
     if any(s_cmd in cmd_lower for s_cmd in ["systemctl", "service", "init "]):
         p["services_accessed"] += 1
 
-    score = SCORES.get(attack_type, 1)
-    p["score"] += score
+    if score is not None:
+        p["score"] = score
+    else:
+        score_val = SCORES.get(attack_type, 1)
+        p["score"] += score_val
 
     return p["score"]
 
@@ -237,6 +240,25 @@ def generate_behaviour_profile(
         "Session Complexity": complexity
     }
 
+session_datasets = {}
+
+def get_session_data(session_id, commands=[]):
+    """
+    Generates and caches session-specific dynamic corporate data.
+    The seed is derived deterministically from the session_id to maintain consistency
+    across multiple commands within the same session.
+    """
+    if not session_id:
+        session_id = "default_session"
+        
+    import hashlib
+    h = hashlib.md5(session_id.encode()).hexdigest()
+    seed = int(h, 16) % 100000000
+    
+    from data_generator import get_generated_all
+    # Re-generate/update the dataset so that log files reflect the current command history
+    session_datasets[session_id] = get_generated_all(seed=seed, commands=commands)
+    return session_datasets[session_id]
 
 if __name__ == "__main__":
 

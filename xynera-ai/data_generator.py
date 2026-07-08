@@ -1,8 +1,7 @@
 import random
 import json
 
-# Setup seed for deterministic generation
-random.seed(42)
+# Dynamic seed setup is handled inside get_generated_all
 
 def generate_employee_data():
     first_names = ["Alice", "Bob", "Carlos", "Diana", "Evan", "Fiona", "George", "Helen", "Ian", "Julia", "Kevin", "Laura", "Marcus", "Nadia", "Oliver", "Paula", "Quinn", "Rachel", "Steve", "Tina"]
@@ -23,12 +22,15 @@ def generate_employee_data():
     
     employees = []
     
-    # CEO Robert Vance as the anchor of organizational hierarchy
-    ceo_name = "Robert Vance"
+    # CEO name randomized per-session
+    ceo_first = random.choice(first_names)
+    ceo_last = random.choice(last_names)
+    ceo_name = f"{ceo_first} {ceo_last}"
+    
     employees.append({
         "EmployeeID": "EMP100",
         "Name": ceo_name,
-        "Email": "robert.vance@xynera.local",
+        "Email": f"{ceo_name.lower().replace(' ', '.')}@xynera.local",
         "Department": "Executive",
         "Role": "CEO",
         "Phone": "+1-555-0100",
@@ -37,15 +39,18 @@ def generate_employee_data():
         "AccessLevel": "Admin"
     })
     
-    # Generate C-Level / Managers
-    managers = {
-        "Engineering": "Marcus Davis",
-        "HR": "Diana Taylor",
-        "Finance": "Julia Miller",
-        "IT Security": "Steve Williams",
-        "Operations": "Carlos Rodriguez",
-        "Sales": "Helen Martinez"
-    }
+    # Generate C-Level / Managers randomly
+    managers = {}
+    used_names = {ceo_name}
+    for d in departments:
+        while True:
+            m_first = random.choice(first_names)
+            m_last = random.choice(last_names)
+            m_name = f"{m_first} {m_last}"
+            if m_name not in used_names:
+                managers[d] = m_name
+                used_names.add(m_name)
+                break
     
     for i in range(1, 25):
         emp_id = f"EMP{100 + i}"
@@ -122,12 +127,24 @@ def generate_department_data(employees):
     ]
     return json.dumps(depts, indent=2)
 
-def generate_project_data():
+def generate_project_data(employees=None):
+    eng_lead = "Marcus Davis"
+    ops_lead = "Carlos Rodriguez"
+    sec_lead = "Steve Williams"
+    if employees:
+        for e in employees:
+            if e["Role"] == "Engineering Director":
+                eng_lead = e["Name"]
+            elif e["Role"] == "Operations Director":
+                ops_lead = e["Name"]
+            elif e["Role"] == "CISO":
+                sec_lead = e["Name"]
+
     projects = [
         {
             "ProjectCode": "PHOENIX",
             "Name": "Project Phoenix",
-            "ProjectLead": "Marcus Davis",
+            "ProjectLead": eng_lead,
             "Description": "Next-generation software deception orchestration and automated response simulator.",
             "Client": "Apex Corp",
             "Budget": "$450,000",
@@ -139,7 +156,7 @@ def generate_project_data():
         {
             "ProjectCode": "AURORA",
             "Name": "Project Aurora",
-            "ProjectLead": "Carlos Rodriguez",
+            "ProjectLead": ops_lead,
             "Description": "Legacy infrastructure cloud migration and horizontal scaling framework deployment.",
             "Client": "Nexus Industries",
             "Budget": "$620,000",
@@ -151,7 +168,7 @@ def generate_project_data():
         {
             "ProjectCode": "PEGASUS",
             "Name": "Project Pegasus",
-            "ProjectLead": "Marcus Davis",
+            "ProjectLead": eng_lead,
             "Description": "Internal corporate vault and zero-trust credential manager service.",
             "Client": "Internal",
             "Budget": "$150,000",
@@ -163,7 +180,7 @@ def generate_project_data():
         {
             "ProjectCode": "HYDRA",
             "Name": "Project Hydra",
-            "ProjectLead": "Steve Williams",
+            "ProjectLead": sec_lead,
             "Description": "Distributed threat feed parser and real-time SIEM event decorator.",
             "Client": "Quantum Tech",
             "Budget": "$350,000",
@@ -175,7 +192,7 @@ def generate_project_data():
         {
             "ProjectCode": "AEGIS",
             "Name": "Project Aegis",
-            "ProjectLead": "Steve Williams",
+            "ProjectLead": sec_lead,
             "Description": "Corporate perimeter hardening, WAF optimization, and active network defense orchestration.",
             "Client": "Summit Logistics",
             "Budget": "$280,000",
@@ -255,13 +272,39 @@ infrastructure_assets:
 """
     return yaml_str
 
-def get_markdown_documents():
+def get_markdown_documents(employees=None):
+    ciso_name = "Steve Williams"
+    ciso_email = "steve.williams@xynera.local"
+    ops_name = "Carlos Rodriguez"
+    ops_email = "carlos.rodriguez@xynera.local"
+    hr_name = "Diana Taylor"
+    ceo_name = "Robert Vance"
+    eng_name = "Marcus Davis"
+    sec_eng_name = "Fiona Garcia"
+    
+    if employees:
+        for e in employees:
+            if e["Role"] == "CISO":
+                ciso_name = e["Name"]
+                ciso_email = e["Email"]
+            elif e["Role"] == "Operations Director":
+                ops_name = e["Name"]
+                ops_email = e["Email"]
+            elif e["Role"] == "HR Manager":
+                hr_name = e["Name"]
+            elif e["Role"] == "CEO":
+                ceo_name = e["Name"]
+            elif e["Role"] == "Engineering Director":
+                eng_name = e["Name"]
+            elif e["Role"] == "Security Engineer":
+                sec_eng_name = e["Name"]
+
     docs = {}
     
     # Wednesday Documents
-    docs["report_q1_security.md"] = """# Xynera Internal Report: Q1 Security Posture Assessment
+    docs["report_q1_security.md"] = f"""# Xynera Internal Report: Q1 Security Posture Assessment
 **Date:** April 5, 2026  
-**Author:** Steve Williams, CISO  
+**Author:** {ciso_name}, CISO  
 **Classification:** Confidential - Internal Only
 
 ## Executive Summary
@@ -277,9 +320,9 @@ This report summarizes the findings of our Q1 2026 security review. While firewa
 - Perform a package update (`apt update && apt upgrade`) on `10.200.100.22` by next Tuesday.
 """
 
-    docs["report_cloud_migration.md"] = """# Xynera Internal Report: Cloud Migration Roadmap
+    docs["report_cloud_migration.md"] = f"""# Xynera Internal Report: Cloud Migration Roadmap
 **Date:** May 14, 2026  
-**Author:** Carlos Rodriguez, Operations Director  
+**Author:** {ops_name}, Operations Director  
 **Classification:** Internal Use Only
 
 ## 1. Objectives
@@ -296,9 +339,9 @@ The objective is to migrate all remaining on-premise components (excluding the c
 * **Phase 3 (Production Cutover):** July 20 (Scheduled downtime 02:00 - 04:00 EST)
 """
 
-    docs["meeting_notes_2026_06_22.md"] = """# Meeting Notes: Weekly Security Sync
+    docs["meeting_notes_2026_06_22.md"] = f"""# Meeting Notes: Weekly Security Sync
 **Date:** June 22, 2026  
-**Participants:** Steve Williams, Marcus Davis, Carlos Rodriguez, Fiona Garcia  
+**Participants:** {ciso_name}, {eng_name}, {ops_name}, {sec_eng_name}  
 
 ## Agenda
 - Review of firewall alerts on OpenVPN Gateway (`10.200.100.5`)
@@ -306,13 +349,13 @@ The objective is to migrate all remaining on-premise components (excluding the c
 - Progress on Project Aurora
 
 ## Discussed Items
-- **Firewall Probes:** Fiona reported a slight surge in SSH password guessing against `vpn-gw-01`. Standard fail2ban rules blocked the IPs.
-- **Staging Cleanup:** Steve emphasized replacing password logins with public keys.
-- **Project Aurora:** Carlos stated the cloud migration of API testing endpoints is currently on track.
+- **Firewall Probes:** {sec_eng_name} reported a slight surge in SSH password guessing against `vpn-gw-01`. Standard fail2ban rules blocked the IPs.
+- **Staging Cleanup:** {ciso_name} emphasized replacing password logins with public keys.
+- **Project Aurora:** {ops_name} stated the cloud migration of API testing endpoints is currently on track.
 
 ## Action Items
-- **Fiona:** Implement temporary geo-blocking on the corporate VPN gateway.
-- **Marcus:** Audit the Engineering employee active directory credentials.
+- **{sec_eng_name}:** Implement temporary geo-blocking on the corporate VPN gateway.
+- **{eng_name}:** Audit the Engineering employee active directory credentials.
 """
 
     docs["meeting_notes_2026_06_15.md"] = """# Meeting Notes: Project Aurora Kickoff
@@ -366,10 +409,10 @@ The gateway runs using a lightweight reverse proxy forwarding requests to downst
 SSL certificates are auto-renewed via Let's Encrypt script on the 1st of every month.
 """
 
-    docs["incident_2026_05_12_ddos.md"] = """# Incident Report: DDoS Attack on Public Web Server
+    docs["incident_2026_05_12_ddos.md"] = f"""# Incident Report: DDoS Attack on Public Web Server
 **Incident ID:** INC-2026-004  
 **Date of Incident:** May 12, 2026  
-**Reporter:** Carlos Rodriguez  
+**Reporter:** {ops_name}  
 
 ## Description
 At 14:15 UTC, monitoring tools flagged a spike in ingress traffic on the public-facing gateway, peaking at 20 Gbps. Web server response latency increased to >10 seconds, causing service outage.
@@ -383,10 +426,10 @@ The attack was identified as a UDP reflection/amplification flood targeting port
 - Added stricter rate limiting at firewall level.
 """
 
-    docs["incident_2026_06_01_phishing.md"] = """# Incident Report: Phishing Attempt on HR Team
+    docs["incident_2026_06_01_phishing.md"] = f"""# Incident Report: Phishing Attempt on HR Team
 **Incident ID:** INC-2026-005  
 **Date of Incident:** June 1, 2026  
-**Reporter:** Steve Williams  
+**Reporter:** {ciso_name}  
 
 ## Details
 An HR representative received a spoofed email claiming to be from "e-signature-portal.com" requesting password confirmation. The employee entered their AD login.
@@ -399,10 +442,10 @@ An HR representative received a spoofed email claiming to be from "e-signature-p
 """
 
     # Internal Policies
-    docs["remote_work_policy.md"] = """# Xynera Corporate Policy: Remote Work Security Policy
+    docs["remote_work_policy.md"] = f"""# Xynera Corporate Policy: Remote Work Security Policy
 **Document ID:** POL-2026-012  
 **Effective Date:** January 1, 2026  
-**Author:** Steve Williams, CISO  
+**Author:** {ciso_name}, CISO  
 **Classification:** Confidential - Internal Use Only
 
 ## 1. Purpose & Scope
@@ -420,10 +463,10 @@ This policy defines the security requirements for Xynera employees accessing cor
 - Never share corporate credentials or leave devices unattended.
 """
 
-    docs["incident_response_policy.md"] = """# Xynera Corporate Policy: Incident Response Policy
+    docs["incident_response_policy.md"] = f"""# Xynera Corporate Policy: Incident Response Policy
 **Document ID:** POL-2026-015  
 **Effective Date:** March 15, 2026  
-**Author:** Steve Williams, CISO  
+**Author:** {ciso_name}, CISO  
 **Classification:** Confidential - Internal Use Only
 
 ## 1. Classification of Incidents
@@ -434,15 +477,15 @@ Incidents are categorized by severity to determine escalation and resources:
 - **Sev-4 (Low):** Minor anomalies, port scanning, or unsuccessful brute-force attempts. Weekly log review.
 
 ## 2. Escalation Contacts
-- **IT Security Lead:** Steve Williams (CISO) - steve.williams@xynera.local
-- **Infrastructure Lead:** Carlos Rodriguez (Operations) - carlos.rodriguez@xynera.local
-- **Engineering Lead:** Marcus Davis - marcus.davis@xynera.local
+- **IT Security Lead:** {ciso_name} (CISO) - {ciso_email}
+- **Infrastructure Lead:** {ops_name} (Operations) - {ops_email}
+- **Engineering Lead:** {eng_name} - {eng_name.lower().replace(' ', '.')}@xynera.local
 """
 
-    docs["password_policy.md"] = """# Xynera Corporate Policy: Password and Credential Policy
+    docs["password_policy.md"] = f"""# Xynera Corporate Policy: Password and Credential Policy
 **Document ID:** POL-2026-003  
 **Effective Date:** February 10, 2026  
-**Author:** Steve Williams, CISO  
+**Author:** {ciso_name}, CISO  
 **Classification:** Confidential - Internal Use Only
 
 ## 1. Password Complexity Requirements
@@ -459,11 +502,11 @@ All local, Active Directory, and service passwords must satisfy the following mi
 """
 
     # Technical Manuals
-    docs["database_recovery_manual.md"] = """# Technical Manual: PostgreSQL Backup & Recovery Guide
+    docs["database_recovery_manual.md"] = f"""# Technical Manual: PostgreSQL Backup & Recovery Guide
 **Document ID:** MAN-2026-044  
 **Version:** 2.1  
 **Last Updated:** June 18, 2026  
-**Author:** Carlos Rodriguez, Operations Director  
+**Author:** {ops_name}, Operations Director  
 
 ## 1. Overview
 This manual details the step-by-step procedure to restore the production PostgreSQL database (`db-prod-01.xynera.local`) from daily logical backups.
@@ -491,11 +534,11 @@ To restore the database on a clean server:
 5. Verify count of tables and run sanity test queries.
 """
 
-    docs["kubernetes_deployment_guide.md"] = """# Technical Manual: Production Kubernetes Deployment Guide
+    docs["kubernetes_deployment_guide.md"] = f"""# Technical Manual: Production Kubernetes Deployment Guide
 **Document ID:** MAN-2026-039  
 **Version:** 1.2  
 **Last Updated:** May 22, 2026  
-**Author:** Carlos Rodriguez, Operations Director  
+**Author:** {ops_name}, Operations Director  
 
 ## 1. Architecture Overview
 Xynera uses a Managed Kubernetes (EKS) cluster in AWS to orchestrate core API microservices. The production namespaces are divided into `prod` and `staging`.
@@ -517,10 +560,10 @@ Credentials must not be committed to Git. The EKS pod fetches the database URI a
 """
 
     # Incident Reports
-    docs["incident_2026_06_18_malware.md"] = """# Incident Report: Staging Server Malware Detection
+    docs["incident_2026_06_18_malware.md"] = f"""# Incident Report: Staging Server Malware Detection
 **Incident ID:** INC-2026-008  
 **Date of Incident:** June 18, 2026  
-**Reporter:** Fiona Garcia, Security Engineer  
+**Reporter:** {sec_eng_name}, Security Engineer  
 
 ## Description
 At 22:10 UTC, the file integrity monitoring agent on `staging-api-01` (`10.200.100.22`) triggered a Sev-2 alert. An unauthorized script was identified under `/tmp/miner.sh` executing in the background.
@@ -535,10 +578,10 @@ Investigation showed the script was downloaded via `wget` from a known malicious
 - Rotated all local user passwords.
 """
 
-    docs["incident_2026_06_24_leak.md"] = """# Incident Report: Accidental Credential Leak on Public Repository
+    docs["incident_2026_06_24_leak.md"] = f"""# Incident Report: Accidental Credential Leak on Public Repository
 **Incident ID:** INC-2026-009  
 **Date of Incident:** June 24, 2026  
-**Reporter:** Steve Williams, CISO  
+**Reporter:** {ciso_name}, CISO  
 
 ## Description
 At 10:15 UTC, GitGuardian automated tools alerted that a developer had pushed code to a public GitHub repository containing a production Slack Webhook URL and a mock Stripe Secret API Key.
@@ -554,10 +597,10 @@ The developer was testing integrations for Project Phoenix and accidentally incl
 """
 
     # HR Documents
-    docs["employee_onboarding_guide.md"] = """# HR Onboarding: New Employee IT & Security Onboarding Guide
+    docs["employee_onboarding_guide.md"] = f"""# HR Onboarding: New Employee IT & Security Onboarding Guide
 **Document ID:** HR-2026-001  
 **Version:** 3.0  
-**Author:** Diana Taylor, HR Manager  
+**Author:** {hr_name}, HR Manager  
 
 ## Welcome to Xynera!
 This onboarding guide outlines the mandatory setup tasks to ensure compliance with our security and engineering guidelines.
@@ -570,9 +613,9 @@ This onboarding guide outlines the mandatory setup tasks to ensure compliance wi
 5. **Git Setup:** Clone your assigned repositories under `https://github.com/xynera-corp/` and configure your GPG signing keys.
 """
 
-    docs["performance_review_template.md"] = """# HR Template: Biannual Employee Performance Review Template
+    docs["performance_review_template.md"] = f"""# HR Template: Biannual Employee Performance Review Template
 **Document ID:** HR-2026-004  
-**Author:** Diana Taylor, HR Manager  
+**Author:** {hr_name}, HR Manager  
 
 ## Employee Review Structure
 This template is used by managers to conduct performance evaluations every 6 months.
@@ -671,17 +714,12 @@ Xynera operates within a single virtual private cloud (VPC) split into three sec
     return docs
 
 def generate_ssh_private_key():
-    return """-----BEGIN OPENSSH PRIVATE KEY-----
-b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtcn
-NhAAAAAwEAAQAAAYEA0Gf3Y3g5aDg5Y2g4OWFnZHNhZ2RzYWc1NnNmZ2RzZ2RzZ2RzZ2c1
-c2RmZ3NkZ3NkZ3NkZ3NkZ2RmZ2RzZ2RzZ2RzZ2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2
-dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dk
-c2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2
-dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dk
-c2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2
-dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dkc2dk
------END OPENSSH PRIVATE KEY-----
-"""
+    import base64
+    random_bytes = bytes(random.choices(range(256), k=256))
+    encoded = base64.b64encode(random_bytes).decode('utf-8')
+    lines = [encoded[i:i+70] for i in range(0, len(encoded), 70)]
+    body = "\n".join(lines)
+    return f"-----BEGIN OPENSSH PRIVATE KEY-----\n{body}\n-----END OPENSSH PRIVATE KEY-----\n"
 
 def generate_shadow_file():
     # Passwords:
@@ -700,24 +738,31 @@ backupuser:$6$rounds=40000$backupsalt$y2z3A4B5C6D7E8F9G0H1I2J3K4L5M6N7O8P9Q0R1S2
 """
 
 def generate_aws_credentials():
-    return """[default]
-aws_access_key_id = AKIA2T3U4V5W6X7Y8Z9A
-aws_secret_access_key = pT2d+G8fL9K1j4h3M7N6q9z2R5t8v1w4x7Y0z3A1
+    access_key = "AKIA" + "".join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", k=16))
+    secret_key = "".join(random.choices("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=", k=40))
+    return f"""[default]
+aws_access_key_id = {access_key}
+aws_secret_access_key = {secret_key}
 region = us-east-1
 """
 
 def generate_slack_config():
+    sub_url1 = "".join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", k=9))
+    sub_url2 = "".join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", k=9))
+    sub_url3 = "".join(random.choices("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", k=24))
     config = {
-        "slack_webhook_url": "https://hooks.slack.com/services/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",
+        "slack_webhook_url": f"https://hooks.slack.com/services/{sub_url1}/{sub_url2}/{sub_url3}",
         "channel": "#alerts-security",
         "username": "Xynera-Deception-Bot"
     }
     return json.dumps(config, indent=2)
 
 def generate_stripe_config():
+    pub_suffix = "".join(random.choices("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", k=90))
+    sec_suffix = "".join(random.choices("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", k=90))
     config = {
-        "stripe_publishable_key": "pk_live_51NvA01B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3X4Y5Z6a7b8c9d0e1f2g3h4i5j6k7l8m9n0o1p2q3r",
-        "stripe_secret_key": "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",
+        "stripe_publishable_key": f"pk_live_51Nv{pub_suffix}",
+        "stripe_secret_key": f"sk_live_51Nv{sec_suffix}",
         "api_version": "2023-10-16"
     }
     return json.dumps(config, indent=2)
@@ -791,14 +836,44 @@ ALTER TABLE ONLY public.transactions ADD CONSTRAINT transactions_pkey PRIMARY KE
 ALTER TABLE ONLY public.transactions ADD CONSTRAINT transactions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
 """
 
-def generate_audit_log_csv():
-    return """Timestamp,User,IPAddress,Action,Status
+def generate_audit_log_csv(commands=[]):
+    log = """Timestamp,User,IPAddress,Action,Status
 2026-06-25 10:15:22,ubuntu,192.168.1.10,SSH Login,Success
 2026-06-25 10:18:45,ubuntu,192.168.1.10,Sudo Command: apt-get update,Success
 2026-06-25 10:22:11,dev,192.168.1.12,Database Access,Success
 2026-06-25 10:24:55,dev,192.168.1.12,Database Backup Initiated,Success
 2026-06-25 10:30:00,root,127.0.0.1,Log Rotation Service,Success
 """
+    from datetime import datetime, timedelta
+    start_time = datetime.now() - timedelta(minutes=len(commands)*2)
+    for i, cmd in enumerate(commands):
+        timestamp = (start_time + timedelta(minutes=i*2)).strftime("%Y-%m-%d %H:%M:%S")
+        log += f"{timestamp},ubuntu,192.168.1.100,{cmd.replace(',', ';')},Success\n"
+    return log
+
+def generate_auth_log(commands=[]):
+    log = """Jun 15 08:01:22 sshd[2211]: Accepted password for ubuntu
+Jun 15 08:15:13 sshd[2214]: Accepted password for dev
+Jun 15 09:01:55 CRON[1001]: Job Started
+"""
+    from datetime import datetime, timedelta
+    start_time = datetime.now() - timedelta(minutes=len(commands)*2)
+    for i, cmd in enumerate(commands):
+        timestamp = (start_time + timedelta(minutes=i*2)).strftime("%b %d %H:%M:%S")
+        log += f"{timestamp} sudo[1000]: ubuntu : TTY=pts/0 ; PWD=/home/ubuntu ; USER=root ; COMMAND={cmd}\n"
+    return log
+
+def generate_syslog(commands=[]):
+    log = """Jun 15 nginx restarted
+Jun 15 mysql service started
+Jun 15 backup completed successfully
+"""
+    from datetime import datetime, timedelta
+    start_time = datetime.now() - timedelta(minutes=len(commands)*2)
+    for i, cmd in enumerate(commands):
+        timestamp = (start_time + timedelta(minutes=i*2)).strftime("%b %d %H:%M:%S")
+        log += f"{timestamp} systemd[1]: Started session for command: {cmd}\n"
+    return log
 
 def generate_nginx_conf():
     return """server {
@@ -1139,18 +1214,42 @@ max_wal_senders = 10
 hot_standby = on
 """
 
-def generate_emails():
+def generate_emails(employees=None):
+    ciso_name = "Steve Williams"
+    ciso_email = "steve.williams@xynera.local"
+    ops_name = "Carlos Rodriguez"
+    ops_email = "carlos.rodriguez@xynera.local"
+    hr_name = "Diana Taylor"
+    hr_email = "diana.taylor@xynera.local"
+    cfo_name = "Julia Miller"
+    cfo_email = "julia.miller@xynera.local"
+    
+    if employees:
+        for e in employees:
+            if e["Role"] == "CISO":
+                ciso_name = e["Name"]
+                ciso_email = e["Email"]
+            elif e["Role"] == "Operations Director":
+                ops_name = e["Name"]
+                ops_email = e["Email"]
+            elif e["Role"] == "HR Manager":
+                hr_name = e["Name"]
+                hr_email = e["Email"]
+            elif e["Role"] == "CFO":
+                cfo_name = e["Name"]
+                cfo_email = e["Email"]
+
     emails = {}
-    emails["inbox_summary.txt"] = """Xynera Corporate Mail Server - Inbox for user ubuntu
+    emails["inbox_summary.txt"] = f"""Xynera Corporate Mail Server - Inbox for user ubuntu
 Total Unread: 4 | Last Synchronized: 2026-07-01 10:15:00 UTC
 
-[1] Received: 2026-06-23 09:15:00 UTC | From: steve.williams@xynera.local | Subject: Urgent: Phishing Attempt Targeting HR Department
-[2] Received: 2026-06-18 11:22:00 UTC | From: carlos.rodriguez@xynera.local | Subject: Staging Database Access Info
-[3] Received: 2026-06-12 14:05:00 UTC | From: diana.taylor@xynera.local | Subject: Action Required: Q2 Performance Review Cycle
-[4] Received: 2026-06-05 16:30:00 UTC | From: julia.miller@xynera.local | Subject: CloudScale Solutions Contract & SLA Renewal
+[1] Received: 2026-06-23 09:15:00 UTC | From: {ciso_email} | Subject: Urgent: Phishing Attempt Targeting HR Department
+[2] Received: 2026-06-18 11:22:00 UTC | From: {ops_email} | Subject: Staging Database Access Info
+[3] Received: 2026-06-12 14:05:00 UTC | From: {hr_email} | Subject: Action Required: Q2 Performance Review Cycle
+[4] Received: 2026-06-05 16:30:00 UTC | From: {cfo_email} | Subject: CloudScale Solutions Contract & SLA Renewal
 """
 
-    emails["security_phishing_alert.txt"] = """From: Steve Williams <steve.williams@xynera.local>
+    emails["security_phishing_alert.txt"] = f"""From: {ciso_name} <{ciso_email}>
 To: employees@xynera.local
 Date: 2026-06-23 09:15:00 UTC
 Subject: Urgent: Phishing Attempt Targeting HR Department
@@ -1166,12 +1265,12 @@ As a reminder, all remote authentication must go through our corporate OpenVPN g
 Report any suspicious emails immediately to security@xynera.local.
 
 Best regards,
-Steve Williams
+{ciso_name}
 Chief Information Security Officer (CISO)
 Xynera Ltd.
 """
 
-    emails["staging_db_access.txt"] = """From: Carlos Rodriguez <carlos.rodriguez@xynera.local>
+    emails["staging_db_access.txt"] = f"""From: {ops_name} <{ops_email}>
 To: dev-team@xynera.local
 Date: 2026-06-18 11:22:00 UTC
 Subject: Staging Database Access Info
@@ -1191,12 +1290,12 @@ The database schemas match the production snapshot. Please run your validation q
 Reach out to me if you face any connection timeouts or firewall blocking issues.
 
 Thanks,
-Carlos Rodriguez
+{ops_name}
 Operations Director
 Xynera Ltd.
 """
 
-    emails["performance_review_cycle.txt"] = """From: Diana Taylor <diana.taylor@xynera.local>
+    emails["performance_review_cycle.txt"] = f"""From: {hr_name} <{hr_email}>
 To: managers@xynera.local
 Date: 2026-06-12 14:05:00 UTC
 Subject: Action Required: Q2 Performance Review Cycle
@@ -1212,13 +1311,13 @@ For new employees onboarding this month, please refer to the /home/ubuntu/docume
 All completed evaluations must be sent to hr@xynera.local.
 
 Thanks,
-Diana Taylor
+{hr_name}
 HR Manager
 Xynera Ltd.
 """
 
-    emails["vendor_contract_renewal.txt"] = """From: Julia Miller <julia.miller@xynera.local>
-To: steve.williams@xynera.local, carlos.rodriguez@xynera.local
+    emails["vendor_contract_renewal.txt"] = f"""From: {cfo_name} <{cfo_email}>
+To: {ciso_email}, {ops_email}
 Date: 2026-06-05 16:30:00 UTC
 Subject: CloudScale Solutions Contract & SLA Renewal
 
@@ -1235,20 +1334,25 @@ Specifically, please verify:
 Please send me your feedback by next Tuesday so we can execute the contract.
 
 Regards,
-Julia Miller
+{cfo_name}
 CFO
 Xynera Ltd.
 """
     return emails
 
-def get_generated_all():
+def get_generated_all(seed=None, commands=[]):
+    if seed is not None:
+        random.seed(seed)
+    else:
+        random.seed()
+
     csv_emp, list_emp = generate_employee_data()
     dept_json = generate_department_data(list_emp)
-    proj_csv = generate_project_data()
+    proj_csv = generate_project_data(list_emp)
     cli_json = generate_client_data()
     vend_json = generate_vendor_data()
     infra_yaml = generate_infrastructure_yaml()
-    docs = get_markdown_documents()
+    docs = get_markdown_documents(list_emp)
     
     ssh_key = generate_ssh_private_key()
     shadow = generate_shadow_file()
@@ -1263,7 +1367,9 @@ def get_generated_all():
     slack_conf = generate_slack_config()
     stripe_conf = generate_stripe_config()
     db_backup = generate_db_backup_sql(list_emp)
-    audit_log = generate_audit_log_csv()
+    audit_log = generate_audit_log_csv(commands)
+    auth_log = generate_auth_log(commands)
+    syslog = generate_syslog(commands)
     nginx = generate_nginx_conf()
     k8s = generate_kubernetes_yaml()
     env = generate_env_file()
@@ -1276,7 +1382,7 @@ def get_generated_all():
     sshd_config = generate_sshd_config()
     redis_conf = generate_redis_conf()
     postgresql_conf = generate_postgresql_conf()
-    emails = generate_emails()
+    emails = generate_emails(list_emp)
     
     return {
         "employees_csv": csv_emp,
@@ -1299,6 +1405,8 @@ def get_generated_all():
         "stripe_config_json": stripe_conf,
         "db_backup_sql": db_backup,
         "audit_log_csv": audit_log,
+        "auth_log": auth_log,
+        "syslog": syslog,
         "nginx_conf": nginx,
         "kubernetes_yaml": k8s,
         "env_file": env,
