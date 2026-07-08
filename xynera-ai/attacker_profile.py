@@ -292,24 +292,6 @@ def get_session_data(session_id, commands=[]):
     session_datasets[session_id] = get_generated_all(seed=seed, commands=commands)
     return session_datasets[session_id]
 
-session_datasets = {}
-
-
-def get_session_data(session_id, commands=[]):
-    """
-    Generates and caches session-specific dynamic corporate data.
-    """
-    if not session_id:
-        session_id = "default_session"
-        
-    import hashlib
-    h = hashlib.md5(session_id.encode()).hexdigest()
-    seed = int(h, 16) % 100000000
-    
-    from data_generator import get_generated_all
-    session_datasets[session_id] = get_generated_all(seed=seed, commands=commands)
-    return session_datasets[session_id]
-
 
 if __name__ == "__main__":
 
