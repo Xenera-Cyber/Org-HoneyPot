@@ -1,4 +1,39 @@
 PERSONALITIES = {
+    # New Threat-level based Personas
+    "friendly": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "normal": {
+        "name": "Normal Server",
+        "hostname": "ubuntu-server",
+        "user": "ubuntu",
+        "style": "normal",
+        "description": "Standard production server",
+        "response_style": "standard, professional, clean terminal output"
+    },
+    "suspicious": {
+        "name": "Suspicious Server",
+        "hostname": "corp-internal-secure",
+        "user": "sysadmin",
+        "style": "suspicious",
+        "description": "Cautious, alert, prints occasional warning banners",
+        "response_style": "cautious, alert, prints occasional warning banners or security notices, returns slightly defensive output"
+    },
+    "high_security": {
+        "name": "High Security Server",
+        "hostname": "prod-restricted-01",
+        "user": "root",
+        "style": "high_security",
+        "description": "Highly restrictive, hardened, logs everything, simulates auditing",
+        "response_style": "highly restrictive, extremely secure, logs every command, returns minimal details, denies access to sensitive areas, simulates auditing logs"
+    },
+
+    # Backwards Compatible Personas
     "default": {
         "name": "Standard Ubuntu Server",
         "hostname": "ubuntu-server",
@@ -102,11 +137,52 @@ UNIVERSITY_ATTACKS = (
 )
 
 
-def get_personality(ip=None, attack_type=None, score=0):
-    attack = str(attack_type).lower() if attack_type else ""
+def get_personality(profile=None, threat_score=None, ip=None, attack_type=None, score=0):
+    # Check if called using the new signature: get_personality(profile, threat_score)
+    if isinstance(profile, dict) and threat_score is not None:
+        level = "LOW"
+        score_val = 0
+        if isinstance(threat_score, dict):
+            level = threat_score.get("risk_level") or threat_score.get("threat_level", "LOW")
+            score_val = threat_score.get("score") or threat_score.get("final_score", 0)
+        elif isinstance(threat_score, (int, float)):
+            score_val = threat_score
+            if score_val >= 70:
+                level = "CRITICAL"
+            elif score_val >= 45:
+                level = "HIGH"
+            elif score_val >= 25:
+                level = "MEDIUM"
+            else:
+                level = "LOW"
+
+        if level == "CRITICAL" or score_val >= 70:
+            return PERSONALITIES["high_security"]
+        elif level == "HIGH" or score_val >= 45:
+            return PERSONALITIES["suspicious"]
+        elif level == "MEDIUM" or score_val >= 25:
+            return PERSONALITIES["normal"]
+        else:
+            return PERSONALITIES["friendly"]
+
+    # Fallback to old behavior for backward compatibility (ip, attack_type, score)
+    resolved_ip = ip
+    resolved_attack_type = attack_type
+    resolved_score = score
+
+    if isinstance(profile, str):
+        resolved_ip = profile
+        if isinstance(threat_score, str):
+            resolved_attack_type = threat_score
+            if isinstance(ip, (int, float)):
+                resolved_score = ip
+        elif isinstance(threat_score, (int, float)):
+            resolved_score = threat_score
+
+    attack = str(resolved_attack_type).lower() if resolved_attack_type else ""
 
     if (
-        score >= HIGHVALUE_THRESHOLD
+        resolved_score >= HIGHVALUE_THRESHOLD
         or any(keyword in attack for keyword in HIGHVALUE_ATTACKS)
     ):
         return PERSONALITIES["highvalue"]
@@ -118,18 +194,18 @@ def get_personality(ip=None, attack_type=None, score=0):
         return PERSONALITIES["university"]
 
     if (
-        score >= DEVELOPER_THRESHOLD
+        resolved_score >= DEVELOPER_THRESHOLD
         or any(keyword in attack for keyword in DEVELOPER_ATTACKS)
     ):
         return PERSONALITIES["developer"]
 
-    if score >= CORPORATE_THRESHOLD:
+    if resolved_score >= CORPORATE_THRESHOLD:
         return PERSONALITIES["corporate"]
 
-    if score >= BANKING_THRESHOLD:
+    if resolved_score >= BANKING_THRESHOLD:
         return PERSONALITIES["banking"]
 
-    if score <= NEWBIE_THRESHOLD:
+    if resolved_score <= NEWBIE_THRESHOLD:
         return PERSONALITIES["newbie"]
 
     return PERSONALITIES["default"]

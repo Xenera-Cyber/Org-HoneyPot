@@ -478,7 +478,7 @@ try:
         "example_output": gen_data["infrastructure_yaml"]
     })
     
-    # Wednesday - Dynamic Documents
+    #Dynamic Documents
     doc_paths = {
         "report_q1_security.md": "/home/ubuntu/documents/internal_reports/report_q1_security.md",
         "report_cloud_migration.md": "/home/ubuntu/documents/internal_reports/report_cloud_migration.md",

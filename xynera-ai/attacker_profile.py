@@ -83,7 +83,35 @@ def get_detailed_profile(ip, risk_score, threat_level):
     Generates curiosity, engagement, and behaviour profiles for the attacker.
     """
     if ip not in profiles:
-        return None
+        return {
+            "curiosity": {
+                "commands_executed": 0,
+                "unique_commands": 0,
+                "directories_visited": 0,
+                "recon_commands": 0,
+                "persistence_attempts": 0,
+                "curiosity_score": 0
+            },
+            "engagement": {
+                "session_duration": 0,
+                "commands_executed": 0,
+                "successful_commands": 0,
+                "failed_commands": 0,
+                "files_accessed": 0,
+                "services_accessed": 0,
+                "engagement_score": 0,
+                "engagement_level": "LOW"
+            },
+            "behaviour": {
+                "Curiosity Score": 0,
+                "Persistence Score": "LOW",
+                "Interaction Depth": "LOW",
+                "Risk Score": risk_score,
+                "Session Complexity": "LOW"
+            },
+            "commands": [],
+            "confidence_score": 0.50
+        }
     p = profiles[ip]
     session_duration = int(p["last_seen"] - p["first_seen"])
     commands_executed = len(p["commands"])
@@ -121,10 +149,14 @@ def get_detailed_profile(ip, risk_score, threat_level):
         session_complexity=len(set(p["commands"]))
     )
 
+    profile_confidence = min(0.5 + (len(p["commands"]) * 0.05), 0.99)
+
     return {
         "curiosity": curiosity,
         "engagement": engagement,
-        "behaviour": behaviour
+        "behaviour": behaviour,
+        "commands": p["commands"],
+        "confidence_score": round(profile_confidence, 2)
     }
 
 
@@ -240,13 +272,13 @@ def generate_behaviour_profile(
         "Session Complexity": complexity
     }
 
+
 session_datasets = {}
+
 
 def get_session_data(session_id, commands=[]):
     """
     Generates and caches session-specific dynamic corporate data.
-    The seed is derived deterministically from the session_id to maintain consistency
-    across multiple commands within the same session.
     """
     if not session_id:
         session_id = "default_session"
@@ -256,9 +288,9 @@ def get_session_data(session_id, commands=[]):
     seed = int(h, 16) % 100000000
     
     from data_generator import get_generated_all
-    # Re-generate/update the dataset so that log files reflect the current command history
     session_datasets[session_id] = get_generated_all(seed=seed, commands=commands)
     return session_datasets[session_id]
+
 
 if __name__ == "__main__":
 
@@ -270,28 +302,5 @@ if __name__ == "__main__":
         persistence_attempts=2
     )
 
-    engagement = calculate_engagement_score(
-        session_duration=42,
-        commands_executed=18,
-        successful_commands=15,
-        failed_commands=3,
-        files_accessed=9,
-        services_accessed=4
-    )
-
-    behaviour = generate_behaviour_profile(
-        curiosity_score=92,
-        persistence_attempts=5,
-        interaction_depth=9,
-        risk_score=87,
-        session_complexity=8
-    )
-
     print("\n===== Curiosity Score =====")
     print(json.dumps(curiosity, indent=4))
-
-    print("\n===== Engagement Score =====")
-    print(json.dumps(engagement, indent=4))
-
-    print("\n===== Behaviour Profile =====")
-    print(json.dumps(behaviour, indent=4))

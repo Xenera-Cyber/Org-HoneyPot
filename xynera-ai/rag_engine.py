@@ -1,5 +1,6 @@
 import httpx
 import re
+import asyncio
 from knowledge_base import knowledge_documents
 from config import GROQ_API_KEY, GROQ_MODEL
 from guardrails import apply_guardrails
@@ -8,6 +9,7 @@ import vector_store
 
 # Pre-sort the knowledge documents by command length in reverse order once at module-load time
 sorted_docs = sorted(knowledge_documents, key=lambda x: len(x["command"]), reverse=True)
+
 
 async def call_groq_api(prompt, max_tokens=1024):
     url = "https://api.groq.com/openai/v1/chat/completions"
@@ -26,18 +28,50 @@ async def call_groq_api(prompt, max_tokens=1024):
         "max_tokens": max_tokens,
         "temperature": 0.1
     }
-    try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.post(url, json=payload, headers=headers)
-        if response.status_code == 200:
-            result = response.json()
-            return result["choices"][0]["message"]["content"].strip()
-        else:
-            print(f"[Groq API Error] Status code: {response.status_code}, Response: {response.text}")
-            return None
-    except Exception as e:
-        print(f"[Groq API Exception] {e}")
-        return None
+    
+    retries = 6
+    delay = 2.0
+    
+    for attempt in range(retries):
+        try:
+            async with httpx.AsyncClient(timeout=25.0) as client:
+                response = await client.post(url, json=payload, headers=headers)
+            
+            if response.status_code == 200:
+                result = response.json()
+                return result["choices"][0]["message"]["content"].strip()
+            
+            elif response.status_code == 429:
+                retry_after = 6.0
+                try:
+                    err_data = response.json()
+                    msg = err_data.get("error", {}).get("message", "")
+                    match = re.search(r"try again in ([0-9\.]+)s", msg)
+                    if match:
+                        retry_after = float(match.group(1)) + 1.0
+                    elif "retry-after" in response.headers:
+                        retry_after = float(response.headers["retry-after"]) + 1.0
+                except:
+                    pass
+                print(f"[Rate Limit 429] Limit reached. Sleeping for {retry_after:.2f}s before retry (Attempt {attempt+1}/{retries})...")
+                await asyncio.sleep(retry_after)
+            
+            elif response.status_code in [500, 502, 503, 504]:
+                print(f"[Groq API Temp Error] Status {response.status_code}. Sleeping for {delay}s before retry...")
+                await asyncio.sleep(delay)
+                delay *= 2
+            
+            else:
+                print(f"[Groq API Error] Status code: {response.status_code}, Response: {response.text}")
+                return None
+                
+        except Exception as e:
+            print(f"[Groq API Exception] {e}. Sleeping for {delay}s...")
+            await asyncio.sleep(delay)
+            delay *= 2
+            
+    return None
+
 
 def clean_llm_output(text, command):
     if not text:
@@ -65,40 +99,34 @@ def clean_llm_output(text, command):
     base_cmd = cmd_parts[0] if cmd_parts else ""
 
     # 1. Clean leading echoes
-    # Check if the first line is the prompt + command, or just the command
     first_line = lines[0].strip()
     prompt_regex = r'^([a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+:.*?[#$]\s*)?'
     
-    # Try matching prompt + exact command
     match = re.match(prompt_regex + re.escape(command_stripped) + r'\s*$', first_line, re.IGNORECASE)
     if match:
         lines.pop(0)
     else:
-        # Try matching prompt + command name (e.g. "ubuntu@server:~$ whoami")
         match = re.match(prompt_regex + re.escape(base_cmd) + r'\b.*$', first_line, re.IGNORECASE)
         if match:
             lines.pop(0)
         elif first_line.lower() == command_stripped.lower() or first_line.lower() == base_cmd.lower():
             lines.pop(0)
 
-    # Clean any resulting empty lines at the top
     while lines and not lines[0].strip():
         lines.pop(0)
 
     # 2. Clean trailing echoes/prompts
-    # Check if the last line is a terminal prompt
     if lines:
         last_line = lines[-1].strip()
-        # Regex to match just a prompt at the end
         if re.match(r'^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+:.*?[#$]\s*$', last_line) or last_line.endswith("$") or last_line.endswith("#"):
             if "@" in last_line or last_line.startswith("ubuntu") or last_line.startswith("root"):
                 lines.pop()
 
-    # Clean any resulting empty lines at the bottom
     while lines and not lines[-1].strip():
         lines.pop()
 
     return "\n".join(lines).strip()
+
 
 COMMAND_TO_DATA_KEY = {
     "/home/ubuntu/company_directory/employees.csv": "employees_csv",
@@ -139,6 +167,7 @@ COMMAND_TO_DATA_KEY = {
     "/home/ubuntu/emails/vendor_contract_renewal.txt": ("emails", "vendor_contract_renewal.txt"),
 }
 
+
 def retrieve_context(command, session_id=None):
     if not command:
         return None
@@ -159,7 +188,6 @@ def retrieve_context(command, session_id=None):
                 file_path = parts[1].strip().strip('"\'')
                 file_basename = os.path.basename(file_path)
                 
-                # Check command to data key mapping
                 for path, key in COMMAND_TO_DATA_KEY.items():
                     if file_path == path or file_basename == os.path.basename(path):
                         if isinstance(key, tuple):
@@ -172,7 +200,6 @@ def retrieve_context(command, session_id=None):
                             "example_output": val
                         }
                 
-                # Check custom documents
                 if "documents" in session_data:
                     for doc_path, doc_content in session_data["documents"].items():
                         if file_path == doc_path or file_basename == os.path.basename(doc_path):
@@ -199,7 +226,7 @@ def retrieve_context(command, session_id=None):
                         return doc
             return None
 
-    # 2. Try vector store search with a threshold
+    # Try vector store search with a threshold
     context_doc = vector_store.search(command, threshold=0.3)
     if context_doc:
         doc_cmd_parts = context_doc["command"].lower().split()
@@ -220,7 +247,7 @@ def retrieve_context(command, session_id=None):
         if context_doc:
             return context_doc
 
-    # 3. Fallback matching with word boundaries
+    # Fallback matching with word boundaries
     for doc in sorted_docs:
         doc_cmd = doc["command"].lower()
         doc_parts = doc_cmd.split()
@@ -232,20 +259,28 @@ def retrieve_context(command, session_id=None):
     return None
 
 
-async def generate_deception(command, history=None, cwd=None, attack_type=None, hostname=None, username=None, session_id=None):
+async def generate_response(command, personality, attacker_profile, threat_score, history=None, cwd=None, session_id=None):
+    if not isinstance(personality, dict):
+        personality = {
+            "name": "Standard Ubuntu Server",
+            "hostname": "ubuntu-server",
+            "user": "ubuntu",
+            "style": "normal",
+            "description": "Clean production server",
+            "response_style": "concise, accurate, and professional"
+        }
+
     context_doc = retrieve_context(command, session_id=session_id)
 
-    # Shortcut routing for exact command matches or static file reads to bypass LLM latency and safety blocks
+    # Shortcuts
     if context_doc:
         import os
         cmd_stripped = command.strip()
         doc_cmd = context_doc["command"].strip()
         
-        # 1. Exact match
         if doc_cmd == cmd_stripped:
             return context_doc['example_output'].strip()
             
-        # 2. Cat/file read shortcut
         if cmd_stripped.startswith("cat "):
             parts = cmd_stripped.split()
             if len(parts) == 2:
@@ -253,17 +288,15 @@ async def generate_deception(command, history=None, cwd=None, attack_type=None, 
                 if doc_cmd.startswith("cat ") and (filename_only in doc_cmd or parts[1] in doc_cmd):
                     return context_doc['example_output'].strip()
 
-        # 3. Empty output shortcut for commands that succeed silently (e.g. mkdir, chmod, history -c)
         if context_doc['example_output'].strip() == "":
             return ""
 
     reference_format = context_doc['example_output'].strip() if context_doc else "None. Simulate realistic terminal output based on standard Ubuntu behavior."
     
-    # Format command history for context
     history_str = "\n".join(f"- {h}" for h in history) if history else "No command history."
 
-    active_host = hostname or "ubuntu-server"
-    active_user = username or "ubuntu"
+    active_host = personality.get("hostname", "ubuntu-server")
+    active_user = personality.get("user", "ubuntu")
 
     if active_host == "staging-api-01":
         fs_state = """- Directory structure:
@@ -316,7 +349,14 @@ async def generate_deception(command, history=None, cwd=None, attack_type=None, 
       - /etc/passwd: "root:x:0:0:root:/root:/bin/bash\\nubuntu:x:1000:1000::/home/ubuntu:/bin/bash\\n"
       - (Note: Contents for employees.csv, projects.csv, departments.json, audit_log.csv, clients.json, vendors.json, db_backup.sql, dev_tasks.md, /etc/shadow, nginx config default, infrastructure_assets.yaml, all files under .ssh, .aws, .slack, .env, and all markdown/json/yaml reports/documents under /home/ubuntu/documents are provided in the REFERENCE FORMAT GUIDE if the command reads or queries them.)"""
 
-    prompt = f"""You are simulating a real Linux terminal on an Ubuntu 22.04 LTS server.
+    persona_name = personality.get("name", "Standard Ubuntu Server")
+    persona_style = personality.get("response_style", "concise, accurate, and professional")
+    persona_desc = personality.get("description", "Clean production server")
+
+    prompt = f"""You are simulating a real Linux terminal on a server matching the following persona:
+    Persona Name: {persona_name}
+    Description: {persona_desc}
+    Required Deception/Response Style: {persona_style}
     
     ENVIRONMENT CONTEXT:
     - Hostname: {active_host}
@@ -351,12 +391,12 @@ async def generate_deception(command, history=None, cwd=None, attack_type=None, 
     7. If the command has syntax errors, invalid flags, or missing arguments, print the exact command-specific error message a real Linux system would produce.
     8. If the command is completely unrecognized or not a valid Linux command, return "bash: [command_name]: command not found" (substitute the actual command name).
     9. Ensure all formatting, spacing, and column alignment in tables (like ps, netstat, df, systemctl) are perfectly aligned.
+    10. Adhere strictly to the persona of a {persona_name}. The output format and content must reflect the response style: {persona_style}.
     
     Generate terminal output:"""
 
     raw_response = await call_groq_api(prompt, max_tokens=1024)
     if raw_response is None:
-        # Fallback to example output directly if API call failed
         if context_doc:
             response = context_doc['example_output'].strip()
         else:
@@ -367,3 +407,36 @@ async def generate_deception(command, history=None, cwd=None, attack_type=None, 
         response = clean_llm_output(raw_response, command)
 
     return apply_guardrails(command, response)
+
+
+async def generate_deception(command, history=None, cwd=None, attack_type=None, hostname=None, username=None, session_id=None):
+    from personalities import get_personality
+    score = 0
+    if attack_type == "Reconnaissance":
+        score = 5
+    elif attack_type:
+        score = 20
+    
+    personality = get_personality(ip=None, attack_type=attack_type, score=score)
+    if hostname:
+        personality["hostname"] = hostname
+    if username:
+        personality["user"] = username
+        
+    attacker_profile = {
+        "commands": history or [],
+        "confidence_score": 0.90
+    }
+    threat_score = {
+        "score": score,
+        "risk_level": "LOW" if score < 25 else "HIGH"
+    }
+    return await generate_response(
+        command=command,
+        personality=personality,
+        attacker_profile=attacker_profile,
+        threat_score=threat_score,
+        history=history,
+        cwd=cwd,
+        session_id=session_id
+    )
