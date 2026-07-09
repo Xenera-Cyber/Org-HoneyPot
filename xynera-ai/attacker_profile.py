@@ -274,7 +274,10 @@ def generate_behaviour_profile(
 
 session_datasets = {}
 
-def get_session_data(session_id, commands=[]):
+def get_session_data(session_id, commands=None):
+    if commands is None:
+        commands=[]
+    
     """
     Generates and caches session-specific dynamic corporate data.
     The seed is derived deterministically from the session_id to maintain consistency
@@ -305,3 +308,24 @@ if __name__ == "__main__":
 
     print("\n===== Curiosity Score =====")
     print(json.dumps(curiosity, indent=4))
+    engagement = calculate_engagement_score(
+    session_duration=30,
+    commands_executed=18,
+    successful_commands=15,
+    failed_commands=3,
+    files_accessed=6,
+    services_accessed=2
+    )
+
+    print("\n===== Engagement Score =====")
+    print(json.dumps(engagement, indent=4))
+    behaviour = generate_behaviour_profile(
+    curiosity_score=curiosity["curiosity_score"],
+    persistence_attempts=3,
+    interaction_depth=8,
+    risk_score=82,
+    session_complexity=7
+    )
+
+    print("\n===== Behaviour Profile =====")
+    print(json.dumps(behaviour, indent=4))
