@@ -14,8 +14,8 @@ SERVER_MAC = "08:00:27:4e:9a:2c"
 SERVER_IPV6_LINK = "fe80::a00:27ff:fe4e:9a2c"
 
 # Single source of truth for every listening service, shared by
-# netstat(), netstat_tulpn() and ss() so their output can never drift
-# out of sync with each other.
+# netstat(), netstat_tulpn(), ss() and service_manager.py so their
+# output can never drift out of sync with each other.
 # (proto, bind_address, port, pid, program)
 SERVICES = [
     ("tcp", "0.0.0.0", 22, 221, "sshd"),
@@ -24,6 +24,7 @@ SERVICES = [
     ("tcp", "127.0.0.1", 3306, 334, "mysqld"),
     ("tcp", "127.0.0.1", 5432, 412, "postgres"),
     ("tcp", "127.0.0.1", 6379, 501, "redis-server"),
+    ("tcp", "0.0.0.0", 2375, 812, "dockerd"),
     ("tcp", "0.0.0.0", 8080, 701, "jenkins"),
     ("tcp", "0.0.0.0", 9090, 801, "prometheus"),
 ]
@@ -80,10 +81,27 @@ def _human_bytes(n):
     return f"{n / (1024 * 1024):.1f} MB"
 
 
+def _active_services(service_manager=None):
+    """
+    Return the SERVICES entries that should currently appear as
+    listening. When a session's ServiceManager is supplied, services the
+    attacker has stopped are excluded so netstat/ss/netstat -tulpn always
+    agree with `service <n> stop` / `systemctl stop <n>`. With no
+    ServiceManager (e.g. calls made outside of a live session) every
+    service is treated as running, matching the original static output.
+    """
+    if service_manager is None:
+        return SERVICES
+    return [
+        entry for entry in SERVICES
+        if service_manager.is_running_by_program(entry[4]) is not False
+    ]
+
+
 # ==========================================================
 # Local Discovery Commands
 # ==========================================================
-def netstat():
+def netstat(service_manager=None):
     header = (
         "Active Internet connections (only servers)\n"
         f"{'Proto':<6}{'Recv-Q':>7} {'Send-Q':>7} "
@@ -91,7 +109,7 @@ def netstat():
     )
     lines = [header]
 
-    for proto, addr, port, _pid, _prog in SERVICES:
+    for proto, addr, port, _pid, _prog in _active_services(service_manager):
         local = f"{addr}:{port}"
         lines.append(
             f"{proto:<6}{'0':>7} {'0':>7} {local:<24}{'0.0.0.0:*':<24}LISTEN"
@@ -111,7 +129,7 @@ def netstat():
     return "\n".join(lines) + "\n"
 
 
-def netstat_tulpn():
+def netstat_tulpn(service_manager=None):
     header = (
         "Active Internet connections (only servers)\n"
         f"{'Proto':<6}{'Recv-Q':>7} {'Send-Q':>7} "
@@ -119,7 +137,7 @@ def netstat_tulpn():
     )
     lines = [header]
 
-    for proto, addr, port, pid, prog in SERVICES:
+    for proto, addr, port, pid, prog in _active_services(service_manager):
         local = f"{addr}:{port}"
         lines.append(
             f"{proto:<6}{'0':>7} {'0':>7} {local:<24}{'0.0.0.0:*':<24}"
@@ -129,14 +147,14 @@ def netstat_tulpn():
     return "\n".join(lines) + "\n"
 
 
-def ss():
+def ss(service_manager=None):
     header = (
         f"{'Netid':<6}{'State':<12}{'Recv-Q':>7} {'Send-Q':>7}   "
         f"{'Local Address:Port':<26}{'Peer Address:Port'}"
     )
     lines = [header]
 
-    for proto, addr, port, _pid, _prog in SERVICES:
+    for proto, addr, port, _pid, _prog in _active_services(service_manager):
         local = f"{addr}:{port}"
         lines.append(
             f"{proto:<6}{'LISTEN':<12}{'0':>7} {'128':>7}   {local:<26}{'0.0.0.0:*'}"
@@ -198,7 +216,7 @@ def ip_addr():
 # ==========================================================
 # Outbound / Lateral-Movement Commands
 # ==========================================================
-def ssh(host="192.168.1.10", user="root"):
+def ssh(host="192.168.1.10", user="root", port=22):
     """Simulate a failed SSH lateral-movement attempt."""
     display, ip = _resolve_target(host)
 
@@ -206,11 +224,11 @@ def ssh(host="192.168.1.10", user="root"):
     # banner is ever seen.
     outcome = random.random()
     if outcome < 0.10:
-        return f"ssh: connect to host {ip} port 22: Connection refused\n"
+        return f"ssh: connect to host {ip} port {port}: Connection refused\n"
     if outcome < 0.18:
-        return f"ssh: connect to host {ip} port 22: Connection timed out\n"
+        return f"ssh: connect to host {ip} port {port}: Connection timed out\n"
     if outcome < 0.24:
-        return f"ssh: connect to host {ip} port 22: No route to host\n"
+        return f"ssh: connect to host {ip} port {port}: No route to host\n"
 
     lines = [
         "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.6",
@@ -237,16 +255,17 @@ def scp(host="192.168.1.10", user="root", filename="file.txt"):
     return random.choice(responses)
 
 
-def ping(host="192.168.1.10"):
+def ping(host="192.168.1.10", count=3):
     """Simulate a ping sweep with randomized latency/loss."""
     if not host or " " in host:
         return f"ping: {host}: Name or service not known\n"
 
+    count = max(1, count)
     display, ip = _resolve_target(host)
 
     # Weighted towards success, occasional partial/total loss.
     loss = random.choice([0, 0, 0, 25, 50, 100])
-    received = round(3 * (100 - loss) / 100)
+    received = round(count * (100 - loss) / 100)
 
     lines = [f"PING {display} ({ip}) 56(84) bytes of data."]
     for seq in range(1, received + 1):
@@ -255,7 +274,7 @@ def ping(host="192.168.1.10"):
 
     lines.append(f"--- {display} ping statistics ---")
     lines.append(
-        f"3 packets transmitted, {received} received, {loss}% packet loss, "
+        f"{count} packets transmitted, {received} received, {loss}% packet loss, "
         f"time {random.randint(2000, 2100)}ms"
     )
     return "\n".join(lines) + "\n"

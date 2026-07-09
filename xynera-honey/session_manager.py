@@ -3,11 +3,23 @@ import json
 import os
 from datetime import datetime
 
+from fake_filesystem import create_filesystem
+from service_manager import ServiceManager
+
 HOME_DIR = "/home/ubuntu"
 
 
 class SessionManager:
     def __init__(self, attacker_ip):
+        # Per-session dynamic filesystem (touch/mkdir/rm/mv/cp persist for
+        # the life of this session only, never leaking into other sessions).
+        self.filesystem = create_filesystem()
+
+        # Per-session fake service state (nginx/mysql/redis/ssh/docker),
+        # so `service <n> stop`, `systemctl status <n>`, `netstat`, and
+        # `ss` all agree with each other for this attacker.
+        self.services = ServiceManager()
+
         self.session = {
             "session_id": str(uuid.uuid4()),
             "attacker_ip": attacker_ip,
@@ -17,7 +29,11 @@ class SessionManager:
             "command_history": [],
             "attack_types": [],
             "threat_score": 0,
-            "is_active": True
+            "is_active": True,
+            # Tracks the deception engine's rolling read on attacker intent
+            # (recon / credential / malware) so responses can adapt across
+            # a session rather than per-command in isolation.
+            "attacker_profile": {"intent": "recon"},
         }
 
     def get_session(self):
@@ -25,6 +41,12 @@ class SessionManager:
 
     def get_cwd(self):
         return self.session["cwd"]
+
+    def get_filesystem(self):
+        return self.filesystem
+
+    def get_services(self):
+        return self.services
 
     def change_directory(self, path):
         self.session["cwd"] = path
@@ -71,6 +93,7 @@ class SessionManager:
             "commands": self.session["command_history"],
             "threat_score": self.session["threat_score"],
             "attack_types": self.session["attack_types"],
+            "attacker_profile": self.session["attacker_profile"],
             "session_duration": duration
         }
 
