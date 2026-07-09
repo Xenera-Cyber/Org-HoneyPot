@@ -270,7 +270,14 @@ async def generate_response(command, personality, attacker_profile, threat_score
             "response_style": "concise, accurate, and professional"
         }
 
-    context_doc = retrieve_context(command, session_id=session_id)
+    try:
+    context_doc = retrieve_context(
+        command,
+        session_id=session_id
+    )
+    except Exception as e:
+        print(f"[RAG ERROR] {e}")
+        context_doc = None
 
     # Shortcuts
     if context_doc:
