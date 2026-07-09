@@ -115,7 +115,7 @@ def start_server():
                 # ----------------------------
                 # Execute Command
                 # ----------------------------
-                response = route_command(command, session_manager)
+                response = route_command(command, session_manager, attack_type)
                 conn.send((response + "\n").encode())
 
         except Exception as e:

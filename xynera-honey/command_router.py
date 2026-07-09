@@ -1,9 +1,8 @@
 import time
 import random
+import shlex
 from datetime import datetime
 
-from fake_filesystem import filesystem, file_contents
-from fake_process import ps, ps_aux
 from fake_network import (
     netstat,
     netstat_tulpn,
@@ -19,7 +18,9 @@ from fake_network import (
     nslookup,
     host,
 )
+from fake_process import ps, ps_aux
 import malware_detector
+import deception_engine
 
 HOME_DIR = "/home/ubuntu"
 
@@ -40,6 +41,11 @@ COMMAND_DELAYS = {
     "ls -la": 0.3,
     "cd": 0.2,
     "cat": 0.4,
+    "touch": 0.2,
+    "mkdir": 0.2,
+    "rm": 0.3,
+    "mv": 0.3,
+    "cp": 0.3,
     "ps": 0.5,
     "ps aux": 0.7,
     "netstat": 0.8,
@@ -60,6 +66,7 @@ COMMAND_DELAYS = {
     "uname -a": 0.3,
     "uptime": 0.3,
     "systemctl": 0.7,
+    "service": 0.3,
     "date": 0.1,
     "env": 0.1,
     "printenv": 0.1,
@@ -184,15 +191,28 @@ def handle_hostnamectl(command):
 
 
 def handle_history(command, session_manager):
-    """Render shell-style history from session["command_history"]."""
+    """
+    Render shell-style history from session["command_history"].
+    Supports `history -c` to clear it and `history N` to show only the
+    last N entries (original line numbers are preserved, matching real
+    bash behaviour).
+    """
     session = session_manager.get_session()
     history = session.get("command_history", [])
-    if not history:
+    parts = command.split()
+
+    if "-c" in parts:
+        history.clear()
         return ""
-    return "\n".join(
-        f"  {i}  {entry['command']}"
-        for i, entry in enumerate(history, 1)
-    )
+
+    numbered = list(enumerate(history, 1))
+    if len(parts) > 1 and parts[1].isdigit():
+        limit = int(parts[1])
+        numbered = numbered[-limit:]
+
+    if not numbered:
+        return ""
+    return "\n".join(f"  {i}  {entry['command']}" for i, entry in numbered)
 
 
 def handle_chmod(command):
@@ -213,6 +233,33 @@ def handle_chmod(command):
     return "Permissions updated"
 
 
+def handle_service(command, services):
+    """`service <name> {start|stop|restart}` — backed by session_manager.services."""
+    parts = command.split()
+    if len(parts) < 3:
+        return "Usage: service <name> {start|stop|restart}"
+    name, action = parts[1], parts[2]
+    return services.handle_service_command(name, action)
+
+
+def handle_systemctl(command, services):
+    """
+    `systemctl status <name>` / `systemctl {start|stop|restart} <name>`,
+    backed by session_manager.services so state agrees with `service`,
+    netstat, and ss for the rest of the session.
+    """
+    parts = command.split()
+    if len(parts) < 2:
+        return services.systemctl_overview()
+
+    sub = parts[1]
+    if sub == "status" and len(parts) >= 3:
+        return services.systemctl_status(parts[2])
+    if sub in ("start", "stop", "restart") and len(parts) >= 3:
+        return services.handle_service_command(parts[2], sub)
+    return services.systemctl_overview()
+
+
 # ==========================================================
 # Network Command Helpers (shared arg-parsing, avoids duplication)
 # ==========================================================
@@ -222,16 +269,52 @@ def _arg(command, index=1, default=None):
 
 
 def handle_ssh(command):
-    parts = command.split()
-    if len(parts) > 1 and "@" in parts[1]:
-        user, target = parts[1].split("@", 1)
-    else:
-        user, target = "root", _arg(command, 1, "192.168.1.10")
-    return ssh(host=target, user=user)
+    """Supports `ssh [-p port] [user@]host`."""
+    parts = command.split()[1:]
+    port = 22
+    user = "root"
+    target = "192.168.1.10"
+
+    positional = []
+    i = 0
+    while i < len(parts):
+        if parts[i] == "-p" and i + 1 < len(parts):
+            if parts[i + 1].isdigit():
+                port = int(parts[i + 1])
+            i += 2
+            continue
+        if not parts[i].startswith("-"):
+            positional.append(parts[i])
+        i += 1
+
+    if positional:
+        last = positional[-1]
+        if "@" in last:
+            user, target = last.split("@", 1)
+        else:
+            target = last
+
+    return ssh(host=target, user=user, port=port)
 
 
 def handle_ping(command):
-    return ping(host=_arg(command, 1, "192.168.1.10"))
+    """Supports `ping [-c count] host`."""
+    parts = command.split()[1:]
+    count = 3
+    target = "192.168.1.10"
+
+    i = 0
+    while i < len(parts):
+        if parts[i] == "-c" and i + 1 < len(parts):
+            if parts[i + 1].isdigit():
+                count = int(parts[i + 1])
+            i += 2
+            continue
+        if not parts[i].startswith("-"):
+            target = parts[i]
+        i += 1
+
+    return ping(host=target, count=count)
 
 
 def handle_traceroute(command):
@@ -259,46 +342,134 @@ def handle_host(command):
 
 
 # ==========================================================
-# Path Resolution Helpers (shared by cd and cat)
+# Filesystem Command Helpers (dynamic, session-scoped filesystem)
 # ==========================================================
-def _resolve_path(cwd, path):
-    """
-    Resolve a user-supplied path (bare, '.', '..', '~', '~/x', absolute,
-    or relative) against the current working directory.
+def _split_command(command):
+    try:
+        return shlex.split(command), None
+    except ValueError as exc:
+        return None, f"bash: {exc}"
 
-    A bare/empty path (plain "cd") goes to HOME_DIR, matching real
-    shell behaviour. A literal "." means "stay put" and is signalled
-    by returning None (distinct from an empty path).
-    """
-    if path == "":
-        return HOME_DIR
-    if path == ".":
-        return None
-    if path == "~":
-        return HOME_DIR
-    if path.startswith("~/"):
-        return f"{HOME_DIR}/{path[2:]}"
-    if path == "..":
-        if cwd == "/":
-            return "/"
-        parent = "/".join(cwd.rstrip("/").split("/")[:-1])
-        return parent if parent else "/"
-    if path.startswith("/"):
-        new_path = path
-    else:
-        new_path = f"/{path}" if cwd == "/" else f"{cwd}/{path}"
-    return new_path.replace("//", "/")
+
+def _collect_errors(results):
+    return "\n".join(result for result in results if result)
+
+
+def handle_ls(command, filesystem, cwd):
+    parts, error = _split_command(command)
+    if error:
+        return error
+
+    flags = []
+    paths = []
+    for part in parts[1:]:
+        if part.startswith("-"):
+            flags.append(part)
+        else:
+            paths.append(part)
+
+    long_format = any("l" in flag for flag in flags)
+    show_all = True if not flags else any("a" in flag for flag in flags)
+    target = paths[0] if paths else ""
+    return filesystem.ls(
+        cwd,
+        path=target,
+        show_all=show_all,
+        long_format=long_format,
+    )
+
+
+def handle_touch(command, filesystem, cwd):
+    parts, error = _split_command(command)
+    if error:
+        return error
+    if len(parts) < 2:
+        return filesystem.touch(cwd, "")
+    return _collect_errors(
+        filesystem.touch(cwd, path)
+        for path in parts[1:]
+        if not path.startswith("-")
+    )
+
+
+def handle_mkdir(command, filesystem, cwd):
+    parts, error = _split_command(command)
+    if error:
+        return error
+    if len(parts) < 2:
+        return filesystem.mkdir(cwd, "")
+    return _collect_errors(
+        filesystem.mkdir(cwd, path)
+        for path in parts[1:]
+        if not path.startswith("-")
+    )
+
+
+def handle_rm(command, filesystem, cwd):
+    parts, error = _split_command(command)
+    if error:
+        return error
+    if len(parts) < 2:
+        return filesystem.rm(cwd, "")
+
+    flags = [part for part in parts[1:] if part.startswith("-")]
+    paths = [part for part in parts[1:] if not part.startswith("-")]
+    recursive = any("r" in flag or "R" in flag for flag in flags)
+    force = any("f" in flag for flag in flags)
+    if not paths:
+        return "" if force else filesystem.rm(cwd, "")
+    return _collect_errors(
+        filesystem.rm(cwd, path, recursive=recursive, force=force)
+        for path in paths
+    )
+
+
+def handle_mv(command, filesystem, cwd):
+    parts, error = _split_command(command)
+    if error:
+        return error
+    if len(parts) < 3:
+        return "mv: missing file operand"
+    return filesystem.mv(cwd, parts[1], parts[2])
+
+
+def handle_cp(command, filesystem, cwd):
+    parts, error = _split_command(command)
+    if error:
+        return error
+    if len(parts) < 3:
+        return "cp: missing file operand"
+
+    flags = [part for part in parts[1:] if part.startswith("-")]
+    operands = [part for part in parts[1:] if not part.startswith("-")]
+    if len(operands) < 2:
+        return "cp: missing destination file operand"
+    recursive = any("r" in flag or "R" in flag for flag in flags)
+    return filesystem.cp(cwd, operands[0], operands[1], recursive=recursive)
 
 
 # ==========================================================
 # Main Router Logic
 # ==========================================================
-def route_command(command, session_manager):
+def route_command(command, session_manager, attack_type="Unknown"):
     session = session_manager.get_session()
     cwd = session["cwd"]
+    filesystem = session_manager.filesystem
+    services = session_manager.services
     command = command.strip()
 
     time.sleep(get_command_delay(command))
+
+    # --------------------------
+    # DECEPTION ENGINE
+    # --------------------------
+    # Gives select attack types (credential probing for files that don't
+    # exist in the simulated filesystem, dynamic uptime, etc.) a chance
+    # to override the standard response below. Returns None for most
+    # commands, in which case normal routing proceeds unchanged.
+    deception_response = deception_engine.adapt_response(command, session, attack_type)
+    if deception_response is not None:
+        return deception_response
 
     # --------------------------
     # USER COMMANDS
@@ -320,38 +491,37 @@ def route_command(command, session_manager):
     # DIRECTORY COMMANDS
     # --------------------------
     elif command == "pwd":
-        return cwd
-    elif command == "ls":
-        return "\n".join(filesystem.get(cwd, []))
-    elif command == "ls -la":
-        files = filesystem.get(cwd, [])
-        return "\n".join(
-            f"-rw-r--r-- 1 ubuntu ubuntu 1024 Jun 25 {f}"
-            for f in files
-        )
+        return filesystem.pwd(cwd)
+    elif command == "ls" or command.startswith("ls "):
+        return handle_ls(command, filesystem, cwd)
 
     # --------------------------
     # CHANGE DIRECTORY
     # --------------------------
     elif command == "cd" or command.startswith("cd "):
         path = command[2:].strip()
-        new_path = _resolve_path(cwd, path)
-        if new_path is None:
-            return ""
-        if new_path in filesystem:
+        new_path, error = filesystem.cd(cwd, path)
+        if not error:
             session_manager.change_directory(new_path)
             return ""
-        return f"cd: no such file or directory: {path}"
+        return error
 
     # --------------------------
     # FILE COMMANDS
     # --------------------------
     elif command.startswith("cat "):
         filename = command[4:].strip()
-        full_path = _resolve_path(cwd, filename) or cwd
-        if full_path in file_contents:
-            return file_contents[full_path]
-        return f"cat: {filename}: No such file"
+        return filesystem.cat(cwd, filename)
+    elif command == "touch" or command.startswith("touch "):
+        return handle_touch(command, filesystem, cwd)
+    elif command == "mkdir" or command.startswith("mkdir "):
+        return handle_mkdir(command, filesystem, cwd)
+    elif command == "rm" or command.startswith("rm "):
+        return handle_rm(command, filesystem, cwd)
+    elif command == "mv" or command.startswith("mv "):
+        return handle_mv(command, filesystem, cwd)
+    elif command == "cp" or command.startswith("cp "):
+        return handle_cp(command, filesystem, cwd)
 
     # --------------------------
     # PROCESS COMMANDS
@@ -365,11 +535,11 @@ def route_command(command, session_manager):
     # NETWORK COMMANDS
     # --------------------------
     elif command == "netstat":
-        return netstat()
+        return netstat(services)
     elif command == "netstat -tulpn":
-        return netstat_tulpn()
+        return netstat_tulpn(services)
     elif command == "ss":
-        return ss()
+        return ss(services)
     elif command == "ifconfig":
         return ifconfig()
     elif command == "ip addr":
@@ -402,11 +572,10 @@ def route_command(command, session_manager):
         return "Linux web-prod-01 5.15.0-generic x86_64 GNU/Linux"
     elif command == "uptime":
         return "14:23:05 up 37 days, 3 users, load average: 0.11, 0.09, 0.05"
-    elif command == "systemctl":
-        return """ssh.service active
-nginx.service active
-mysql.service active
-redis.service active"""
+    elif command == "systemctl" or command.startswith("systemctl "):
+        return handle_systemctl(command, services)
+    elif command.startswith("service "):
+        return handle_service(command, services)
 
     # --------------------------
     # EXPANSION COMMANDS

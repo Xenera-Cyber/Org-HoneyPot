@@ -18,7 +18,7 @@ def classify(command):
         or cmd.startswith("ifconfig")
         or cmd.startswith("ip ")
         or cmd.startswith("netstat")
-        or cmd.startswith("ss")
+        or cmd == "ss" or cmd.startswith("ss ")
         or cmd.startswith("ps")
         or any(tool in cmd for tool in [
             "nmap",

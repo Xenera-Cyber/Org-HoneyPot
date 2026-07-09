@@ -12,8 +12,12 @@ ATTACK_SCORES = {
     "Directory Navigation": 10,
     "Credential Enumeration": 60,
     "Malware Download": 90,
+    "Malware Preparation": 95,
+    "Malware Execution": 100,
+    "File Transfer": 80,
     "Privilege Escalation": 95,
     "Lateral Movement": 80,
+    "Destructive Attack": 100,
     "Reverse Shell Activity": 100,
     "Unknown": 5,
 }
