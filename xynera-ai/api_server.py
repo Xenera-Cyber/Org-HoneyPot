@@ -10,6 +10,7 @@ from classifier import classify_command
 from logger import log_event, log_ai_decision, log_ai_analysis, log_centralized_event, log_personality_integration
 from personalities import get_personality
 from config import SERVER_HOST, SERVER_PORT
+from predictive_engine import predictive_intelligence
 
 
 app = FastAPI(title="Xynera AI Backend")
@@ -32,6 +33,7 @@ class ProcessResponse(BaseModel):
     personality_name: Optional[str] = None
     hostname: Optional[str] = None
     username: Optional[str] = None
+    prediction: Optional[dict] = None
 
 
 @app.get("/health")
@@ -82,6 +84,14 @@ async def process_command(payload: ProcessRequest):
     # Get updated profile after response outcome is tracked
     detailed_profile = get_detailed_profile(ip, threat_score["score"], threat_score["risk_level"])
 
+    # 6. Predictive Intelligence
+    curiosity = detailed_profile["curiosity"]
+    prediction_result = predictive_intelligence(
+        curiosity_score=curiosity["curiosity_score"],
+        risk_score=threat_score["score"],
+        engagement_level=detailed_profile["engagement"]["engagement_level"]
+    )
+
     # 7. Logger
     log_personality_integration(
         session_id=session_id,
@@ -100,7 +110,6 @@ async def process_command(payload: ProcessRequest):
         threat_level=threat_score["risk_level"]
     )
 
-    curiosity = detailed_profile["curiosity"]
     log_ai_analysis(
         session_id=session_id,
         command=command,
@@ -108,7 +117,7 @@ async def process_command(payload: ProcessRequest):
         confidence_score=confidence,
         conversation_id=session_id,
         interaction_count=curiosity["commands_executed"],
-        prediction_result=attack_type,
+        prediction_result=prediction_result["next_probable_action"],
         prediction_confidence=confidence,
         risk_score=threat_score["score"],
         threat_level=threat_score["risk_level"]
@@ -123,7 +132,7 @@ async def process_command(payload: ProcessRequest):
         security_event=attack_type,
         warning=warning_msg,
         error=None,
-        prediction=attack_type
+        prediction=prediction_result["next_probable_action"]
     )
 
     # 8. Client Response
@@ -132,7 +141,8 @@ async def process_command(payload: ProcessRequest):
         attack_type=attack_type,
         personality_name=personality.get("name", "Normal Server"),
         hostname=personality.get("hostname", "ubuntu-server"),
-        username=personality.get("user", "ubuntu")
+        username=personality.get("user", "ubuntu"),
+        prediction=prediction_result
     )
 
 
