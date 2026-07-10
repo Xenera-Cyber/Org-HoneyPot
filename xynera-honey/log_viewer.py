@@ -1,6 +1,7 @@
 import re
 import csv
 import json
+import time
 from collections import Counter
 from datetime import datetime
 
@@ -207,13 +208,26 @@ def session_logs(logs):
 # Timeline View
 # ==========================================================
 def timeline_view(logs):
-    """Display logs in chronological order."""
+    """Display logs in chronological order, replayed with the same
+    pacing the attacker actually used (capped at 5s between entries)
+    so the timeline reads like a live replay rather than an instant dump."""
     if not logs:
         print("\nNo logs available.\n")
         return
     ordered_logs = sorted(logs, key=lambda log: parse_timestamp(log["timestamp"]))
     print("\n========== Timeline ==========\n")
+
+    previous_time = None
     for log in ordered_logs:
+        current_time = parse_timestamp(log["timestamp"])
+
+        if previous_time is not None and current_time != datetime.min:
+            delay = (current_time - previous_time).total_seconds()
+            if delay > 0:
+                time.sleep(min(delay, 5.0))  # cap replay wait at 5 seconds
+
+        previous_time = current_time
+
         print(
             f"{log['timestamp']}"
             f" | "

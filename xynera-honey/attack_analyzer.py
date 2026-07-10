@@ -18,7 +18,7 @@ def classify(command):
         or cmd.startswith("ifconfig")
         or cmd.startswith("ip ")
         or cmd.startswith("netstat")
-        or cmd.startswith("ss")
+        or cmd == "ss" or cmd.startswith("ss ")
         or cmd.startswith("ps")
         or any(tool in cmd for tool in [
             "nmap",
@@ -47,6 +47,12 @@ def classify(command):
     # --------------------------
     elif "wget" in cmd or "curl" in cmd:
         return "Malware Download"
+
+    # --------------------------
+    # File Transfer
+    # --------------------------
+    elif cmd.startswith("scp"):
+        return "File Transfer"
 
     # --------------------------
     # Privilege Escalation
@@ -86,6 +92,7 @@ def threat_score(attack_type):
         "Directory Navigation": 10,
         "Credential Enumeration": 60,
         "Malware Download": 90,
+        "File Transfer": 80,
         "Privilege Escalation": 95,
         "Lateral Movement": 80,
         "Reverse Shell Activity": 100,
