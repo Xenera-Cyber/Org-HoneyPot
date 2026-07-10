@@ -271,10 +271,10 @@ async def generate_response(command, personality, attacker_profile, threat_score
         }
 
     try:
-    context_doc = retrieve_context(
-        command,
-        session_id=session_id
-    )
+        context_doc = retrieve_context(
+            command,
+            session_id=session_id
+        )
     except Exception as e:
         print(f"[RAG ERROR] {e}")
         context_doc = None
