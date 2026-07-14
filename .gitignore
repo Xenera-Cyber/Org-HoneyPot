@@ -1,0 +1,5 @@
+.env
+xynera-ai/.env
+xynera-honey/.env
+__pycache__/
+*.pyc
