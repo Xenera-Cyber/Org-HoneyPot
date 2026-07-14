@@ -97,10 +97,14 @@ def _active_services(service_manager=None):
         if service_manager.is_running_by_program(entry[4]) is not False
     ]
 
-
 # ==========================================================
 # Local Discovery Commands
 # ==========================================================
+
+def get_hostname(hostname):
+    """Return the dynamically generated hostname for the session."""
+    return hostname
+
 def netstat(service_manager=None):
     header = (
         "Active Internet connections (only servers)\n"
@@ -168,8 +172,7 @@ def ss(service_manager=None):
 
     return "\n".join(lines) + "\n"
 
-
-def ifconfig():
+def ifconfig(ip):
     """Ubuntu 22.04 (net-tools) style interface listing for eth0 and lo."""
     rx_packets = random.randint(80000, 200000)
     tx_packets = random.randint(60000, 150000)
@@ -177,7 +180,7 @@ def ifconfig():
     tx_bytes = tx_packets * random.randint(100, 800)
 
     return f"""eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet {SERVER_IP}  netmask {SERVER_NETMASK}  broadcast {SERVER_BROADCAST}
+        inet {ip}  netmask {SERVER_NETMASK}  broadcast {SERVER_BROADCAST}
         inet6 {SERVER_IPV6_LINK}  prefixlen 64  scopeid 0x20<link>
         ether {SERVER_MAC}  txqueuelen 1000  (Ethernet)
         RX packets {rx_packets}  bytes {rx_bytes} ({_human_bytes(rx_bytes)})
@@ -196,7 +199,7 @@ lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
 """
 
 
-def ip_addr():
+def ip_addr(ip):
     """Ubuntu `ip addr` style listing for lo and eth0, matching ifconfig()."""
     return f"""1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
@@ -206,12 +209,11 @@ def ip_addr():
        valid_lft forever preferred_lft forever
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
     link/ether {SERVER_MAC} brd ff:ff:ff:ff:ff:ff
-    inet {SERVER_IP}/24 brd {SERVER_BROADCAST} scope global dynamic eth0
+    inet {ip}/24 brd {SERVER_BROADCAST} scope global dynamic eth0
        valid_lft 86058sec preferred_lft 86058sec
     inet6 {SERVER_IPV6_LINK}/64 scope link
        valid_lft forever preferred_lft forever
 """
-
 
 # ==========================================================
 # Outbound / Lateral-Movement Commands
@@ -347,7 +349,6 @@ def ftp(host="192.168.1.10"):
         "530 Login incorrect.\n"
         "Login failed."
     )
-
 
 # ==========================================================
 # DNS Commands

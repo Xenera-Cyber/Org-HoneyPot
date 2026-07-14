@@ -1,3 +1,18 @@
+SHARED_ATTACK_SCORES = {
+    "Reconnaissance": 20,
+    "Directory Navigation": 10,
+    "Credential Enumeration": 60,
+    "Malware Download": 90,
+    "Malware Preparation": 95,
+    "Malware Execution": 100,
+    "File Transfer": 80,
+    "Privilege Escalation": 95,
+    "Lateral Movement": 80,
+    "Destructive Attack": 100,
+    "Reverse Shell Activity": 100,
+    "Unknown": 5,
+}
+
 def classify(command):
     cmd = command.lower().strip()
 
@@ -6,13 +21,7 @@ def classify(command):
     # --------------------------
     if (
         cmd in [
-            "ls",
-            "pwd",
-            "whoami",
-            "id",
-            "groups",
-            "hostname",
-            "users"
+            "ls", "pwd", "whoami", "id", "groups", "hostname", "users"
         ]
         or cmd.startswith("uname")
         or cmd.startswith("ifconfig")
@@ -21,11 +30,7 @@ def classify(command):
         or cmd == "ss" or cmd.startswith("ss ")
         or cmd.startswith("ps")
         or any(tool in cmd for tool in [
-            "nmap",
-            "traceroute",
-            "whois",
-            "dig",
-            "nslookup"
+            "nmap", "traceroute", "whois", "dig", "nslookup"
         ])
     ):
         return "Reconnaissance"
@@ -85,17 +90,6 @@ def classify(command):
     # --------------------------
     return "Unknown"
 
-
 def threat_score(attack_type):
-    scores = {
-        "Reconnaissance": 20,
-        "Directory Navigation": 10,
-        "Credential Enumeration": 60,
-        "Malware Download": 90,
-        "File Transfer": 80,
-        "Privilege Escalation": 95,
-        "Lateral Movement": 80,
-        "Reverse Shell Activity": 100,
-        "Unknown": 5,
-    }
-    return scores.get(attack_type, 5)
+    # This now accesses the master dictionary at the top of this file
+    return SHARED_ATTACK_SCORES.get(attack_type, 5)

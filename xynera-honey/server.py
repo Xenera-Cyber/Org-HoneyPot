@@ -5,30 +5,21 @@ from command_router import route_command
 from session_manager import SessionManager
 from attack_analyzer import classify, threat_score
 from logger import log_command
+import fake_network  # Import your dynamic network logic
 
 HOST = "0.0.0.0"
 PORT = 2222
 
-HOSTNAME = "web-prod-01"
 USERNAME = "ubuntu"
 HOME_DIR = "/home/ubuntu"
 
-
 def format_prompt(path):
-    """
-    Convert the home directory to '~' like a real Linux shell.
-
-    Examples:
-        /home/ubuntu              -> ~
-        /home/ubuntu/Documents    -> ~/Documents
-        /etc                      -> /etc
-    """
+    """Convert the home directory to '~' like a real Linux shell."""
     if path == HOME_DIR:
         return "~"
     if path.startswith(HOME_DIR + "/"):
         return "~" + path[len(HOME_DIR):]
     return path
-
 
 def start_server():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -58,11 +49,12 @@ def start_server():
         try:
             while True:
                 # ----------------------------
-                # Terminal Prompt
+                # Dynamic Terminal Prompt
                 # ----------------------------
                 current_dir = session_manager.get_cwd()
                 display_dir = format_prompt(current_dir)
-                prompt = f"{USERNAME}@{HOSTNAME}:{display_dir}$ "
+                hostname = session_manager.get_hostname() # Fetches dynamic hostname
+                prompt = f"{USERNAME}@{hostname}:{display_dir}$ "
                 conn.send(prompt.encode())
 
                 data = conn.recv(1024)
@@ -78,17 +70,12 @@ def start_server():
                     break
 
                 # ----------------------------
-                # Session Tracking
+                # Session Tracking & Scoring
                 # ----------------------------
                 session_manager.add_command(command)
-
-                # ----------------------------
-                # Attack Classification
-                # ----------------------------
                 attack_type = classify(command)
                 session_manager.add_attack_type(attack_type)
-                score = threat_score(attack_type)
-                session_manager.update_threat_score(score)
+                session_manager.update_threat_score(attack_type)
 
                 # ----------------------------
                 # Logging
@@ -104,6 +91,7 @@ def start_server():
                 # Live Monitoring
                 # ----------------------------
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                score = threat_score(attack_type)
                 print(
                     f"{timestamp:<22}"
                     f"{attacker_ip:<18}"
@@ -113,9 +101,17 @@ def start_server():
                 )
 
                 # ----------------------------
-                # Execute Command
+                # Command Routing & Dynamic Network Interception
                 # ----------------------------
-                response = route_command(command, session_manager, attack_type)
+                if command == "ifconfig":
+                    response = fake_network.ifconfig(attacker_ip)
+                elif command in ["ip addr", "ip a"]:
+                    response = fake_network.ip_addr(attacker_ip)
+                elif command == "hostname":
+                    response = fake_network.get_hostname(hostname)
+                else:
+                    response = route_command(command, session_manager, attack_type)
+                
                 conn.send((response + "\n").encode())
 
         except Exception as e:
@@ -134,7 +130,6 @@ def start_server():
             print("=====================================\n")
             conn.close()
             print(f"[-] {attacker_ip} disconnected")
-
 
 if __name__ == "__main__":
     start_server()
