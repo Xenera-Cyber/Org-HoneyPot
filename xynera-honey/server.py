@@ -9,24 +9,19 @@ from logger import log_command
 HOST = "0.0.0.0"
 PORT = 2222
 
-HOSTNAME = "web-prod-01"
-USERNAME = "ubuntu"
-HOME_DIR = "/home/ubuntu"
-
-
-def format_prompt(path):
+def format_prompt(path, home_dir):
     """
     Convert the home directory to '~' like a real Linux shell.
 
     Examples:
-        /home/ubuntu              -> ~
-        /home/ubuntu/Documents    -> ~/Documents
+        /home/<user>              -> ~
+        /home/<user>/Documents    -> ~/Documents
         /etc                      -> /etc
     """
-    if path == HOME_DIR:
+    if path == home_dir:
         return "~"
-    if path.startswith(HOME_DIR + "/"):
-        return "~" + path[len(HOME_DIR):]
+    if path.startswith(home_dir + "/"):
+        return "~" + path[len(home_dir):]
     return path
 
 
@@ -61,8 +56,14 @@ def start_server():
                 # Terminal Prompt
                 # ----------------------------
                 current_dir = session_manager.get_cwd()
-                display_dir = format_prompt(current_dir)
-                prompt = f"{USERNAME}@{HOSTNAME}:{display_dir}$ "
+                display_dir = format_prompt(
+                    current_dir,
+                    session_manager.home_dir,
+                )
+                prompt = (
+                    f"{session_manager.username}@"
+                    f"{session_manager.hostname}:{display_dir}$ "
+                )
                 conn.send(prompt.encode())
 
                 data = conn.recv(1024)

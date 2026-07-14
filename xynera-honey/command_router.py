@@ -22,8 +22,6 @@ from fake_process import ps, ps_aux
 import malware_detector
 import deception_engine
 
-HOME_DIR = "/home/ubuntu"
-
 # ==========================================================
 # Delay Configuration (configurable, never hardcoded)
 # ==========================================================
@@ -106,30 +104,73 @@ def get_command_delay(command):
 
 
 # ==========================================================
+# Backend Synchronization Helpers
+# ==========================================================
+def _cache_key(command_type, *parts):
+    return ":".join([command_type, *(str(part) for part in parts)])
+
+
+def _backend_read(session_manager, key, local_reader):
+    if session_manager.backend_exists(key):
+        return session_manager.get_backend(key)
+
+    response = local_reader()
+    session_manager.save_backend(key, response)
+    return response
+
+
+def _backend_write(session_manager, local_writer):
+    response = local_writer()
+    session_manager.sync_backend_after_filesystem_write()
+    return response
+
+
+def _group_id(group):
+    known_groups = {
+        "root": 0,
+        "sudo": 27,
+        "docker": 999,
+        "lxd": 110,
+    }
+    return known_groups.get(group, 1000)
+
+
+def _identity_ids(session_manager):
+    if session_manager.username == "root":
+        return 0, 0
+    return 1000, 1000
+
+
+def _expand_home(path, session_manager):
+    if session_manager is None:
+        return path
+    if path == "~":
+        return session_manager.home_dir
+    if path.startswith("~/"):
+        return f"{session_manager.home_dir}/{path[2:]}"
+    return path
+
+
+# ==========================================================
 # Expansion Pack Helper Functions
 # ==========================================================
 def handle_date(command):
     return datetime.now().strftime("%a %b %d %H:%M:%S UTC %Y")
 
 
-def handle_env(command):
-    return """SHELL=/bin/bash
-PWD=/root
-LOGNAME=root
-HOME=/root
-LANG=en_US.UTF-8
-LS_COLORS=rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:
-LESSCLOSE=/usr/bin/lesspipe %s %s
-TERM=xterm-256color
-LESSOPEN=| /usr/bin/lesspipe %s
-USER=root
-SHLVL=1
-PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-_=/usr/bin/env"""
+def handle_env(command, session_manager):
+    environment = dict(session_manager.environment)
+    environment["PWD"] = session_manager.get_cwd()
+    return "\n".join(f"{key}={value}" for key, value in environment.items())
 
 
-def handle_printenv(command):
-    return handle_env(command)
+def handle_printenv(command, session_manager):
+    parts = command.split()
+    if len(parts) > 1:
+        environment = dict(session_manager.environment)
+        environment["PWD"] = session_manager.get_cwd()
+        return environment.get(parts[1], "")
+    return handle_env(command, session_manager)
 
 
 def handle_echo(command):
@@ -178,15 +219,15 @@ alias ll='ls -alF'
 alias ls='ls --color=auto'"""
 
 
-def handle_hostnamectl(command):
-    return """   Static hostname: xynera-server
+def handle_hostnamectl(command, session_manager):
+    return f"""   Static hostname: {session_manager.hostname}
          Icon name: computer-vm
            Chassis: vm
         Machine ID: 8a4e8d3a5b6c4f729e1f2d3c4b5a6978
            Boot ID: 1b2c3d4f5a6b7c8d9e0f1a2b3c4d5e6f
     Virtualization: kvm
   Operating System: Ubuntu 22.04.3 LTS
-            Kernel: Linux 5.15.0-82-generic
+            Kernel: Linux {session_manager.kernel_version}
       Architecture: x86-64"""
 
 
@@ -355,7 +396,7 @@ def _collect_errors(results):
     return "\n".join(result for result in results if result)
 
 
-def handle_ls(command, filesystem, cwd):
+def handle_ls(command, filesystem, cwd, session_manager=None):
     parts, error = _split_command(command)
     if error:
         return error
@@ -371,41 +412,52 @@ def handle_ls(command, filesystem, cwd):
     long_format = any("l" in flag for flag in flags)
     show_all = True if not flags else any("a" in flag for flag in flags)
     target = paths[0] if paths else ""
-    return filesystem.ls(
-        cwd,
-        path=target,
-        show_all=show_all,
-        long_format=long_format,
-    )
+    if target and session_manager is not None:
+        target = _expand_home(target, session_manager)
+    target_path = filesystem.resolve_path(cwd, target) if target else cwd
+
+    def local_read():
+        return filesystem.ls(
+            cwd,
+            path=target,
+            show_all=show_all,
+            long_format=long_format,
+        )
+
+    if session_manager is None:
+        return local_read()
+
+    key = _cache_key("fs", "ls", target_path, show_all, long_format)
+    return _backend_read(session_manager, key, local_read)
 
 
-def handle_touch(command, filesystem, cwd):
+def handle_touch(command, filesystem, cwd, session_manager=None):
     parts, error = _split_command(command)
     if error:
         return error
     if len(parts) < 2:
         return filesystem.touch(cwd, "")
     return _collect_errors(
-        filesystem.touch(cwd, path)
+        filesystem.touch(cwd, _expand_home(path, session_manager))
         for path in parts[1:]
         if not path.startswith("-")
     )
 
 
-def handle_mkdir(command, filesystem, cwd):
+def handle_mkdir(command, filesystem, cwd, session_manager=None):
     parts, error = _split_command(command)
     if error:
         return error
     if len(parts) < 2:
         return filesystem.mkdir(cwd, "")
     return _collect_errors(
-        filesystem.mkdir(cwd, path)
+        filesystem.mkdir(cwd, _expand_home(path, session_manager))
         for path in parts[1:]
         if not path.startswith("-")
     )
 
 
-def handle_rm(command, filesystem, cwd):
+def handle_rm(command, filesystem, cwd, session_manager=None):
     parts, error = _split_command(command)
     if error:
         return error
@@ -419,21 +471,30 @@ def handle_rm(command, filesystem, cwd):
     if not paths:
         return "" if force else filesystem.rm(cwd, "")
     return _collect_errors(
-        filesystem.rm(cwd, path, recursive=recursive, force=force)
+        filesystem.rm(
+            cwd,
+            _expand_home(path, session_manager),
+            recursive=recursive,
+            force=force,
+        )
         for path in paths
     )
 
 
-def handle_mv(command, filesystem, cwd):
+def handle_mv(command, filesystem, cwd, session_manager=None):
     parts, error = _split_command(command)
     if error:
         return error
     if len(parts) < 3:
         return "mv: missing file operand"
-    return filesystem.mv(cwd, parts[1], parts[2])
+    return filesystem.mv(
+        cwd,
+        _expand_home(parts[1], session_manager),
+        _expand_home(parts[2], session_manager),
+    )
 
 
-def handle_cp(command, filesystem, cwd):
+def handle_cp(command, filesystem, cwd, session_manager=None):
     parts, error = _split_command(command)
     if error:
         return error
@@ -445,7 +506,48 @@ def handle_cp(command, filesystem, cwd):
     if len(operands) < 2:
         return "cp: missing destination file operand"
     recursive = any("r" in flag or "R" in flag for flag in flags)
-    return filesystem.cp(cwd, operands[0], operands[1], recursive=recursive)
+    return filesystem.cp(
+        cwd,
+        _expand_home(operands[0], session_manager),
+        _expand_home(operands[1], session_manager),
+        recursive=recursive,
+    )
+
+
+def handle_cat(command, filesystem, cwd, session_manager):
+    path = _expand_home(command[4:].strip(), session_manager)
+    target_path = filesystem.resolve_path(cwd, path)
+    key = _cache_key("fs", "cat", target_path)
+    return _backend_read(
+        session_manager,
+        key,
+        lambda: filesystem.cat(cwd, path),
+    )
+
+
+def handle_pwd(filesystem, cwd, session_manager):
+    key = _cache_key("fs", "pwd", cwd)
+    return _backend_read(
+        session_manager,
+        key,
+        lambda: filesystem.pwd(cwd),
+    )
+
+
+def handle_cd(command, filesystem, cwd, session_manager):
+    path = command[2:].strip()
+    path = session_manager.home_dir if not path else _expand_home(path, session_manager)
+    target_path = filesystem.resolve_path(cwd, path)
+    key = _cache_key("fs", "cd", target_path)
+    new_path, error = _backend_read(
+        session_manager,
+        key,
+        lambda: filesystem.cd(cwd, path),
+    )
+    if not error:
+        session_manager.change_directory(new_path)
+        return ""
+    return error
 
 
 # ==========================================================
@@ -453,9 +555,9 @@ def handle_cp(command, filesystem, cwd):
 # ==========================================================
 def route_command(command, session_manager, attack_type="Unknown"):
     session = session_manager.get_session()
-    cwd = session["cwd"]
+    cwd = session_manager.get_cwd()
     filesystem = session_manager.filesystem
-    services = session_manager.services
+    services = session_manager.service_manager
     command = command.strip()
 
     time.sleep(get_command_delay(command))
@@ -475,53 +577,67 @@ def route_command(command, session_manager, attack_type="Unknown"):
     # USER COMMANDS
     # --------------------------
     if command == "whoami":
-        return "ubuntu"
+        return session_manager.username
     elif command == "groups":
-        return "ubuntu sudo docker"
+        return " ".join(session_manager.groups)
     elif command == "id":
+        uid, gid = _identity_ids(session_manager)
+        group_entries = [
+            f"{_group_id(group)}({group})"
+            for group in session_manager.groups
+        ]
         return (
-            "uid=1000(ubuntu) "
-            "gid=1000(ubuntu) "
-            "groups=1000(ubuntu)"
+            f"uid={uid}({session_manager.username}) "
+            f"gid={gid}({session_manager.groups[0]}) "
+            f"groups={','.join(group_entries)}"
         )
     elif command == "users":
-        return "ubuntu"
+        return session_manager.username
 
     # --------------------------
     # DIRECTORY COMMANDS
     # --------------------------
     elif command == "pwd":
-        return filesystem.pwd(cwd)
+        return handle_pwd(filesystem, cwd, session_manager)
     elif command == "ls" or command.startswith("ls "):
-        return handle_ls(command, filesystem, cwd)
+        return handle_ls(command, filesystem, cwd, session_manager)
 
     # --------------------------
     # CHANGE DIRECTORY
     # --------------------------
     elif command == "cd" or command.startswith("cd "):
-        path = command[2:].strip()
-        new_path, error = filesystem.cd(cwd, path)
-        if not error:
-            session_manager.change_directory(new_path)
-            return ""
-        return error
+        return handle_cd(command, filesystem, cwd, session_manager)
 
     # --------------------------
     # FILE COMMANDS
     # --------------------------
     elif command.startswith("cat "):
-        filename = command[4:].strip()
-        return filesystem.cat(cwd, filename)
+        return handle_cat(command, filesystem, cwd, session_manager)
     elif command == "touch" or command.startswith("touch "):
-        return handle_touch(command, filesystem, cwd)
+        return _backend_write(
+            session_manager,
+            lambda: handle_touch(command, filesystem, cwd, session_manager),
+        )
     elif command == "mkdir" or command.startswith("mkdir "):
-        return handle_mkdir(command, filesystem, cwd)
+        return _backend_write(
+            session_manager,
+            lambda: handle_mkdir(command, filesystem, cwd, session_manager),
+        )
     elif command == "rm" or command.startswith("rm "):
-        return handle_rm(command, filesystem, cwd)
+        return _backend_write(
+            session_manager,
+            lambda: handle_rm(command, filesystem, cwd, session_manager),
+        )
     elif command == "mv" or command.startswith("mv "):
-        return handle_mv(command, filesystem, cwd)
+        return _backend_write(
+            session_manager,
+            lambda: handle_mv(command, filesystem, cwd, session_manager),
+        )
     elif command == "cp" or command.startswith("cp "):
-        return handle_cp(command, filesystem, cwd)
+        return _backend_write(
+            session_manager,
+            lambda: handle_cp(command, filesystem, cwd, session_manager),
+        )
 
     # --------------------------
     # PROCESS COMMANDS
@@ -565,17 +681,24 @@ def route_command(command, session_manager, attack_type="Unknown"):
     # SYSTEM DISCOVERY
     # --------------------------
     elif command == "hostname":
-        return "web-prod-01"
+        return session_manager.hostname
     elif command.startswith("hostnamectl"):
-        return handle_hostnamectl(command)
+        return handle_hostnamectl(command, session_manager)
     elif command == "uname -a":
-        return "Linux web-prod-01 5.15.0-generic x86_64 GNU/Linux"
+        return (
+            f"Linux {session_manager.hostname} "
+            f"{session_manager.kernel_version} x86_64 GNU/Linux"
+        )
     elif command == "uptime":
         return "14:23:05 up 37 days, 3 users, load average: 0.11, 0.09, 0.05"
     elif command == "systemctl" or command.startswith("systemctl "):
-        return handle_systemctl(command, services)
+        response = handle_systemctl(command, services)
+        session_manager.sync_service_state()
+        return response
     elif command.startswith("service "):
-        return handle_service(command, services)
+        response = handle_service(command, services)
+        session_manager.sync_service_state()
+        return response
 
     # --------------------------
     # EXPANSION COMMANDS
@@ -583,9 +706,9 @@ def route_command(command, session_manager, attack_type="Unknown"):
     elif command.startswith("date"):
         return handle_date(command)
     elif command.startswith("printenv"):
-        return handle_printenv(command)
+        return handle_printenv(command, session_manager)
     elif command.startswith("env"):
-        return handle_env(command)
+        return handle_env(command, session_manager)
     elif command.startswith("echo"):
         return handle_echo(command)
     elif command.startswith("clear"):
