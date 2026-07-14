@@ -34,6 +34,19 @@ class SessionManager:
             # (recon / credential / malware) so responses can adapt across
             # a session rather than per-command in isolation.
             "attacker_profile": {"intent": "recon"},
+
+            # ------------------------------------------------------------
+            # Session identity -- the single source of truth for who the
+            # attacker currently appears to be logged in as. NOTHING
+            # outside this class should ever hardcode a username, hostname
+            # or prompt string. Everything must read it from here via
+            # get_prompt() / get_identity(), so that when the AI backend
+            # (or anything else) changes the identity mid-session, every
+            # future prompt automatically reflects it.
+            # ------------------------------------------------------------
+            "username": "ubuntu",
+            "hostname": "web-prod-01",
+            "personality": "default",
         }
 
     def get_session(self):
@@ -65,6 +78,49 @@ class SessionManager:
     def update_threat_score(self, score):
         self.session["threat_score"] += score
 
+    # ------------------------------------------------------------------
+    # SESSION IDENTITY -- new
+    # ------------------------------------------------------------------
+    def set_identity(self, username=None, hostname=None, personality=None):
+        """
+        Called whenever the identity needs to change (e.g. the AI backend
+        decides this session should now look like a different machine/user).
+        Only updates the fields that are actually passed in; anything left
+        as None stays unchanged.
+        """
+        if username:
+            self.session["username"] = username
+        if hostname:
+            self.session["hostname"] = hostname
+        if personality:
+            self.session["personality"] = personality
+
+    def get_identity(self):
+        return {
+            "username": self.session["username"],
+            "hostname": self.session["hostname"],
+            "personality": self.session["personality"],
+            "cwd": self.session["cwd"],
+        }
+
+    def get_prompt(self):
+        """
+        Builds the shell prompt LIVE from current session state.
+        This is the ONLY function that should ever be used to generate
+        the prompt string anywhere in the codebase -- never hardcode
+        "username@hostname:cwd$" again. Whatever set_identity() last set
+        is what will show up here, automatically.
+        """
+        cwd = self.session["cwd"]
+        if cwd == HOME_DIR:
+            display_path = "~"
+        elif cwd.startswith(HOME_DIR):
+            display_path = cwd.replace(HOME_DIR, "~", 1)
+        else:
+            display_path = cwd
+        return f"{self.session['username']}@{self.session['hostname']}:{display_path}$ "
+
+    # ------------------------------------------------------------------
     def close_session(self):
         # Bug fix: close_session() could previously be invoked more than
         # once (e.g. an exception during cleanup triggering a second call),
@@ -94,7 +150,12 @@ class SessionManager:
             "threat_score": self.session["threat_score"],
             "attack_types": self.session["attack_types"],
             "attacker_profile": self.session["attacker_profile"],
-            "session_duration": duration
+            "session_duration": duration,
+            # identity is now part of the permanent record too, so if it
+            # changed mid-session, that's visible in the logs afterwards
+            "username": self.session["username"],
+            "hostname": self.session["hostname"],
+            "personality": self.session["personality"],
         }
 
         filename = f"{log_dir}/session_{self.session['session_id']}.json"
@@ -113,5 +174,8 @@ class SessionManager:
             ),
             "attack_types": self.session["attack_types"],
             "threat_score": self.session["threat_score"],
-            "is_active": self.session["is_active"]
+            "is_active": self.session["is_active"],
+            "username": self.session["username"],
+            "hostname": self.session["hostname"],
+            "personality": self.session["personality"],
         }

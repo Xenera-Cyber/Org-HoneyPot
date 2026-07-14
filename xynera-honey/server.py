@@ -9,26 +9,6 @@ from logger import log_command
 HOST = "0.0.0.0"
 PORT = 2222
 
-HOSTNAME = "web-prod-01"
-USERNAME = "ubuntu"
-HOME_DIR = "/home/ubuntu"
-
-
-def format_prompt(path):
-    """
-    Convert the home directory to '~' like a real Linux shell.
-
-    Examples:
-        /home/ubuntu              -> ~
-        /home/ubuntu/Documents    -> ~/Documents
-        /etc                      -> /etc
-    """
-    if path == HOME_DIR:
-        return "~"
-    if path.startswith(HOME_DIR + "/"):
-        return "~" + path[len(HOME_DIR):]
-    return path
-
 
 def start_server():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -60,9 +40,12 @@ def start_server():
                 # ----------------------------
                 # Terminal Prompt
                 # ----------------------------
-                current_dir = session_manager.get_cwd()
-                display_dir = format_prompt(current_dir)
-                prompt = f"{USERNAME}@{HOSTNAME}:{display_dir}$ "
+                # Always built live from the session's current identity
+                # (username, hostname, cwd). Never hardcode this string --
+                # if the AI backend changes the identity mid-session,
+                # get_prompt() picks that up automatically on the very
+                # next line sent to the attacker.
+                prompt = session_manager.get_prompt()
                 conn.send(prompt.encode())
 
                 data = conn.recv(1024)
@@ -131,6 +114,7 @@ def start_server():
             print(f"Threat Score      : {summary['threat_score']}")
             if "current_directory" in summary:
                 print(f"Last Directory    : {summary['current_directory']}")
+            print(f"Identity          : {summary['username']}@{summary['hostname']} ({summary['personality']})")
             print("=====================================\n")
             conn.close()
             print(f"[-] {attacker_ip} disconnected")
