@@ -53,7 +53,9 @@ def start_server():
                 # ----------------------------
                 current_dir = session_manager.get_cwd()
                 display_dir = format_prompt(current_dir)
-                hostname = session_manager.get_hostname() # Fetches dynamic hostname
+                
+                # UPDATED: Fetch dynamic hostname directly from fake_network
+                hostname = fake_network.get_hostname() 
                 prompt = f"{USERNAME}@{hostname}:{display_dir}$ "
                 conn.send(prompt.encode())
 
@@ -103,12 +105,14 @@ def start_server():
                 # ----------------------------
                 # Command Routing & Dynamic Network Interception
                 # ----------------------------
+                # UPDATED: Commands now rely on fake_network's internal host OS binding 
+                # instead of passing the attacker's IP.
                 if command == "ifconfig":
-                    response = fake_network.ifconfig(attacker_ip)
+                    response = fake_network.ifconfig()
                 elif command in ["ip addr", "ip a"]:
-                    response = fake_network.ip_addr(attacker_ip)
+                    response = fake_network.ip_addr()
                 elif command == "hostname":
-                    response = fake_network.get_hostname(hostname)
+                    response = fake_network.get_hostname()
                 else:
                     response = route_command(command, session_manager, attack_type)
                 

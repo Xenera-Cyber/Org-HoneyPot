@@ -1,15 +1,32 @@
 import random
+import socket
 
 # ==========================================================
 # Consistent Server Identity
 # ==========================================================
-# Every command in this module describes ONE Ubuntu 22.04 host.
-# These values are fixed for the lifetime of the process so that
-# no two commands ever contradict each other.
-SERVER_HOSTNAME = "web-prod-01"
-SERVER_IP = "192.168.1.25"
+# These values are dynamically resolved to match the actual honeypot host.
+
+def get_server_ip():
+    """Resolve the actual IP of the honeypot listener dynamically."""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "192.168.1.25"
+
+def get_server_hostname():
+    """Dynamically fetch the current hostname of the OS."""
+    return socket.gethostname()
+
+def get_server_broadcast():
+    """Dynamically generate broadcast address based on the actual IP."""
+    _ip_parts = get_server_ip().split(".")
+    return f"{_ip_parts[0]}.{_ip_parts[1]}.{_ip_parts[2]}.255" if len(_ip_parts) == 4 else "192.168.1.255"
+
 SERVER_NETMASK = "255.255.255.0"
-SERVER_BROADCAST = "192.168.1.255"
 SERVER_MAC = "08:00:27:4e:9a:2c"
 SERVER_IPV6_LINK = "fe80::a00:27ff:fe4e:9a2c"
 
@@ -53,6 +70,13 @@ def _is_ipv4(value):
 def _resolve_domain(domain):
     """Deterministically resolve (and cache) a fake IP for a domain name."""
     key = domain.lower().strip()
+    
+    # Sync hostname lookup with actual honeypot listener dynamically
+    if key == get_server_hostname().lower():
+        return get_server_ip()
+    if key == "localhost":
+        return "127.0.0.1"
+
     if key not in _DNS_CACHE:
         seeded = random.Random(key)
         _DNS_CACHE[key] = (
@@ -101,11 +125,14 @@ def _active_services(service_manager=None):
 # Local Discovery Commands
 # ==========================================================
 
-def get_hostname(hostname):
+def get_hostname(hostname=None):
     """Return the dynamically generated hostname for the session."""
-    return hostname
+    return get_server_hostname()
 
 def netstat(service_manager=None):
+    server_ip = get_server_ip()
+    server_hostname = get_server_hostname()
+    
     header = (
         "Active Internet connections (only servers)\n"
         f"{'Proto':<6}{'Recv-Q':>7} {'Send-Q':>7} "
@@ -114,7 +141,9 @@ def netstat(service_manager=None):
     lines = [header]
 
     for proto, addr, port, _pid, _prog in _active_services(service_manager):
-        local = f"{addr}:{port}"
+        # Service information updated to reflect actual host binding
+        display_addr = server_hostname if addr == "0.0.0.0" else addr
+        local = f"{display_addr}:{port}"
         lines.append(
             f"{proto:<6}{'0':>7} {'0':>7} {local:<24}{'0.0.0.0:*':<24}LISTEN"
         )
@@ -124,16 +153,17 @@ def netstat(service_manager=None):
     peer_established = f"203.0.113.{random.randint(2, 254)}:{random.randint(1024, 65535)}"
     peer_time_wait = f"198.51.100.{random.randint(2, 254)}:{random.randint(1024, 65535)}"
     lines.append(
-        f"{'tcp':<6}{'0':>7} {'0':>7} {SERVER_IP + ':22':<24}{peer_established:<24}ESTABLISHED"
+        f"{'tcp':<6}{'0':>7} {'0':>7} {server_hostname + ':22':<24}{peer_established:<24}ESTABLISHED"
     )
     lines.append(
-        f"{'tcp':<6}{'0':>7} {'0':>7} {SERVER_IP + ':80':<24}{peer_time_wait:<24}TIME_WAIT"
+        f"{'tcp':<6}{'0':>7} {'0':>7} {server_hostname + ':80':<24}{peer_time_wait:<24}TIME_WAIT"
     )
 
     return "\n".join(lines) + "\n"
 
 
 def netstat_tulpn(service_manager=None):
+    server_hostname = get_server_hostname()
     header = (
         "Active Internet connections (only servers)\n"
         f"{'Proto':<6}{'Recv-Q':>7} {'Send-Q':>7} "
@@ -142,7 +172,8 @@ def netstat_tulpn(service_manager=None):
     lines = [header]
 
     for proto, addr, port, pid, prog in _active_services(service_manager):
-        local = f"{addr}:{port}"
+        display_addr = server_hostname if addr == "0.0.0.0" else addr
+        local = f"{display_addr}:{port}"
         lines.append(
             f"{proto:<6}{'0':>7} {'0':>7} {local:<24}{'0.0.0.0:*':<24}"
             f"{'LISTEN':<12}{pid}/{prog}"
@@ -152,6 +183,7 @@ def netstat_tulpn(service_manager=None):
 
 
 def ss(service_manager=None):
+    server_hostname = get_server_hostname()
     header = (
         f"{'Netid':<6}{'State':<12}{'Recv-Q':>7} {'Send-Q':>7}   "
         f"{'Local Address:Port':<26}{'Peer Address:Port'}"
@@ -159,7 +191,8 @@ def ss(service_manager=None):
     lines = [header]
 
     for proto, addr, port, _pid, _prog in _active_services(service_manager):
-        local = f"{addr}:{port}"
+        display_addr = server_hostname if addr == "0.0.0.0" else addr
+        local = f"{display_addr}:{port}"
         lines.append(
             f"{proto:<6}{'LISTEN':<12}{'0':>7} {'128':>7}   {local:<26}{'0.0.0.0:*'}"
         )
@@ -167,20 +200,23 @@ def ss(service_manager=None):
     peer = f"203.0.113.{random.randint(2, 254)}:{random.randint(1024, 65535)}"
     lines.append(
         f"{'tcp':<6}{'ESTAB':<12}{'0':>7} {'0':>7}   "
-        f"{SERVER_IP + ':22':<26}{peer}"
+        f"{server_hostname + ':22':<26}{peer}"
     )
 
     return "\n".join(lines) + "\n"
 
-def ifconfig(ip):
+def ifconfig(ip=None):
     """Ubuntu 22.04 (net-tools) style interface listing for eth0 and lo."""
+    server_ip = get_server_ip()
+    server_broadcast = get_server_broadcast()
+    
     rx_packets = random.randint(80000, 200000)
     tx_packets = random.randint(60000, 150000)
     rx_bytes = rx_packets * random.randint(120, 900)
     tx_bytes = tx_packets * random.randint(100, 800)
 
     return f"""eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet {ip}  netmask {SERVER_NETMASK}  broadcast {SERVER_BROADCAST}
+        inet {server_ip}  netmask {SERVER_NETMASK}  broadcast {server_broadcast}
         inet6 {SERVER_IPV6_LINK}  prefixlen 64  scopeid 0x20<link>
         ether {SERVER_MAC}  txqueuelen 1000  (Ethernet)
         RX packets {rx_packets}  bytes {rx_bytes} ({_human_bytes(rx_bytes)})
@@ -199,8 +235,11 @@ lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
 """
 
 
-def ip_addr(ip):
+def ip_addr(ip=None):
     """Ubuntu `ip addr` style listing for lo and eth0, matching ifconfig()."""
+    server_ip = get_server_ip()
+    server_broadcast = get_server_broadcast()
+    
     return f"""1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
@@ -209,7 +248,7 @@ def ip_addr(ip):
        valid_lft forever preferred_lft forever
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
     link/ether {SERVER_MAC} brd ff:ff:ff:ff:ff:ff
-    inet {ip}/24 brd {SERVER_BROADCAST} scope global dynamic eth0
+    inet {server_ip}/24 brd {server_broadcast} scope global dynamic eth0
        valid_lft 86058sec preferred_lft 86058sec
     inet6 {SERVER_IPV6_LINK}/64 scope link
        valid_lft forever preferred_lft forever
@@ -311,6 +350,7 @@ def traceroute(host="192.168.1.10"):
 def telnet(host="192.168.1.10", port=23):
     """Simulate a telnet session that varies between refusal and a login banner."""
     display, ip = _resolve_target(host)
+    server_hostname = get_server_hostname()
 
     outcome = random.random()
     if outcome < 0.4:
@@ -323,14 +363,15 @@ def telnet(host="192.168.1.10", port=23):
         f"Connected to {display}.\n"
         "Escape character is '^]'.\n"
         "\n"
-        "Ubuntu 22.04.3 LTS\n"
-        "login: "
+        f"Ubuntu 22.04.3 LTS\n"
+        f"{server_hostname} login: "
     )
 
 
 def ftp(host="192.168.1.10"):
     """Simulate an FTP connection attempt, occasionally reaching a login prompt."""
     display, ip = _resolve_target(host)
+    server_hostname = get_server_hostname()
 
     outcome = random.random()
     if outcome < 0.45:
@@ -342,7 +383,7 @@ def ftp(host="192.168.1.10"):
 
     return (
         f"Connected to {display}.\n"
-        f"220 ({ip}) FTP server (vsFTPd 3.0.5) ready.\n"
+        f"220 {server_hostname} FTP server (vsFTPd 3.0.5) ready.\n"
         "Name (root): root\n"
         "331 Please specify the password.\n"
         "Password:\n"
