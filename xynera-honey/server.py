@@ -1,6 +1,7 @@
 import socket
 from datetime import datetime
 
+import ai_client  # Imported for startup health verification
 from command_router import route_command
 from session_manager import SessionManager
 from attack_analyzer import classify, threat_score
@@ -46,6 +47,12 @@ def start_server():
     )
     print("-" * 105)
 
+    # ----------------------------------------------------------
+    # DEFAULT -> AI BACKEND HEALTH CHECK
+    # ----------------------------------------------------------
+    if not ai_client.check_ai_backend():
+        print("[!] WARNING: AI backend unreachable at startup. Honeypot will run in local-only fallback mode.")
+
     while True:
         conn, addr = server.accept()
         attacker_ip = addr[0]
@@ -60,9 +67,12 @@ def start_server():
                 # ----------------------------
                 # Terminal Prompt
                 # ----------------------------
+                # Fetch fresh session details every loop iteration to support live AI updates
+                session = session_manager.get_session()
                 current_dir = session_manager.get_cwd()
                 display_dir = format_prompt(current_dir)
-                prompt = f"{USERNAME}@{HOSTNAME}:{display_dir}$ "
+                
+                prompt = f"{session['username']}@{session['hostname']}:{display_dir}$ "
                 conn.send(prompt.encode())
 
                 data = conn.recv(1024)

@@ -3,6 +3,7 @@ import random
 import shlex
 from datetime import datetime
 
+import ai_client  # Added AI client utility mapping
 from fake_network import (
     netstat,
     netstat_tulpn,
@@ -158,7 +159,7 @@ def handle_which(command):
 
 
 def handle_who(command):
-    return "root     pts/0        2026-06-29 10:14 (192.168.1.45)"
+    return "root      pts/0        2026-06-29 10:14 (192.168.1.45)"
 
 
 def handle_w(command):
@@ -463,10 +464,6 @@ def route_command(command, session_manager, attack_type="Unknown"):
     # --------------------------
     # DECEPTION ENGINE
     # --------------------------
-    # Gives select attack types (credential probing for files that don't
-    # exist in the simulated filesystem, dynamic uptime, etc.) a chance
-    # to override the standard response below. Returns None for most
-    # commands, in which case normal routing proceeds unchanged.
     deception_response = deception_engine.adapt_response(command, session, attack_type)
     if deception_response is not None:
         return deception_response
@@ -616,6 +613,25 @@ def route_command(command, session_manager, attack_type="Unknown"):
         return "Connection established"
 
     # --------------------------
-    # DEFAULT
+    # DEFAULT -> AI FALLBACK
     # --------------------------
+    ai_result = ai_client.send_to_ai(
+        ip=session["attacker_ip"],
+        command=command,
+        history=session["command_history"],
+        attack_type=attack_type,
+        session_id=session["session_id"],
+        cwd=cwd,
+    )
+    if ai_result and ai_result.get("backend") == "local":
+        # Personality is analyst metadata only — it is NEVER used to
+        # change the attacker-visible hostname/username. See
+        # session_manager.py for why.
+        session_manager.update_personality(
+            personality_name=ai_result.get("personality_name"),
+        )
+        if ai_result.get("reply"):
+            return ai_result["reply"]
+
+    # AI backend offline/timed out/empty reply — degrade gracefully
     return f"{command}: command not found"

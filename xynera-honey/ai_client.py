@@ -1,131 +1,129 @@
-import requests
+import os
 import time
 import logging
+import requests
 from typing import Optional, Dict, Any
 
+# Professional logging setup
+logger = logging.getLogger("ai_client")
 logging.basicConfig(level=logging.INFO)
 
-LOCAL_BACKEND = "http://10.200.200.30:5000/process"
-REMOTE_BACKEND = "https://your-remote-ai-api/process"
+AI_BACKEND_HOST = os.environ.get("AI_BACKEND_HOST", "127.0.0.1")
+AI_BACKEND_PORT = os.environ.get("AI_BACKEND_PORT", "5000")
+AI_BACKEND_URL = f"http://{AI_BACKEND_HOST}:{AI_BACKEND_PORT}/process"
+AI_HEALTH_URL = f"http://{AI_BACKEND_HOST}:{AI_BACKEND_PORT}/health"
 
-TIMEOUT = 330
+TIMEOUT = 5
+MAX_RETRIES = 2
+RETRY_BACKOFF = 0.5
+
+# Persistent connection pooling
+_session = requests.Session()
 
 
-def clean_response(text):
+def clean_response(text: Optional[str]) -> Optional[str]:
     if not isinstance(text, str):
-        return ""
-
+        return None
+    text = text.strip()
     if text.startswith("```") and text.endswith("```"):
-        text = text.strip("```")
-
-    return text.strip()
-
-
-def _post(url: str, payload: dict):
-    start = time.perf_counter()
-
-    response = requests.post(
-        url,
-        json=payload,
-        timeout=TIMEOUT
-    )
-
-    elapsed = round((time.perf_counter() - start) * 1000)
-
-    response.raise_for_status()
-
-    data = response.json()
-
-    data["response_time"] = elapsed
-
-    return data
+        text = text.strip("`").strip()
+    return text if text else None
 
 
-def send_to_ai(
-    *,
-    session_id: str,
-    ip: str,
-    username: str,
-    hostname: str,
-    cwd: str,
-    command: str,
-    history=None,
-    attack_type=None,
-    personality="default"
-) -> Dict[str, Any]:
+def get_offline_fallback(attack_type: Optional[str], elapsed_ms: int) -> Dict[str, Any]:
+    """
+    Safety net payload. Since a 5s timeout increases the odds of failing
+    under load, this guarantees the caller doesn't encounter an
+    AttributeError or KeyError when the backend is unreachable.
+    """
+    return {
+        "reply": None,
+        "backend": "offline",
+        "attack_type": attack_type or "Unknown",
+        "personality_name": None,
+        "prediction": None,
+        "response_time": elapsed_ms
+    }
+
+
+def check_ai_backend():
+    """
+    Quick health check against the AI backend's /health endpoint.
+    Called once at server.py startup to warn if the AI side is unreachable.
+    """
+    try:
+        resp = _session.get(AI_HEALTH_URL, timeout=5)
+        return resp.status_code == 200
+    except requests.exceptions.RequestException:
+        return False
+
+
+def send_to_ai(ip: str, command: str, history=None, attack_type=None, **kwargs) -> Dict[str, Any]:
+    """
+    Sends the attacker's command to the Xynera AI backend.
+
+    NOTE: intentionally does NOT return hostname/username — the
+    attacker-visible shell identity is fixed for the life of a session
+    (see session_manager.py) and must never be driven by AI output.
+    Only personality_name is returned, as analyst/logging metadata.
+    """
+    if history:
+        history = [entry["command"] if isinstance(entry, dict) else entry for entry in history]
 
     payload = {
-        "session": {
-            "session_id": session_id,
-            "ip": ip,
-            "username": username,
-            "hostname": hostname,
-            "cwd": cwd,
-            "command": command,
-            "history": history or [],
-            "attack_type": attack_type,
-            "timestamp": time.time()
-        },
-
-        "ai": {
-            "personality": personality
-        }
+        "ip": ip,
+        "command": command,
+        "history": history or [],
+        "local_attack_type": attack_type,
+        **kwargs
     }
 
-    logging.info(f"Sending AI Payload: {payload}")
+    start_time = time.perf_counter()
 
-    try:
+    for attempt in range(MAX_RETRIES + 1):
+        try:
+            logger.info(f"Sending AI Payload: {payload}")
 
-        data = _post(LOCAL_BACKEND, payload)
+            response = _session.post(AI_BACKEND_URL, json=payload, timeout=TIMEOUT)
+            elapsed = round((time.perf_counter() - start_time) * 1000)
 
-        data["backend"] = "local"
+            if response.status_code != 200:
+                logger.error(f"Non-200 response from AI backend: {response.status_code}")
+                return get_offline_fallback(attack_type, elapsed)
 
-        data["reply"] = clean_response(data.get("reply"))
+            data = response.json()
 
-        return data
+            # Response validation — guard against a malformed/non-dict
+            # payload before calling .get() on it.
+            if not isinstance(data, dict):
+                logger.error("AI backend returned non-dict JSON")
+                return get_offline_fallback(attack_type, elapsed)
 
-    except Exception as e:
+            return {
+                "reply": clean_response(data.get("reply")),
+                "attack_type": data.get("attack_type", attack_type or "Unknown"),
+                "personality_name": data.get("personality_name"),
+                "prediction": data.get("prediction"),
+                "backend": "local",
+                "response_time": elapsed
+            }
 
-        logging.warning(f"Local backend failed: {e}")
+        except requests.exceptions.Timeout:
+            elapsed = round((time.perf_counter() - start_time) * 1000)
+            logger.error(f"Timeout hit after {elapsed}ms. Aborting loop to avoid server strain.")
+            break
 
-    try:
+        except requests.exceptions.ConnectionError as e:
+            if attempt < MAX_RETRIES:
+                wait = RETRY_BACKOFF * (attempt + 1)
+                logger.warning(f"Connection failed ({e}). Retrying in {wait}s ({attempt + 1}/{MAX_RETRIES})")
+                time.sleep(wait)
+                continue
+            logger.error("Connection failed completely after retries.")
 
-        data = _post(REMOTE_BACKEND, payload)
+        except Exception as e:
+            logger.error(f"Unexpected error processing AI response: {e}")
+            break
 
-        data["backend"] = "remote"
-
-        data["reply"] = clean_response(data.get("reply"))
-
-        return data
-
-    except Exception as e:
-
-        logging.error(f"Remote backend failed: {e}")
-
-    return {
-
-        "reply": "Command executed.",
-
-        "backend": "offline",
-
-        "personality": personality,
-
-        "threat_score": 0,
-
-        "confidence": 0,
-
-        "attack_type": attack_type,
-
-        "response_time": TIMEOUT * 1000,
-
-        "rag": {
-            "enabled": False,
-            "documents_used": 0,
-            "knowledge_hits": 0
-        },
-
-        "guardrails": {
-            "blocked": False,
-            "reason": None
-        }
-    }
+    final_elapsed = round((time.perf_counter() - start_time) * 1000)
+    return get_offline_fallback(attack_type, final_elapsed)

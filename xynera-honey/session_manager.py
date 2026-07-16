@@ -16,7 +16,7 @@ class SessionManager:
         self.filesystem = create_filesystem()
 
         # Per-session fake service state (nginx/mysql/redis/ssh/docker),
-        # so `service <n> stop`, `systemctl status <n>`, `netstat`, and
+        # so `service <name> stop`, `systemctl status <name>`, `netstat`, and
         # `ss` all agree with each other for this attacker.
         self.services = ServiceManager()
 
@@ -34,6 +34,20 @@ class SessionManager:
             # (recon / credential / malware) so responses can adapt across
             # a session rather than per-command in isolation.
             "attacker_profile": {"intent": "recon"},
+            # ----------------------------------------------------------
+            # DECEPTION IDENTITY STATE — fixed at connection time.
+            # Real shells don't spontaneously change username/hostname
+            # mid-session (only su/sudo/ssh would do that), so these are
+            # set once here and NEVER overwritten afterward. Changing
+            # them live would tip off the attacker that responses are
+            # AI-generated rather than a real, stable machine.
+            # ----------------------------------------------------------
+            "hostname": "web-prod-01",
+            "username": "ubuntu",
+            # "personality" is analyst/logging metadata only — the AI
+            # backend's read on what kind of attacker this is. It is
+            # NEVER surfaced in the attacker-visible prompt or output.
+            "personality": None,
         }
 
     def get_session(self):
@@ -65,6 +79,17 @@ class SessionManager:
     def update_threat_score(self, score):
         self.session["threat_score"] += score
 
+    # ----------------------------------------------------------
+    # PERSONALITY METADATA UPDATE — analyst-facing only.
+    # Deliberately does NOT accept/update hostname or username;
+    # the attacker's shell identity is fixed for the life of the
+    # session (see __init__). Only the AI's classification label
+    # is tracked here, purely for logging / session export.
+    # ----------------------------------------------------------
+    def update_personality(self, personality_name=None):
+        if personality_name:
+            self.session["personality"] = personality_name
+
     def close_session(self):
         # Bug fix: close_session() could previously be invoked more than
         # once (e.g. an exception during cleanup triggering a second call),
@@ -94,7 +119,12 @@ class SessionManager:
             "threat_score": self.session["threat_score"],
             "attack_types": self.session["attack_types"],
             "attacker_profile": self.session["attacker_profile"],
-            "session_duration": duration
+            "session_duration": duration,
+            "hostname": self.session["hostname"],
+            "username": self.session["username"],
+            # Analyst metadata only — what the AI classified this
+            # attacker/session as, for later review.
+            "personality": self.session["personality"],
         }
 
         filename = f"{log_dir}/session_{self.session['session_id']}.json"

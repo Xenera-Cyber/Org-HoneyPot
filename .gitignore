@@ -1,1 +1,3 @@
 xynera-ai/.env
+# Add this line to the bottom of your .gitignore file
+xynera-ai/.cache/
