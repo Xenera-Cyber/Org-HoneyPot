@@ -563,13 +563,44 @@ FILESYSTEM_WRITE_HANDLERS = {
     "mv": handle_mv, "cp": handle_cp,
 }
 
+# Commands that create brand-new nodes — ownership must be fixed up after write.
+_CREATES_NEW_NODE = {"touch", "mkdir", "cp"}
+
+
+def _chown_new_nodes(command, verb, filesystem, cwd, session_manager):
+    """Apply the session's current ownership to any node just created.
+
+    Only called for verbs that create new filesystem nodes (touch/mkdir/cp).
+    Resolves the destination path from the command and delegates to
+    session_manager._apply_ownership(), which already recurses into
+    directories, so cp -r is covered for free.
+    """
+    owner = session_manager.username
+    group = session_manager.groups[0]
+    parts, error = _split_command(command)
+    if error or len(parts) < 2:
+        return
+    # Destination is always the last non-flag argument.
+    dest = next(
+        (p for p in reversed(parts[1:]) if not p.startswith("-")),
+        None,
+    )
+    if dest is None:
+        return
+    dest_path = filesystem.resolve_path(cwd, _expand_home(dest, session_manager))
+    session_manager._apply_ownership(dest_path, owner, group)
+
 
 def _filesystem_write_response(command, session_manager, filesystem, cwd):
-    handler = FILESYSTEM_WRITE_HANDLERS[command.partition(" ")[0]]
-    return _backend_write(
+    verb = command.partition(" ")[0]
+    handler = FILESYSTEM_WRITE_HANDLERS[verb]
+    result = _backend_write(
         session_manager,
         lambda: handler(command, filesystem, cwd, session_manager),
     )
+    if verb in _CREATES_NEW_NODE:
+        _chown_new_nodes(command, verb, filesystem, cwd, session_manager)
+    return result
 
 
 def handle_cat(command, filesystem, cwd, session_manager):

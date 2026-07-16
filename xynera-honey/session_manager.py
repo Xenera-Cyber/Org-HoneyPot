@@ -144,6 +144,17 @@ class SessionManager:
         self.backend_cache["filesystem"][path] = data
         return data
 
+    def preload_backend(self, path, content):
+        """Pre-seed the backend cache with dataset content for a given path.
+
+        Calling this before the attacker reads `path` ensures the cache
+        returns the injected content rather than the FakeFilesystem default.
+        Invalidates any previously cached value for that path first so
+        preloads are always fresh.
+        """
+        self.invalidate_backend(path)
+        return self.save_backend(path, content)
+
     def invalidate_backend(self, path=None):
         if path is None:
             self.backend_cache["filesystem"].clear()
@@ -165,6 +176,7 @@ class SessionManager:
             "hostname": self.hostname,
             "username": self.username,
             "groups": list(self.groups),
+            "kernel_version": self.kernel_version,
             "personality": dict(self.personality),
             "environment": dict(self.environment),
         }
