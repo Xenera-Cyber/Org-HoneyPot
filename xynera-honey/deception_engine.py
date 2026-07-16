@@ -3,11 +3,6 @@ deception_engine.py
 
 Purpose:
     Generates deceptive responses based on detected attack types.
-    Sits in front of the standard command router (see command_router.py):
-    for each command, adapt_response() is consulted first. If it returns
-    a value, that value is sent to the attacker instead of the normal
-    command output. If it returns None, the command router falls back to
-    its regular handling.
 
 Future Architecture:
     - AI-powered adaptive deception
@@ -16,62 +11,16 @@ Future Architecture:
     - Threat intelligence integration
 """
 
-import random
-
-import malware_detector
-
-
-# ==========================================================
-# Attacker Intent Profiling
-# ==========================================================
-def update_profile(command, session):
-    """
-    Maintain a rolling read on the attacker's apparent intent for this
-    session (recon / credential / malware), stored on the session dict
-    itself so it never bleeds into other sessions. Currently used for
-    session summaries/analytics; attack-type dispatch below remains the
-    primary routing signal since it is already derived per-command by
-    attack_analyzer.classify().
-    """
-    profile = session.setdefault("attacker_profile", {"intent": "recon"})
-    cmd = command.lower()
-
-    if "/etc/passwd" in cmd or "/etc/shadow" in cmd or "grep" in cmd:
-        profile["intent"] = "credential"
-    elif "wget" in cmd or "curl" in cmd or cmd.startswith("nc"):
-        profile["intent"] = "malware"
-    else:
-        profile["intent"] = "recon"
-
-    return profile
-
-
-def get_dynamic_uptime():
-    """Randomized uptime so repeated calls don't look scripted/static."""
-    days = 37
-    hours = random.randint(0, 23)
-    minutes = random.randint(0, 59)
-    users = random.randint(1, 4)
-    load = ", ".join(f"{random.uniform(0.0, 0.5):.2f}" for _ in range(3))
-    return (
-        f"14:23:{random.randint(0, 59):02d} up {days} days, {hours}:{minutes:02d}, "
-        f"{users} users, load average: {load}"
-    )
-
-
 # ==========================================================
 # Reconnaissance Deception
 # ==========================================================
 def reconnaissance_deception(command, session):
     """
-    Reconnaissance covers many distinct commands (ls, ps, netstat, ...)
-    that already have rich, dedicated simulations in fake_filesystem.py /
-    fake_process.py / fake_network.py, so this only special-cases
-    "uptime" (which attack_analyzer.classify() does not tag as
-    Reconnaissance on its own) and otherwise defers to normal routing.
+    Future AI/RAG:
+    - Analyze attacker reconnaissance behaviour
+    - Generate adaptive system responses
+    - Simulate realistic infrastructure discovery
     """
-    if command.strip().lower() == "uptime":
-        return get_dynamic_uptime()
     return None
 
 
@@ -80,21 +29,19 @@ def reconnaissance_deception(command, session):
 # ==========================================================
 def credential_enumeration_deception(command, session):
     """
-    /etc/passwd already exists in the simulated filesystem with full,
-    session-consistent contents (see fake_filesystem.py), so real `cat`
-    output is used for it rather than being overridden here.
-
-    /etc/shadow does NOT exist in the simulated filesystem, so without
-    this handler an attacker probing for it would get a giveaway
-    "No such file" response. This supplies a plausible-looking (but
-    useless, hash-free) shadow file instead.
+    Bug fix: this previously hardcoded a fake /etc/passwd file listing
+    "ubuntu" as the second user account, regardless of the session's
+    actual identity. If the AI backend (or anything else) changes the
+    session's username/hostname mid-session, this file would still show
+    the old, stale "ubuntu" account -- another form of duplicate/
+    inconsistent identity storage. It now reads the live username from
+    the session dict, same as every other identity-aware command.
     """
-    if "/etc/shadow" in command:
-        return (
-            "root:*:19000:0:99999:7:::\n"
-            "ubuntu:*:19000:0:99999:7:::\n"
-            "dev:*:19000:0:99999:7:::"
-        )
+    if "/etc/passwd" in command:
+        username = session.get("username", "ubuntu")
+        return f"""root:x:0:0:root:/root:/bin/bash
+{username}:x:1000:1000::/home/{username}:/bin/bash
+dev:x:1001:1001::/home/dev:/bin/bash"""
     return None
 
 
@@ -102,31 +49,25 @@ def credential_enumeration_deception(command, session):
 # Malware Download Deception
 # ==========================================================
 def malware_download_deception(command, session):
-    """
-    Delegates to malware_detector.py, which already validates the target
-    and produces a randomized, believable wget/curl transcript. This
-    avoids a second, weaker/static implementation of the same behaviour
-    living here.
-    """
-    cmd = command.strip().lower()
-    if cmd.startswith("wget"):
-        return malware_detector.handle_wget(command)[0]
-    if cmd.startswith("curl"):
-        return malware_detector.handle_curl(command)[0]
-    return None
+    return """--2026-- Downloading http://malware.sh
+Resolving malware.sh... 192.168.1.10
+Connecting... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 2048 (2.0K) [application/x-sh]
+Saving to: 'malware.sh'
+malware.sh        100%[==================>] 2.00K  --.-KB/s
+Download complete."""
 
 
 # ==========================================================
 # Lateral Movement Deception
 # ==========================================================
 def lateral_movement_deception(command, session):
-    """
-    fake_network.ssh() already provides a richer, randomized simulation
-    (banner, password prompts, occasional connection failures) than a
-    single static line would. Deferring to it avoids downgrading that
-    existing behaviour.
-    """
-    return None
+    return (
+        "ssh: connect to host "
+        "192.168.1.5 port 22: "
+        "Connection timed out"
+    )
 
 
 # ==========================================================
@@ -181,13 +122,6 @@ DECEPTION_HANDLERS = {
 def adapt_response(command, session, attack_type):
     """
     Routes each detected attack type to its respective deception handler.
-    Returns None when no deception applies, signalling the command
-    router to fall back to its standard handling for that command.
     """
-    update_profile(command, session)
-
-    if attack_type == "Unknown" and command.strip().lower() == "uptime":
-        return get_dynamic_uptime()
-
     handler = DECEPTION_HANDLERS.get(attack_type, default_deception)
     return handler(command, session)

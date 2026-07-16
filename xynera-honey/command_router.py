@@ -112,24 +112,31 @@ def handle_date(command):
     return datetime.now().strftime("%a %b %d %H:%M:%S UTC %Y")
 
 
-def handle_env(command):
-    return """SHELL=/bin/bash
-PWD=/root
-LOGNAME=root
-HOME=/root
+def handle_env(command, identity):
+    """
+    Bug fix: previously hardcoded USER=root / HOME=/root / LOGNAME=root,
+    which contradicted whoami/id reporting the session's actual username.
+    Now built from the same session identity as every other command.
+    """
+    username = identity["username"]
+    home = "/root" if username == "root" else f"/home/{username}"
+    return f"""SHELL=/bin/bash
+PWD={home}
+LOGNAME={username}
+HOME={home}
 LANG=en_US.UTF-8
 LS_COLORS=rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:
 LESSCLOSE=/usr/bin/lesspipe %s %s
 TERM=xterm-256color
 LESSOPEN=| /usr/bin/lesspipe %s
-USER=root
+USER={username}
 SHLVL=1
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 _=/usr/bin/env"""
 
 
-def handle_printenv(command):
-    return handle_env(command)
+def handle_printenv(command, identity):
+    return handle_env(command, identity)
 
 
 def handle_echo(command):
@@ -157,15 +164,16 @@ def handle_which(command):
     return ""
 
 
-def handle_who(command):
-    return "root     pts/0        2026-06-29 10:14 (192.168.1.45)"
+def handle_who(command, identity):
+    now = "2026-06-29 10:14"
+    return f"{identity['username']:<9}pts/0        {now} (192.168.1.45)"
 
 
-def handle_w(command):
+def handle_w(command, identity):
     now = datetime.now().strftime("%H:%M:%S")
     return f""" {now} up 14 days,  3:12,  1 user,  load average: 0.00, 0.00, 0.00
 USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
-root     pts/0    192.168.1.45     10:14    1.00s  0.02s  0.00s -bash"""
+{identity['username']:<9}pts/0    192.168.1.45     10:14    1.00s  0.02s  0.00s -bash"""
 
 
 def handle_alias(command):
@@ -178,8 +186,14 @@ alias ll='ls -alF'
 alias ls='ls --color=auto'"""
 
 
-def handle_hostnamectl(command):
-    return """   Static hostname: xynera-server
+def handle_hostnamectl(command, identity):
+    """
+    Bug fix: this previously hardcoded "xynera-server" as the static
+    hostname, while the plain `hostname` command reported "web-prod-01"
+    -- two different hostnames for the same machine in the same session.
+    Both now read from the same session identity.
+    """
+    return f"""   Static hostname: {identity['hostname']}
          Icon name: computer-vm
            Chassis: vm
         Machine ID: 8a4e8d3a5b6c4f729e1f2d3c4b5a6978
@@ -458,6 +472,10 @@ def route_command(command, session_manager, attack_type="Unknown"):
     services = session_manager.services
     command = command.strip()
 
+    # Single source of truth for identity. Every command below that
+    # needs a username/hostname reads it from here -- never hardcoded.
+    identity = session_manager.get_identity()
+
     time.sleep(get_command_delay(command))
 
     # --------------------------
@@ -475,17 +493,18 @@ def route_command(command, session_manager, attack_type="Unknown"):
     # USER COMMANDS
     # --------------------------
     if command == "whoami":
-        return "ubuntu"
+        return identity["username"]
     elif command == "groups":
-        return "ubuntu sudo docker"
+        return f"{identity['username']} sudo docker"
     elif command == "id":
+        username = identity["username"]
         return (
-            "uid=1000(ubuntu) "
-            "gid=1000(ubuntu) "
-            "groups=1000(ubuntu)"
+            f"uid=1000({username}) "
+            f"gid=1000({username}) "
+            f"groups=1000({username})"
         )
     elif command == "users":
-        return "ubuntu"
+        return identity["username"]
 
     # --------------------------
     # DIRECTORY COMMANDS
@@ -529,7 +548,7 @@ def route_command(command, session_manager, attack_type="Unknown"):
     elif command == "ps":
         return ps()
     elif command == "ps aux":
-        return ps_aux()
+        return ps_aux(username=identity["username"])
 
     # --------------------------
     # NETWORK COMMANDS
@@ -565,11 +584,11 @@ def route_command(command, session_manager, attack_type="Unknown"):
     # SYSTEM DISCOVERY
     # --------------------------
     elif command == "hostname":
-        return "web-prod-01"
+        return identity["hostname"]
     elif command.startswith("hostnamectl"):
-        return handle_hostnamectl(command)
+        return handle_hostnamectl(command, identity)
     elif command == "uname -a":
-        return "Linux web-prod-01 5.15.0-generic x86_64 GNU/Linux"
+        return f"Linux {identity['hostname']} 5.15.0-generic x86_64 GNU/Linux"
     elif command == "uptime":
         return "14:23:05 up 37 days, 3 users, load average: 0.11, 0.09, 0.05"
     elif command == "systemctl" or command.startswith("systemctl "):
@@ -583,9 +602,9 @@ def route_command(command, session_manager, attack_type="Unknown"):
     elif command.startswith("date"):
         return handle_date(command)
     elif command.startswith("printenv"):
-        return handle_printenv(command)
+        return handle_printenv(command, identity)
     elif command.startswith("env"):
-        return handle_env(command)
+        return handle_env(command, identity)
     elif command.startswith("echo"):
         return handle_echo(command)
     elif command.startswith("clear"):
@@ -593,9 +612,9 @@ def route_command(command, session_manager, attack_type="Unknown"):
     elif command.startswith("which"):
         return handle_which(command)
     elif command.startswith("who"):
-        return handle_who(command)
+        return handle_who(command, identity)
     elif command == "w":
-        return handle_w(command)
+        return handle_w(command, identity)
     elif command.startswith("alias"):
         return handle_alias(command)
     elif command.startswith("history"):
