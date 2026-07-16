@@ -1,0 +1,5 @@
+[2026-07-16 14:36:38] [INFO] IP=127.0.0.1 | SESSION=6ef71cba-444d-45f2-91c9-272bdbea0c65 | TYPE=Reconnaissance | SCORE=20 | CMD=whoami
+[2026-07-16 14:36:43] [INFO] IP=127.0.0.1 | SESSION=6ef71cba-444d-45f2-91c9-272bdbea0c65 | TYPE=Reconnaissance | SCORE=20 | CMD=hostname
+[2026-07-16 14:37:15] [INFO] IP=127.0.0.1 | SESSION=6ef71cba-444d-45f2-91c9-272bdbea0c65 | TYPE=Unknown | SCORE=5 | CMD=head -20 employee_directory.csv
+[2026-07-16 14:37:24] [INFO] IP=127.0.0.1 | SESSION=6ef71cba-444d-45f2-91c9-272bdbea0c65 | TYPE=Reconnaissance | SCORE=20 | CMD=ip addr
+[2026-07-16 14:37:41] [INFO] IP=127.0.0.1 | SESSION=6ef71cba-444d-45f2-91c9-272bdbea0c65 | TYPE=Reconnaissance | SCORE=20 | CMD=ifconfig

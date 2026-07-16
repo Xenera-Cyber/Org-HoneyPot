@@ -1,0 +1,74 @@
+{
+    "session_id": "6ef71cba-444d-45f2-91c9-272bdbea0c65",
+    "ip": "127.0.0.1",
+    "start_time": "2026-07-16T14:35:24.511286",
+    "end_time": "2026-07-16T14:37:51.669518",
+    "current_directory": "/home/ubuntu",
+    "hostname": "web-prod-01",
+    "username": "ubuntu",
+    "groups": [
+        "ubuntu",
+        "sudo",
+        "docker"
+    ],
+    "personality": {
+        "name": "Standard Ubuntu Server",
+        "hostname": "web-prod-01",
+        "user": "ubuntu",
+        "groups": [
+            "ubuntu",
+            "sudo",
+            "docker"
+        ],
+        "home_dir": "/home/ubuntu",
+        "shell": "/bin/bash"
+    },
+    "environment": {
+        "SHELL": "/bin/bash",
+        "PWD": "/home/ubuntu",
+        "LOGNAME": "ubuntu",
+        "HOME": "/home/ubuntu",
+        "LANG": "en_US.UTF-8",
+        "TERM": "xterm-256color",
+        "USER": "ubuntu",
+        "SHLVL": "1",
+        "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "_": "/usr/bin/env"
+    },
+    "commands": [
+        {
+            "command": "whoami",
+            "timestamp": "2026-07-16T14:36:38.884707",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "hostname",
+            "timestamp": "2026-07-16T14:36:43.793332",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "head -20 employee_directory.csv",
+            "timestamp": "2026-07-16T14:37:15.054920",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "ip addr",
+            "timestamp": "2026-07-16T14:37:24.390006",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "ifconfig",
+            "timestamp": "2026-07-16T14:37:41.532984",
+            "cwd": "/home/ubuntu"
+        }
+    ],
+    "threat_score": 85,
+    "attack_types": [
+        "Reconnaissance",
+        "Unknown"
+    ],
+    "attacker_profile": {
+        "intent": "recon"
+    },
+    "session_duration": "0:02:27.158232"
+}
