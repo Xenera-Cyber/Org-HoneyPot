@@ -110,6 +110,13 @@ def _cache_key(command_type, *parts):
     return ":".join([command_type, *(str(part) for part in parts)])
 
 
+def _prefixed_response(command, handlers, *args):
+    for prefix, handler in handlers:
+        if command.startswith(prefix):
+            return handler(command, *args)
+    return None
+
+
 def _backend_read(session_manager, key, local_reader):
     if session_manager.backend_exists(key):
         return session_manager.get_backend(key)
@@ -122,6 +129,12 @@ def _backend_read(session_manager, key, local_reader):
 def _backend_write(session_manager, local_writer):
     response = local_writer()
     session_manager.sync_backend_after_filesystem_write()
+    return response
+
+
+def _synced_service_response(session_manager, handler, command, services):
+    response = handler(command, services)
+    session_manager.sync_service_state()
     return response
 
 
@@ -151,6 +164,12 @@ def _expand_home(path, session_manager):
     return path
 
 
+def _current_environment(session_manager):
+    environment = dict(session_manager.environment)
+    environment["PWD"] = session_manager.get_cwd()
+    return environment
+
+
 # ==========================================================
 # Expansion Pack Helper Functions
 # ==========================================================
@@ -159,17 +178,14 @@ def handle_date(command):
 
 
 def handle_env(command, session_manager):
-    environment = dict(session_manager.environment)
-    environment["PWD"] = session_manager.get_cwd()
+    environment = _current_environment(session_manager)
     return "\n".join(f"{key}={value}" for key, value in environment.items())
 
 
 def handle_printenv(command, session_manager):
     parts = command.split()
     if len(parts) > 1:
-        environment = dict(session_manager.environment)
-        environment["PWD"] = session_manager.get_cwd()
-        return environment.get(parts[1], "")
+        return _current_environment(session_manager).get(parts[1], "")
     return handle_env(command, session_manager)
 
 
@@ -254,6 +270,18 @@ def handle_history(command, session_manager):
     if not numbered:
         return ""
     return "\n".join(f"  {i}  {entry['command']}" for i, entry in numbered)
+
+
+SESSION_EXPANSION_HANDLERS = (
+    ("printenv", handle_printenv), ("env", handle_env),
+    ("history", handle_history),
+)
+
+EXPANSION_HANDLERS = (
+    ("date", handle_date), ("echo", handle_echo),
+    ("clear", handle_clear), ("which", handle_which),
+    ("who", handle_who), ("alias", handle_alias),
+)
 
 
 def handle_chmod(command):
@@ -382,6 +410,22 @@ def handle_host(command):
     return host(domain=_arg(command, 1, "example.com"))
 
 
+NETWORK_PREFIX_HANDLERS = (
+    ("ping", handle_ping), ("ssh", handle_ssh),
+    ("telnet", handle_telnet), ("ftp", handle_ftp),
+    ("traceroute", handle_traceroute), ("dig", handle_dig),
+    ("nslookup", handle_nslookup),
+)
+
+NETWORK_EXACT_HANDLERS = {
+    "netstat": netstat, "netstat -tulpn": netstat_tulpn, "ss": ss,
+}
+
+NETWORK_STATIC_HANDLERS = {
+    "ifconfig": ifconfig, "ip addr": ip_addr,
+}
+
+
 # ==========================================================
 # Filesystem Command Helpers (dynamic, session-scoped filesystem)
 # ==========================================================
@@ -394,6 +438,26 @@ def _split_command(command):
 
 def _collect_errors(results):
     return "\n".join(result for result in results if result)
+
+
+def _split_flags_paths(parts):
+    return (
+        [part for part in parts[1:] if part.startswith("-")],
+        [part for part in parts[1:] if not part.startswith("-")],
+    )
+
+
+def _handle_create(command, filesystem, cwd, creator, session_manager=None):
+    parts, error = _split_command(command)
+    if error:
+        return error
+    if len(parts) < 2:
+        return creator(cwd, "")
+    return _collect_errors(
+        creator(cwd, _expand_home(path, session_manager))
+        for path in parts[1:]
+        if not path.startswith("-")
+    )
 
 
 def handle_ls(command, filesystem, cwd, session_manager=None):
@@ -432,29 +496,11 @@ def handle_ls(command, filesystem, cwd, session_manager=None):
 
 
 def handle_touch(command, filesystem, cwd, session_manager=None):
-    parts, error = _split_command(command)
-    if error:
-        return error
-    if len(parts) < 2:
-        return filesystem.touch(cwd, "")
-    return _collect_errors(
-        filesystem.touch(cwd, _expand_home(path, session_manager))
-        for path in parts[1:]
-        if not path.startswith("-")
-    )
+    return _handle_create(command, filesystem, cwd, filesystem.touch, session_manager)
 
 
 def handle_mkdir(command, filesystem, cwd, session_manager=None):
-    parts, error = _split_command(command)
-    if error:
-        return error
-    if len(parts) < 2:
-        return filesystem.mkdir(cwd, "")
-    return _collect_errors(
-        filesystem.mkdir(cwd, _expand_home(path, session_manager))
-        for path in parts[1:]
-        if not path.startswith("-")
-    )
+    return _handle_create(command, filesystem, cwd, filesystem.mkdir, session_manager)
 
 
 def handle_rm(command, filesystem, cwd, session_manager=None):
@@ -464,8 +510,7 @@ def handle_rm(command, filesystem, cwd, session_manager=None):
     if len(parts) < 2:
         return filesystem.rm(cwd, "")
 
-    flags = [part for part in parts[1:] if part.startswith("-")]
-    paths = [part for part in parts[1:] if not part.startswith("-")]
+    flags, paths = _split_flags_paths(parts)
     recursive = any("r" in flag or "R" in flag for flag in flags)
     force = any("f" in flag for flag in flags)
     if not paths:
@@ -501,8 +546,7 @@ def handle_cp(command, filesystem, cwd, session_manager=None):
     if len(parts) < 3:
         return "cp: missing file operand"
 
-    flags = [part for part in parts[1:] if part.startswith("-")]
-    operands = [part for part in parts[1:] if not part.startswith("-")]
+    flags, operands = _split_flags_paths(parts)
     if len(operands) < 2:
         return "cp: missing destination file operand"
     recursive = any("r" in flag or "R" in flag for flag in flags)
@@ -511,6 +555,20 @@ def handle_cp(command, filesystem, cwd, session_manager=None):
         _expand_home(operands[0], session_manager),
         _expand_home(operands[1], session_manager),
         recursive=recursive,
+    )
+
+
+FILESYSTEM_WRITE_HANDLERS = {
+    "touch": handle_touch, "mkdir": handle_mkdir, "rm": handle_rm,
+    "mv": handle_mv, "cp": handle_cp,
+}
+
+
+def _filesystem_write_response(command, session_manager, filesystem, cwd):
+    handler = FILESYSTEM_WRITE_HANDLERS[command.partition(" ")[0]]
+    return _backend_write(
+        session_manager,
+        lambda: handler(command, filesystem, cwd, session_manager),
     )
 
 
@@ -550,6 +608,21 @@ def handle_cd(command, filesystem, cwd, session_manager):
     return error
 
 
+PROCESS_HANDLERS = {"ps": ps, "ps aux": ps_aux}
+
+ATTACKER_PREFIX_HANDLERS = (
+    ("wget", lambda command: malware_detector.handle_wget(command)[0]),
+    ("curl", lambda command: malware_detector.handle_curl(command)[0]),
+    ("scp", lambda command: malware_detector.handle_scp(command)[0]),
+    ("chmod", handle_chmod),
+    ("nc", lambda command: "Connection established"),
+)
+
+
+def _attacker_response(command):
+    return _prefixed_response(command, ATTACKER_PREFIX_HANDLERS)
+
+
 # ==========================================================
 # Main Router Logic
 # ==========================================================
@@ -573,9 +646,6 @@ def route_command(command, session_manager, attack_type="Unknown"):
     if deception_response is not None:
         return deception_response
 
-    # --------------------------
-    # USER COMMANDS
-    # --------------------------
     if command == "whoami":
         return session_manager.username
     elif command == "groups":
@@ -594,92 +664,31 @@ def route_command(command, session_manager, attack_type="Unknown"):
     elif command == "users":
         return session_manager.username
 
-    # --------------------------
-    # DIRECTORY COMMANDS
-    # --------------------------
     elif command == "pwd":
         return handle_pwd(filesystem, cwd, session_manager)
     elif command == "ls" or command.startswith("ls "):
         return handle_ls(command, filesystem, cwd, session_manager)
 
-    # --------------------------
-    # CHANGE DIRECTORY
-    # --------------------------
     elif command == "cd" or command.startswith("cd "):
         return handle_cd(command, filesystem, cwd, session_manager)
 
-    # --------------------------
-    # FILE COMMANDS
-    # --------------------------
     elif command.startswith("cat "):
         return handle_cat(command, filesystem, cwd, session_manager)
-    elif command == "touch" or command.startswith("touch "):
-        return _backend_write(
-            session_manager,
-            lambda: handle_touch(command, filesystem, cwd, session_manager),
-        )
-    elif command == "mkdir" or command.startswith("mkdir "):
-        return _backend_write(
-            session_manager,
-            lambda: handle_mkdir(command, filesystem, cwd, session_manager),
-        )
-    elif command == "rm" or command.startswith("rm "):
-        return _backend_write(
-            session_manager,
-            lambda: handle_rm(command, filesystem, cwd, session_manager),
-        )
-    elif command == "mv" or command.startswith("mv "):
-        return _backend_write(
-            session_manager,
-            lambda: handle_mv(command, filesystem, cwd, session_manager),
-        )
-    elif command == "cp" or command.startswith("cp "):
-        return _backend_write(
-            session_manager,
-            lambda: handle_cp(command, filesystem, cwd, session_manager),
-        )
+    elif command.partition(" ")[0] in FILESYSTEM_WRITE_HANDLERS:
+        return _filesystem_write_response(command, session_manager, filesystem, cwd)
 
-    # --------------------------
-    # PROCESS COMMANDS
-    # --------------------------
-    elif command == "ps":
-        return ps()
-    elif command == "ps aux":
-        return ps_aux()
+    elif command in PROCESS_HANDLERS:
+        return PROCESS_HANDLERS[command]()
 
-    # --------------------------
-    # NETWORK COMMANDS
-    # --------------------------
-    elif command == "netstat":
-        return netstat(services)
-    elif command == "netstat -tulpn":
-        return netstat_tulpn(services)
-    elif command == "ss":
-        return ss(services)
-    elif command == "ifconfig":
-        return ifconfig()
-    elif command == "ip addr":
-        return ip_addr()
-    elif command.startswith("ping"):
-        return handle_ping(command)
-    elif command.startswith("ssh"):
-        return handle_ssh(command)
-    elif command.startswith("telnet"):
-        return handle_telnet(command)
-    elif command.startswith("ftp"):
-        return handle_ftp(command)
-    elif command.startswith("traceroute"):
-        return handle_traceroute(command)
-    elif command.startswith("dig"):
-        return handle_dig(command)
-    elif command.startswith("nslookup"):
-        return handle_nslookup(command)
+    elif command in NETWORK_EXACT_HANDLERS:
+        return NETWORK_EXACT_HANDLERS[command](services)
+    elif command in NETWORK_STATIC_HANDLERS:
+        return NETWORK_STATIC_HANDLERS[command]()
+    elif any(command.startswith(prefix) for prefix, _handler in NETWORK_PREFIX_HANDLERS):
+        return _prefixed_response(command, NETWORK_PREFIX_HANDLERS)
     elif command == "host" or command.startswith("host "):
         return handle_host(command)
 
-    # --------------------------
-    # SYSTEM DISCOVERY
-    # --------------------------
     elif command == "hostname":
         return session_manager.hostname
     elif command.startswith("hostnamectl"):
@@ -692,51 +701,19 @@ def route_command(command, session_manager, attack_type="Unknown"):
     elif command == "uptime":
         return "14:23:05 up 37 days, 3 users, load average: 0.11, 0.09, 0.05"
     elif command == "systemctl" or command.startswith("systemctl "):
-        response = handle_systemctl(command, services)
-        session_manager.sync_service_state()
-        return response
+        return _synced_service_response(session_manager, handle_systemctl, command, services)
     elif command.startswith("service "):
-        response = handle_service(command, services)
-        session_manager.sync_service_state()
-        return response
+        return _synced_service_response(session_manager, handle_service, command, services)
 
-    # --------------------------
-    # EXPANSION COMMANDS
-    # --------------------------
-    elif command.startswith("date"):
-        return handle_date(command)
-    elif command.startswith("printenv"):
-        return handle_printenv(command, session_manager)
-    elif command.startswith("env"):
-        return handle_env(command, session_manager)
-    elif command.startswith("echo"):
-        return handle_echo(command)
-    elif command.startswith("clear"):
-        return handle_clear(command)
-    elif command.startswith("which"):
-        return handle_which(command)
-    elif command.startswith("who"):
-        return handle_who(command)
+    elif any(command.startswith(prefix) for prefix, _handler in SESSION_EXPANSION_HANDLERS):
+        return _prefixed_response(command, SESSION_EXPANSION_HANDLERS, session_manager)
+    elif any(command.startswith(prefix) for prefix, _handler in EXPANSION_HANDLERS):
+        return _prefixed_response(command, EXPANSION_HANDLERS)
     elif command == "w":
         return handle_w(command)
-    elif command.startswith("alias"):
-        return handle_alias(command)
-    elif command.startswith("history"):
-        return handle_history(command, session_manager)
 
-    # --------------------------
-    # ATTACKER COMMANDS
-    # --------------------------
-    elif command.startswith("wget"):
-        return malware_detector.handle_wget(command)[0]
-    elif command.startswith("curl"):
-        return malware_detector.handle_curl(command)[0]
-    elif command.startswith("scp"):
-        return malware_detector.handle_scp(command)[0]
-    elif command.startswith("chmod"):
-        return handle_chmod(command)
-    elif command.startswith("nc"):
-        return "Connection established"
+    elif any(command.startswith(prefix) for prefix, _handler in ATTACKER_PREFIX_HANDLERS):
+        return _attacker_response(command)
 
     # --------------------------
     # DEFAULT
