@@ -734,3 +734,4 @@ ORIGINAL_FILESYSTEM = FileSystem.from_template()
 def create_filesystem():
     """Return a fresh, independent FileSystem for a new attacker session."""
     return ORIGINAL_FILESYSTEM.clone()
+

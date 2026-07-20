@@ -1,6 +1,7 @@
 import socket
 from datetime import datetime
 
+import ai_client
 from command_router import route_command
 from session_manager import SessionManager
 from attack_analyzer import classify, threat_score
@@ -8,26 +9,6 @@ from logger import log_command
 
 HOST = "0.0.0.0"
 PORT = 2222
-
-HOSTNAME = "web-prod-01"
-USERNAME = "ubuntu"
-HOME_DIR = "/home/ubuntu"
-
-
-def format_prompt(path):
-    """
-    Convert the home directory to '~' like a real Linux shell.
-
-    Examples:
-        /home/ubuntu              -> ~
-        /home/ubuntu/Documents    -> ~/Documents
-        /etc                      -> /etc
-    """
-    if path == HOME_DIR:
-        return "~"
-    if path.startswith(HOME_DIR + "/"):
-        return "~" + path[len(HOME_DIR):]
-    return path
 
 
 def start_server():
@@ -46,6 +27,12 @@ def start_server():
     )
     print("-" * 105)
 
+    # ----------------------------------------------------------
+    # AI Backend Health Check (startup)
+    # ----------------------------------------------------------
+    if not ai_client.check_ai_backend():
+        print("[!] WARNING: AI backend unreachable at startup. Honeypot will run in local-only fallback mode.")
+
     while True:
         conn, addr = server.accept()
         attacker_ip = addr[0]
@@ -60,9 +47,11 @@ def start_server():
                 # ----------------------------
                 # Terminal Prompt
                 # ----------------------------
-                current_dir = session_manager.get_cwd()
-                display_dir = format_prompt(current_dir)
-                prompt = f"{USERNAME}@{HOSTNAME}:{display_dir}$ "
+                # Built live from the session's identity (username/
+                # hostname/cwd) — see session_manager.get_prompt(). Never
+                # hardcode username/hostname here; that was the source of
+                # the stale-identity bug this replaces.
+                prompt = session_manager.get_prompt()
                 conn.send(prompt.encode())
 
                 data = conn.recv(1024)
@@ -138,3 +127,4 @@ def start_server():
 
 if __name__ == "__main__":
     start_server()
+

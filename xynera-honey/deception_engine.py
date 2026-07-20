@@ -80,14 +80,18 @@ def reconnaissance_deception(command, session):
 # ==========================================================
 def credential_enumeration_deception(command, session):
     """
-    /etc/passwd already exists in the simulated filesystem with full,
-    session-consistent contents (see fake_filesystem.py), so real `cat`
-    output is used for it rather than being overridden here.
-
     /etc/shadow does NOT exist in the simulated filesystem, so without
     this handler an attacker probing for it would get a giveaway
     "No such file" response. This supplies a plausible-looking (but
     useless, hash-free) shadow file instead.
+
+    /etc/passwd DOES exist in fake_filesystem.py's template, but that
+    template is static and hardcodes the "ubuntu" account name. Once a
+    session has a dynamic identity (see session_manager.py), a static
+    file would show a stale username that no longer matches whoami/the
+    shell prompt/etc. This override takes precedence over the static
+    filesystem entry for /etc/passwd specifically so its content always
+    reflects the session's live username (bug fix, Shatakshi).
     """
     if "/etc/shadow" in command:
         return (
@@ -95,6 +99,11 @@ def credential_enumeration_deception(command, session):
             "ubuntu:*:19000:0:99999:7:::\n"
             "dev:*:19000:0:99999:7:::"
         )
+    if "/etc/passwd" in command:
+        username = session.get("username", "ubuntu")
+        return f"""root:x:0:0:root:/root:/bin/bash
+{username}:x:1000:1000::/home/{username}:/bin/bash
+dev:x:1001:1001::/home/dev:/bin/bash"""
     return None
 
 
@@ -191,3 +200,5 @@ def adapt_response(command, session, attack_type):
 
     handler = DECEPTION_HANDLERS.get(attack_type, default_deception)
     return handler(command, session)
+
+
