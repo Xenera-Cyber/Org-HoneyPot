@@ -178,33 +178,6 @@ def handle_date(command):
     return datetime.now().strftime("%a %b %d %H:%M:%S UTC %Y")
 
 
-<<<<<<< HEAD
-def handle_env(command, identity):
-    """
-    Bug fix: previously hardcoded USER=root / HOME=/root / LOGNAME=root,
-    which contradicted whoami/id reporting the session's actual username.
-    Now built from the same session identity as every other command.
-    """
-    username = identity["username"]
-    home = "/root" if username == "root" else f"/home/{username}"
-    return f"""SHELL=/bin/bash
-PWD={home}
-LOGNAME={username}
-HOME={home}
-LANG=en_US.UTF-8
-LS_COLORS=rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:
-LESSCLOSE=/usr/bin/lesspipe %s %s
-TERM=xterm-256color
-LESSOPEN=| /usr/bin/lesspipe %s
-USER={username}
-SHLVL=1
-PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-_=/usr/bin/env"""
-
-
-def handle_printenv(command, identity):
-    return handle_env(command, identity)
-=======
 def handle_env(command, session_manager):
     environment = _current_environment(session_manager)
     return "\n".join(f"{key}={value}" for key, value in environment.items())
@@ -215,7 +188,6 @@ def handle_printenv(command, session_manager):
     if len(parts) > 1:
         return _current_environment(session_manager).get(parts[1], "")
     return handle_env(command, session_manager)
->>>>>>> origin/hriday/baseline-v3.3
 
 
 def handle_echo(command):
@@ -243,18 +215,6 @@ def handle_which(command):
     return ""
 
 
-<<<<<<< HEAD
-def handle_who(command, identity):
-    now = "2026-06-29 10:14"
-    return f"{identity['username']:<9}pts/0        {now} (192.168.1.45)"
-
-
-def handle_w(command, identity):
-    now = datetime.now().strftime("%H:%M:%S")
-    return f""" {now} up 14 days,  3:12,  1 user,  load average: 0.00, 0.00, 0.00
-USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
-{identity['username']:<9}pts/0    192.168.1.45     10:14    1.00s  0.02s  0.00s -bash"""
-=======
 def handle_who(command, session_manager):
     """
     Bug fix: previously hardcoded "root" regardless of the session's
@@ -270,7 +230,6 @@ def handle_w(command, session_manager):
     return f""" {now} up 14 days,  3:12,  1 user,  load average: 0.00, 0.00, 0.00
 USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
 {session_manager.username:<9}pts/0    192.168.1.45     10:14    1.00s  0.02s  0.00s -bash"""
->>>>>>> origin/hriday/baseline-v3.3
 
 
 def handle_alias(command):
@@ -283,19 +242,8 @@ alias ll='ls -alF'
 alias ls='ls --color=auto'"""
 
 
-<<<<<<< HEAD
-def handle_hostnamectl(command, identity):
-    """
-    Bug fix: this previously hardcoded "xynera-server" as the static
-    hostname, while the plain `hostname` command reported "web-prod-01"
-    -- two different hostnames for the same machine in the same session.
-    Both now read from the same session identity.
-    """
-    return f"""   Static hostname: {identity['hostname']}
-=======
 def handle_hostnamectl(command, session_manager):
     return f"""   Static hostname: {session_manager.hostname}
->>>>>>> origin/hriday/baseline-v3.3
          Icon name: computer-vm
            Chassis: vm
         Machine ID: 8a4e8d3a5b6c4f729e1f2d3c4b5a6978
@@ -739,20 +687,6 @@ def route_command(command, session_manager, attack_type="Unknown"):
         return deception_response
 
     if command == "whoami":
-<<<<<<< HEAD
-        return identity["username"]
-    elif command == "groups":
-        return f"{identity['username']} sudo docker"
-    elif command == "id":
-        username = identity["username"]
-        return (
-            f"uid=1000({username}) "
-            f"gid=1000({username}) "
-            f"groups=1000({username})"
-        )
-    elif command == "users":
-        return identity["username"]
-=======
         return session_manager.username
     elif command == "groups":
         return " ".join(session_manager.groups)
@@ -769,7 +703,6 @@ def route_command(command, session_manager, attack_type="Unknown"):
         )
     elif command == "users":
         return session_manager.username
->>>>>>> origin/hriday/baseline-v3.3
 
     elif command == "pwd":
         return handle_pwd(filesystem, cwd, session_manager)
@@ -787,14 +720,10 @@ def route_command(command, session_manager, attack_type="Unknown"):
     elif command == "ps":
         return ps()
     elif command == "ps aux":
-<<<<<<< HEAD
-        return ps_aux(username=identity["username"])
-=======
         # ps_aux() takes the live session username so the attacker's own
         # shell/`ps aux` rows never show a stale identity (see
         # fake_process.py).
         return ps_aux(username=session_manager.username)
->>>>>>> origin/hriday/baseline-v3.3
 
     elif command in NETWORK_EXACT_HANDLERS:
         return NETWORK_EXACT_HANDLERS[command](services)
@@ -806,13 +735,6 @@ def route_command(command, session_manager, attack_type="Unknown"):
         return handle_host(command)
 
     elif command == "hostname":
-<<<<<<< HEAD
-        return identity["hostname"]
-    elif command.startswith("hostnamectl"):
-        return handle_hostnamectl(command, identity)
-    elif command == "uname -a":
-        return f"Linux {identity['hostname']} 5.15.0-generic x86_64 GNU/Linux"
-=======
         return session_manager.hostname
     elif command.startswith("hostnamectl"):
         return handle_hostnamectl(command, session_manager)
@@ -821,7 +743,6 @@ def route_command(command, session_manager, attack_type="Unknown"):
             f"Linux {session_manager.hostname} "
             f"{session_manager.kernel_version} x86_64 GNU/Linux"
         )
->>>>>>> origin/hriday/baseline-v3.3
     elif command == "uptime":
         return "14:23:05 up 37 days, 3 users, load average: 0.11, 0.09, 0.05"
     elif command == "systemctl" or command.startswith("systemctl "):
@@ -829,31 +750,6 @@ def route_command(command, session_manager, attack_type="Unknown"):
     elif command.startswith("service "):
         return _synced_service_response(session_manager, handle_service, command, services)
 
-<<<<<<< HEAD
-    # --------------------------
-    # EXPANSION COMMANDS
-    # --------------------------
-    elif command.startswith("date"):
-        return handle_date(command)
-    elif command.startswith("printenv"):
-        return handle_printenv(command, identity)
-    elif command.startswith("env"):
-        return handle_env(command, identity)
-    elif command.startswith("echo"):
-        return handle_echo(command)
-    elif command.startswith("clear"):
-        return handle_clear(command)
-    elif command.startswith("which"):
-        return handle_which(command)
-    elif command.startswith("who"):
-        return handle_who(command, identity)
-    elif command == "w":
-        return handle_w(command, identity)
-    elif command.startswith("alias"):
-        return handle_alias(command)
-    elif command.startswith("history"):
-        return handle_history(command, session_manager)
-=======
     elif any(command.startswith(prefix) for prefix, _handler in SESSION_EXPANSION_HANDLERS):
         return _prefixed_response(command, SESSION_EXPANSION_HANDLERS, session_manager)
     elif any(command.startswith(prefix) for prefix, _handler in EXPANSION_HANDLERS):
@@ -863,7 +759,6 @@ def route_command(command, session_manager, attack_type="Unknown"):
 
     elif any(command.startswith(prefix) for prefix, _handler in ATTACKER_PREFIX_HANDLERS):
         return _attacker_response(command)
->>>>>>> origin/hriday/baseline-v3.3
 
     # --------------------------
     # DEFAULT -> AI FALLBACK

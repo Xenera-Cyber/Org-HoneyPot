@@ -47,18 +47,10 @@ def start_server():
                 # ----------------------------
                 # Terminal Prompt
                 # ----------------------------
-<<<<<<< HEAD
-                # Always built live from the session's current identity
-                # (username, hostname, cwd). Never hardcode this string --
-                # if the AI backend changes the identity mid-session,
-                # get_prompt() picks that up automatically on the very
-                # next line sent to the attacker.
-=======
                 # Built live from the session's identity (username/
                 # hostname/cwd) — see session_manager.get_prompt(). Never
                 # hardcode username/hostname here; that was the source of
                 # the stale-identity bug this replaces.
->>>>>>> origin/hriday/baseline-v3.3
                 prompt = session_manager.get_prompt()
                 conn.send(prompt.encode())
 

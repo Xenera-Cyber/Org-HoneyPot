@@ -74,17 +74,6 @@ class SessionManager:
             # ------------------------------------------------------------
             # Session identity -- the single source of truth for who the
             # attacker currently appears to be logged in as. NOTHING
-<<<<<<< HEAD
-            # outside this class should ever hardcode a username, hostname
-            # or prompt string. Everything must read it from here via
-            # get_prompt() / get_identity(), so that when the AI backend
-            # (or anything else) changes the identity mid-session, every
-            # future prompt automatically reflects it.
-            # ------------------------------------------------------------
-            "username": "ubuntu",
-            "hostname": "web-prod-01",
-            "personality": "default",
-=======
             # outside this class should hardcode a username, hostname or
             # prompt string; everything reads it via get_prompt() /
             # get_identity(), so that if the identity is ever changed
@@ -104,7 +93,6 @@ class SessionManager:
             # what kind of attacker this is. Never surfaced in the
             # attacker-visible prompt or output.
             "personality": None,
->>>>>>> origin/hriday/baseline-v3.3
         }
 
         self._sync_environment()
@@ -188,17 +176,6 @@ class SessionManager:
         self.session["threat_score"] += score
 
     # ------------------------------------------------------------------
-<<<<<<< HEAD
-    # SESSION IDENTITY -- new
-    # ------------------------------------------------------------------
-    def set_identity(self, username=None, hostname=None, personality=None):
-        """
-        Called whenever the identity needs to change (e.g. the AI backend
-        decides this session should now look like a different machine/user).
-        Only updates the fields that are actually passed in; anything left
-        as None stays unchanged.
-        """
-=======
     # PERSONALITY METADATA -- analyst-facing only.
     # Deliberately does NOT touch hostname/username; use set_identity()
     # for that. This only tracks the AI's classification label, purely
@@ -229,7 +206,6 @@ class SessionManager:
         """
         old_username = self.session["username"]
 
->>>>>>> origin/hriday/baseline-v3.3
         if username:
             self.session["username"] = username
         if hostname:
@@ -237,8 +213,6 @@ class SessionManager:
         if personality:
             self.session["personality"] = personality
 
-<<<<<<< HEAD
-=======
         if username or hostname:
             self._sync_environment()
             self._sync_identity_files(old_username)
@@ -247,7 +221,6 @@ class SessionManager:
             )
         self._sync_identity_cache()
 
->>>>>>> origin/hriday/baseline-v3.3
     def get_identity(self):
         return {
             "username": self.session["username"],
@@ -258,19 +231,6 @@ class SessionManager:
 
     def get_prompt(self):
         """
-<<<<<<< HEAD
-        Builds the shell prompt LIVE from current session state.
-        This is the ONLY function that should ever be used to generate
-        the prompt string anywhere in the codebase -- never hardcode
-        "username@hostname:cwd$" again. Whatever set_identity() last set
-        is what will show up here, automatically.
-        """
-        cwd = self.session["cwd"]
-        if cwd == HOME_DIR:
-            display_path = "~"
-        elif cwd.startswith(HOME_DIR):
-            display_path = cwd.replace(HOME_DIR, "~", 1)
-=======
         Builds the shell prompt LIVE from current session state. This is
         the only function that should ever be used to generate the
         prompt string anywhere in the codebase -- never hardcode
@@ -283,14 +243,11 @@ class SessionManager:
             display_path = "~"
         elif cwd.startswith(home + "/"):
             display_path = cwd.replace(home, "~", 1)
->>>>>>> origin/hriday/baseline-v3.3
         else:
             display_path = cwd
         return f"{self.session['username']}@{self.session['hostname']}:{display_path}$ "
 
     # ------------------------------------------------------------------
-<<<<<<< HEAD
-=======
     # Backend cache -- per-session storage for AI-backend-supplied file
     # content and precomputed command responses, so a given path/command
     # resolves consistently for the rest of the session instead of being
@@ -457,7 +414,6 @@ class SessionManager:
                 self._apply_ownership(child.path(), owner, group)
 
     # ------------------------------------------------------------------
->>>>>>> origin/hriday/baseline-v3.3
     def close_session(self):
         # Bug fix: close_session() could previously be invoked more than
         # once (e.g. an exception during cleanup triggering a second call),
@@ -488,12 +444,6 @@ class SessionManager:
             "attack_types": self.session["attack_types"],
             "attacker_profile": self.session["attacker_profile"],
             "session_duration": duration,
-<<<<<<< HEAD
-            # identity is now part of the permanent record too, so if it
-            # changed mid-session, that's visible in the logs afterwards
-            "username": self.session["username"],
-            "hostname": self.session["hostname"],
-=======
             # identity is part of the permanent record too, so if it
             # changed mid-session, that's visible in the logs afterwards.
             "hostname": self.session["hostname"],
@@ -501,7 +451,6 @@ class SessionManager:
             "groups": self.session["groups"],
             # Analyst metadata only -- what the AI classified this
             # attacker/session as, for later review.
->>>>>>> origin/hriday/baseline-v3.3
             "personality": self.session["personality"],
         }
 
@@ -524,12 +473,6 @@ class SessionManager:
             "attack_types": self.session["attack_types"],
             "threat_score": self.session["threat_score"],
             "is_active": self.session["is_active"],
-<<<<<<< HEAD
-            "username": self.session["username"],
-            "hostname": self.session["hostname"],
-            "personality": self.session["personality"],
-        }
-=======
             "personality": self.session["personality"],
         }
 
@@ -575,4 +518,3 @@ class MultiSessionManager:
         if session is None:
             session = self.create_session(attacker_ip)
         return session
->>>>>>> origin/hriday/baseline-v3.3

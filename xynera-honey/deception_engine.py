@@ -29,16 +29,6 @@ def reconnaissance_deception(command, session):
 # ==========================================================
 def credential_enumeration_deception(command, session):
     """
-<<<<<<< HEAD
-    Bug fix: this previously hardcoded a fake /etc/passwd file listing
-    "ubuntu" as the second user account, regardless of the session's
-    actual identity. If the AI backend (or anything else) changes the
-    session's username/hostname mid-session, this file would still show
-    the old, stale "ubuntu" account -- another form of duplicate/
-    inconsistent identity storage. It now reads the live username from
-    the session dict, same as every other identity-aware command.
-    """
-=======
     /etc/shadow does NOT exist in the simulated filesystem, so without
     this handler an attacker probing for it would get a giveaway
     "No such file" response. This supplies a plausible-looking (but
@@ -58,7 +48,6 @@ def credential_enumeration_deception(command, session):
             "ubuntu:*:19000:0:99999:7:::\n"
             "dev:*:19000:0:99999:7:::"
         )
->>>>>>> origin/hriday/baseline-v3.3
     if "/etc/passwd" in command:
         username = session.get("username", "ubuntu")
         return f"""root:x:0:0:root:/root:/bin/bash
