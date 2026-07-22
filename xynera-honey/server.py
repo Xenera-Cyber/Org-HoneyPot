@@ -1,4 +1,5 @@
 import socket
+import threading
 from datetime import datetime
 
 from command_router import route_command
@@ -8,6 +9,8 @@ from logger import log_command
 
 HOST = "0.0.0.0"
 PORT = 2222
+
+print_lock = threading.Lock()
 
 def format_prompt(path, home_dir):
     """
@@ -31,80 +34,88 @@ def start_server():
     server.bind((HOST, PORT))
     server.listen(5)
 
-    print(f"[+] Listening on {HOST}:{PORT}")
-    print(
-        f"\n{'Timestamp':<22}"
-        f"{'IP':<18}"
-        f"{'Command':<22}"
-        f"{'Attack Type':<28}"
-        f"{'Score'}"
-    )
-    print("-" * 105)
+    with print_lock:
+        print(f"[+] Listening on {HOST}:{PORT}")
+        print(
+            f"\n{'Timestamp':<22}"
+            f"{'IP':<18}"
+            f"{'Command':<22}"
+            f"{'Attack Type':<28}"
+            f"{'Score'}"
+        )
+        print("-" * 105)
 
     while True:
         conn, addr = server.accept()
-        attacker_ip = addr[0]
+        thread = threading.Thread(target=handle_client, args=(conn, addr), daemon=True)
+        thread.start()
+
+
+def handle_client(conn, addr):
+    attacker_ip = addr[0]
+    with print_lock:
         print(f"\n[+] Connection from {attacker_ip}")
 
-        session_manager = SessionManager(attacker_ip)
-        session = session_manager.get_session()
-        conn.send(b"Welcome to XYNERA Honeypot\n")
+    session_manager = SessionManager(attacker_ip)
+    session = session_manager.get_session()
+    conn.send(b"Welcome to XYNERA Honeypot\n")
 
-        try:
-            while True:
-                # ----------------------------
-                # Terminal Prompt
-                # ----------------------------
-                current_dir = session_manager.get_cwd()
-                display_dir = format_prompt(
-                    current_dir,
-                    session_manager.home_dir,
-                )
-                prompt = (
-                    f"{session_manager.username}@"
-                    f"{session_manager.hostname}:{display_dir}$ "
-                )
-                conn.send(prompt.encode())
+    try:
+        while True:
+            # ----------------------------
+            # Terminal Prompt
+            # ----------------------------
+            current_dir = session_manager.get_cwd()
+            display_dir = format_prompt(
+                current_dir,
+                session_manager.home_dir,
+            )
+            prompt = (
+                f"{session_manager.username}@"
+                f"{session_manager.hostname}:{display_dir}$ "
+            )
+            conn.send(prompt.encode())
 
-                data = conn.recv(1024)
-                if not data:
-                    break
+            data = conn.recv(1024)
+            if not data:
+                break
 
-                command = data.decode().strip()
-                if not command:
-                    conn.send(b"\n")
-                    continue
-                if command.lower() == "exit":
-                    conn.send(b"logout\n")
-                    break
+            command = data.decode().strip()
+            if not command:
+                conn.send(b"\n")
+                continue
+            if command.lower() == "exit":
+                conn.send(b"logout\n")
+                break
 
-                # ----------------------------
-                # Session Tracking
-                # ----------------------------
-                session_manager.add_command(command)
+            # ----------------------------
+            # Session Tracking
+            # ----------------------------
+            session_manager.add_command(command)
 
-                # ----------------------------
-                # Attack Classification
-                # ----------------------------
-                attack_type = classify(command)
-                session_manager.add_attack_type(attack_type)
-                score = threat_score(attack_type)
-                session_manager.update_threat_score(score)
+            # ----------------------------
+            # Attack Classification
+            # ----------------------------
+            attack_type = classify(command)
+            session_manager.add_attack_type(attack_type)
+            score = threat_score(attack_type)
+            session_manager.update_threat_score(score)
 
-                # ----------------------------
-                # Logging
-                # ----------------------------
-                log_command(
-                    command=command,
-                    attack_type=attack_type,
-                    ip_address=attacker_ip,
-                    session_id=session["session_id"],
-                )
+            # ----------------------------
+            # Logging
+            # ----------------------------
+            log_command(
+                command=command,
+                attack_type=attack_type,
+                ip_address=attacker_ip,
+                session_id=session["session_id"],
+            )
 
-                # ----------------------------
-                # Live Monitoring
-                # ----------------------------
-                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # ----------------------------
+            # Live Monitoring
+            # ----------------------------
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            with print_lock:
                 print(
                     f"{timestamp:<22}"
                     f"{attacker_ip:<18}"
@@ -113,18 +124,20 @@ def start_server():
                     f"{score}"
                 )
 
-                # ----------------------------
-                # Execute Command
-                # ----------------------------
-                response = route_command(command, session_manager, attack_type)
-                conn.send((response + "\n").encode())
+            # ----------------------------
+            # Execute Command
+            # ----------------------------
+            response = route_command(command, session_manager, attack_type)
+            conn.send((response + "\n").encode())
 
-        except Exception as e:
+    except Exception as e:
+        with print_lock:
             print(f"[ERROR] {attacker_ip}: {e}")
-        finally:
-            session_manager.close_session()
+    finally:
+        session_manager.close_session()
+        summary = session_manager.summary()
+        with print_lock:
             print("\n========== SESSION SUMMARY ==========")
-            summary = session_manager.summary()
             print(f"Session ID        : {summary['session_id']}")
             print(f"Attacker IP       : {summary['attacker_ip']}")
             print(f"Commands Executed : {summary['commands_executed']}")
@@ -133,7 +146,8 @@ def start_server():
             if "current_directory" in summary:
                 print(f"Last Directory    : {summary['current_directory']}")
             print("=====================================\n")
-            conn.close()
+        conn.close()
+        with print_lock:
             print(f"[-] {attacker_ip} disconnected")
 
 
