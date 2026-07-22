@@ -29,6 +29,7 @@ def reconnaissance_deception(command, session):
 # ==========================================================
 def credential_enumeration_deception(command, session):
     """
+<<<<<<< HEAD
     Bug fix: this previously hardcoded a fake /etc/passwd file listing
     "ubuntu" as the second user account, regardless of the session's
     actual identity. If the AI backend (or anything else) changes the
@@ -37,6 +38,27 @@ def credential_enumeration_deception(command, session):
     inconsistent identity storage. It now reads the live username from
     the session dict, same as every other identity-aware command.
     """
+=======
+    /etc/shadow does NOT exist in the simulated filesystem, so without
+    this handler an attacker probing for it would get a giveaway
+    "No such file" response. This supplies a plausible-looking (but
+    useless, hash-free) shadow file instead.
+
+    /etc/passwd DOES exist in fake_filesystem.py's template, but that
+    template is static and hardcodes the "ubuntu" account name. Once a
+    session has a dynamic identity (see session_manager.py), a static
+    file would show a stale username that no longer matches whoami/the
+    shell prompt/etc. This override takes precedence over the static
+    filesystem entry for /etc/passwd specifically so its content always
+    reflects the session's live username (bug fix, Shatakshi).
+    """
+    if "/etc/shadow" in command:
+        return (
+            "root:*:19000:0:99999:7:::\n"
+            "ubuntu:*:19000:0:99999:7:::\n"
+            "dev:*:19000:0:99999:7:::"
+        )
+>>>>>>> origin/hriday/baseline-v3.3
     if "/etc/passwd" in command:
         username = session.get("username", "ubuntu")
         return f"""root:x:0:0:root:/root:/bin/bash
@@ -125,3 +147,5 @@ def adapt_response(command, session, attack_type):
     """
     handler = DECEPTION_HANDLERS.get(attack_type, default_deception)
     return handler(command, session)
+
+

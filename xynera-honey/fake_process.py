@@ -34,5 +34,5 @@ root       315  0.2  0.5 284320 20124 ?        Ssl  08:11   0:02 /usr/bin/python
 mysql      334  0.4  1.3 1723456 53212 ?       Ssl  08:11   0:05 /usr/sbin/mysqld
 www-data   567  0.1  0.4 225480 16784 ?        S    08:11   0:01 nginx: master process /usr/sbin/nginx
 www-data   568  0.0  0.4 225480 16784 ?        S    08:11   0:01 nginx: worker process
-{username:<10} 890  0.0  0.1  22040  5408 pts/0    Ss   08:20   0:00 -bash
-{username:<10} 942  0.0  0.1  11824  3104 pts/0    R+   08:23   0:00 ps aux"""
+ubuntu     890  0.0  0.1  22040  5408 pts/0    Ss   08:20   0:00 -bash
+ubuntu     942  0.0  0.1  11824  3104 pts/0    R+   08:23   0:00 ps aux"""

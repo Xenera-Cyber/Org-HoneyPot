@@ -394,3 +394,4 @@ def host(domain="example.com"):
         ip = _resolve_domain(domain)
         return f"{domain} has address {ip}"
     return f"Host {domain} not found: 3(NXDOMAIN)"
+

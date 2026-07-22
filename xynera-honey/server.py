@@ -1,6 +1,7 @@
 import socket
 from datetime import datetime
 
+import ai_client
 from command_router import route_command
 from session_manager import SessionManager
 from attack_analyzer import classify, threat_score
@@ -26,6 +27,12 @@ def start_server():
     )
     print("-" * 105)
 
+    # ----------------------------------------------------------
+    # AI Backend Health Check (startup)
+    # ----------------------------------------------------------
+    if not ai_client.check_ai_backend():
+        print("[!] WARNING: AI backend unreachable at startup. Honeypot will run in local-only fallback mode.")
+
     while True:
         conn, addr = server.accept()
         attacker_ip = addr[0]
@@ -40,11 +47,18 @@ def start_server():
                 # ----------------------------
                 # Terminal Prompt
                 # ----------------------------
+<<<<<<< HEAD
                 # Always built live from the session's current identity
                 # (username, hostname, cwd). Never hardcode this string --
                 # if the AI backend changes the identity mid-session,
                 # get_prompt() picks that up automatically on the very
                 # next line sent to the attacker.
+=======
+                # Built live from the session's identity (username/
+                # hostname/cwd) — see session_manager.get_prompt(). Never
+                # hardcode username/hostname here; that was the source of
+                # the stale-identity bug this replaces.
+>>>>>>> origin/hriday/baseline-v3.3
                 prompt = session_manager.get_prompt()
                 conn.send(prompt.encode())
 
@@ -122,3 +136,4 @@ def start_server():
 
 if __name__ == "__main__":
     start_server()
+
