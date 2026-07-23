@@ -6,6 +6,9 @@ from session_manager import SessionManager
 from attack_analyzer import classify, threat_score
 from logger import log_command
 import fake_network  # Import your dynamic network logic
+import fake_process  # Added for dynamic process synchronization
+import shlex         # Added for Task 4: advanced parsing
+import re            # Added for Task 4: redirection parsing
 
 HOST = "0.0.0.0"
 PORT = 2222
@@ -72,51 +75,109 @@ def start_server():
                     break
 
                 # ----------------------------
-                # Session Tracking & Scoring
+                # Task 4: Advanced Shell Parsing (Chained Commands & Redirection)
                 # ----------------------------
-                session_manager.add_command(command)
-                attack_type = classify(command)
-                session_manager.add_attack_type(attack_type)
-                session_manager.update_threat_score(attack_type)
-
-                # ----------------------------
-                # Logging
-                # ----------------------------
-                log_command(
-                    command=command,
-                    attack_type=attack_type,
-                    ip_address=attacker_ip,
-                    session_id=session["session_id"],
-                )
-
-                # ----------------------------
-                # Live Monitoring
-                # ----------------------------
-                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                score = threat_score(attack_type)
-                print(
-                    f"{timestamp:<22}"
-                    f"{attacker_ip:<18}"
-                    f"{command:<22}"
-                    f"{attack_type:<28}"
-                    f"{score}"
-                )
-
-                # ----------------------------
-                # Command Routing & Dynamic Network Interception
-                # ----------------------------
-                # UPDATED: Commands now rely on fake_network's internal host OS binding 
-                # instead of passing the attacker's IP.
-                if command == "ifconfig":
-                    response = fake_network.ifconfig()
-                elif command in ["ip addr", "ip a"]:
-                    response = fake_network.ip_addr()
-                elif command == "hostname":
-                    response = fake_network.get_hostname()
-                else:
-                    response = route_command(command, session_manager, attack_type)
+                # Real bash splits commands by ';' and '&&'. 
+                # This naive split prevents "command not found" errors when attackers chain commands.
+                # Note: A full bash parser is complex, this handles the most common evasion checks.
                 
-                conn.send((response + "\n").encode())
+                # Split commands safely using regex to preserve quoted strings
+                raw_commands = re.split(r'\s*(&&|;)\s*(?=(?:[^"\']*["\'][^"\']*["\'])*[^"\']*$)', command)
+                
+                final_output = []
+                abort_chain = False
+
+                for i, cmd_part in enumerate(raw_commands):
+                    if abort_chain:
+                        break
+                        
+                    cmd_part = cmd_part.strip()
+                    if not cmd_part:
+                        continue
+                        
+                    if cmd_part == '&&':
+                        continue # If the previous command succeeded, keep going
+                    elif cmd_part == ';':
+                        continue # Always keep going
+
+                    # Handle Redirection (e.g., echo "test" > file.txt)
+                    redirection_match = re.search(r'([>]{1,2})\s*([^\s]+)$', cmd_part)
+                    redirect_target = None
+                    is_append = False
+                    
+                    if redirection_match:
+                        redirect_op = redirection_match.group(1)
+                        redirect_target = redirection_match.group(2)
+                        is_append = redirect_op == '>>'
+                        # Strip the redirection part from the command before executing
+                        cmd_part = cmd_part[:redirection_match.start()].strip()
+
+                    # ----------------------------
+                    # Session Tracking & Scoring
+                    # ----------------------------
+                    session_manager.add_command(cmd_part)
+                    attack_type = classify(cmd_part)
+                    session_manager.add_attack_type(attack_type)
+                    session_manager.update_threat_score(attack_type)
+
+                    # ----------------------------
+                    # Logging
+                    # ----------------------------
+                    log_command(
+                        command=cmd_part,
+                        attack_type=attack_type,
+                        ip_address=attacker_ip,
+                        session_id=session["session_id"],
+                    )
+                    
+                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    score = threat_score(attack_type)
+                    print(
+                        f"{timestamp:<22}"
+                        f"{attacker_ip:<18}"
+                        f"{cmd_part:<22}"
+                        f"{attack_type:<28}"
+                        f"{score}"
+                    )
+
+                    # ----------------------------
+                    # Execute Command
+                    # ----------------------------
+                    if cmd_part == "ifconfig":
+                        response = fake_network.ifconfig()
+                    elif cmd_part in ["ip addr", "ip a"]:
+                        response = fake_network.ip_addr()
+                    elif cmd_part == "hostname":
+                        response = fake_network.get_hostname()
+                    elif cmd_part == "ps":
+                        response = fake_process.ps(session_manager)
+                    elif cmd_part in ["ps aux", "ps -aux"]:
+                        response = fake_process.ps_aux(session_manager)
+                    else:
+                        response = route_command(cmd_part, session_manager, attack_type)
+                    
+                    # Handle output routing based on redirection
+                    if redirect_target:
+                        # Ensure we don't accidentally write to the actual honeypot filesystem
+                        # In a fully fleshed out simulated filesystem, we would call filesystem.touch/write here.
+                        # For now, we simulate success by doing nothing and returning empty output.
+                        response = "" 
+                    
+                    # Append output for this command in the chain
+                    if response:
+                        final_output.append(response)
+                        
+                    # Basic '&&' failure simulation. If a command returns a common error, 
+                    # '&&' should abort the rest of the chain.
+                    if "command not found" in response or "Permission denied" in response:
+                        if i + 1 < len(raw_commands) and raw_commands[i+1].strip() == '&&':
+                           abort_chain = True
+
+
+                if final_output:
+                    conn.send(("\n".join(final_output) + "\n").encode())
+                else:
+                    conn.send(b"\n") # Send empty newline if command produced no output (e.g., redirection)
 
         except Exception as e:
             print(f"[ERROR] {attacker_ip}: {e}")

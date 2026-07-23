@@ -1,7 +1,7 @@
 import time
 import random
 import shlex
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from fake_network import (
     netstat,
@@ -21,8 +21,19 @@ from fake_network import (
 from fake_process import ps, ps_aux
 import malware_detector
 import deception_engine
+import fake_advanced  # Imported for Task 2
 
 HOME_DIR = "/home/ubuntu"
+
+# ==========================================================
+# Task 3: Dynamic System Boot Time
+# Generated once when the module loads so it remains consistent
+# ==========================================================
+SYSTEM_BOOT_TIME = datetime.now() - timedelta(
+    days=random.randint(14, 45), 
+    hours=random.randint(1, 23), 
+    minutes=random.randint(1, 59)
+)
 
 # ==========================================================
 # Delay Configuration (configurable, never hardcoded)
@@ -84,7 +95,6 @@ COMMAND_DELAYS = {
     "nc": 1.5,
 }
 
-
 def get_command_delay(command):
     """Look up a configurable, optionally randomized delay for a command."""
     command = command.strip()
@@ -108,6 +118,22 @@ def get_command_delay(command):
 # ==========================================================
 # Expansion Pack Helper Functions
 # ==========================================================
+def get_uptime_string():
+    """Helper to generate consistent, ticking Linux uptime string."""
+    now = datetime.now()
+    delta = now - SYSTEM_BOOT_TIME
+    days = delta.days
+    hours, remainder = divmod(delta.seconds, 3600)
+    minutes, _ = divmod(remainder, 60)
+    
+    current_time = now.strftime("%H:%M:%S")
+    
+    if days > 0:
+        return f"{current_time} up {days} days, {hours:>2}:{minutes:02d}"
+    else:
+        return f"{current_time} up {hours:>2}:{minutes:02d}"
+
+
 def handle_date(command):
     return datetime.now().strftime("%a %b %d %H:%M:%S UTC %Y")
 
@@ -150,22 +176,52 @@ def handle_which(command):
     target = parts[1]
     common_bins = [
         "ls", "cat", "wget", "curl", "python", "python3", "bash", "sh",
-        "chmod", "chown", "rm", "cp", "mv", "scp", "whoami"
+        "chmod", "chown", "rm", "cp", "mv", "scp", "whoami", "nc", "netcat"
     ]
     if target in common_bins:
         return f"/usr/bin/{target}"
     return ""
 
 
-def handle_who(command):
-    return "root     pts/0        2026-06-29 10:14 (192.168.1.45)"
+def handle_who(command, session_manager):
+    session = session_manager.get_session()
+    ip = session.get("attacker_ip", "192.168.1.45")
+    
+    try:
+        start_dt = datetime.fromisoformat(session.get("start_time", datetime.now().isoformat()))
+        login_time = start_dt.strftime("%Y-%m-%d %H:%M")
+    except:
+        login_time = datetime.now().strftime("%Y-%m-%d %H:%M")
+        
+    username = "ubuntu"
+    if hasattr(session_manager, 'get_username'):
+        username = session_manager.get_username()
+        
+    return f"{username:<8} pts/0        {login_time} ({ip})"
 
 
-def handle_w(command):
-    now = datetime.now().strftime("%H:%M:%S")
-    return f""" {now} up 14 days,  3:12,  1 user,  load average: 0.00, 0.00, 0.00
+def handle_w(command, session_manager):
+    session = session_manager.get_session()
+    ip = session.get("attacker_ip", "192.168.1.45")
+    
+    try:
+        start_dt = datetime.fromisoformat(session.get("start_time", datetime.now().isoformat()))
+        login_time = start_dt.strftime("%H:%M")
+    except:
+        login_time = datetime.now().strftime("%H:%M")
+        
+    username = "ubuntu"
+    if hasattr(session_manager, 'get_username'):
+        username = session_manager.get_username()
+        
+    up_str = get_uptime_string()
+    load1 = round(random.uniform(0.0, 0.1), 2)
+    load5 = round(random.uniform(0.0, 0.1), 2)
+    load15 = round(random.uniform(0.0, 0.05), 2)
+    
+    return f""" {up_str},  1 user,  load average: {load1:.2f}, {load5:.2f}, {load15:.2f}
 USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
-root     pts/0    192.168.1.45     10:14    1.00s  0.02s  0.00s -bash"""
+{username:<8} pts/0    {ip:<16} {login_time:<8} 1.00s  0.02s  0.00s -bash"""
 
 
 def handle_alias(command):
@@ -191,12 +247,6 @@ def handle_hostnamectl(command):
 
 
 def handle_history(command, session_manager):
-    """
-    Render shell-style history from session["command_history"].
-    Supports `history -c` to clear it and `history N` to show only the
-    last N entries (original line numbers are preserved, matching real
-    bash behaviour).
-    """
     session = session_manager.get_session()
     history = session.get("command_history", [])
     parts = command.split()
@@ -215,26 +265,7 @@ def handle_history(command, session_manager):
     return "\n".join(f"  {i}  {entry['command']}" for i, entry in numbered)
 
 
-def handle_chmod(command):
-    """
-    Bug fix: chmod previously reported "Permissions updated" for any
-    input at all, including missing or nonsensical modes. It now
-    validates the mode argument like a real chmod would.
-    """
-    parts = command.split()
-    if len(parts) < 3:
-        return "chmod: missing operand"
-
-    permission = parts[1]
-    valid_permissions = ["+x", "-x", "777", "755", "644", "600"]
-    if permission not in valid_permissions:
-        return f"chmod: invalid mode: '{permission}'"
-
-    return "Permissions updated"
-
-
 def handle_service(command, services):
-    """`service <name> {start|stop|restart}` — backed by session_manager.services."""
     parts = command.split()
     if len(parts) < 3:
         return "Usage: service <name> {start|stop|restart}"
@@ -243,11 +274,6 @@ def handle_service(command, services):
 
 
 def handle_systemctl(command, services):
-    """
-    `systemctl status <name>` / `systemctl {start|stop|restart} <name>`,
-    backed by session_manager.services so state agrees with `service`,
-    netstat, and ss for the rest of the session.
-    """
     parts = command.split()
     if len(parts) < 2:
         return services.systemctl_overview()
@@ -261,7 +287,7 @@ def handle_systemctl(command, services):
 
 
 # ==========================================================
-# Network Command Helpers (shared arg-parsing, avoids duplication)
+# Network Command Helpers
 # ==========================================================
 def _arg(command, index=1, default=None):
     parts = command.split()
@@ -269,7 +295,6 @@ def _arg(command, index=1, default=None):
 
 
 def handle_ssh(command):
-    """Supports `ssh [-p port] [user@]host`."""
     parts = command.split()[1:]
     port = 22
     user = "root"
@@ -298,7 +323,6 @@ def handle_ssh(command):
 
 
 def handle_ping(command):
-    """Supports `ping [-c count] host`."""
     parts = command.split()[1:]
     count = 3
     target = "192.168.1.10"
@@ -342,7 +366,7 @@ def handle_host(command):
 
 
 # ==========================================================
-# Filesystem Command Helpers (dynamic, session-scoped filesystem)
+# Filesystem Command Helpers
 # ==========================================================
 def _split_command(command):
     try:
@@ -457,19 +481,24 @@ def route_command(command, session_manager, attack_type="Unknown"):
     filesystem = session_manager.filesystem
     services = session_manager.services
     command = command.strip()
+    cmd_parts = command.split()
+    base_cmd = cmd_parts[0] if cmd_parts else ""
 
     time.sleep(get_command_delay(command))
 
     # --------------------------
     # DECEPTION ENGINE
     # --------------------------
-    # Gives select attack types (credential probing for files that don't
-    # exist in the simulated filesystem, dynamic uptime, etc.) a chance
-    # to override the standard response below. Returns None for most
-    # commands, in which case normal routing proceeds unchanged.
     deception_response = deception_engine.adapt_response(command, session, attack_type)
     if deception_response is not None:
         return deception_response
+
+    # --------------------------
+    # COMMON BLOCKED COMMANDS (Task 2)
+    # --------------------------
+    blocked_commands = ["apt-get", "apt", "yum", "dpkg", "npm", "pip", "git", "vim", "nano"]
+    if base_cmd in blocked_commands:
+         return fake_advanced.get_common_error(base_cmd, "", "permission_denied")
 
     # --------------------------
     # USER COMMANDS
@@ -571,7 +600,11 @@ def route_command(command, session_manager, attack_type="Unknown"):
     elif command == "uname -a":
         return "Linux web-prod-01 5.15.0-generic x86_64 GNU/Linux"
     elif command == "uptime":
-        return "14:23:05 up 37 days, 3 users, load average: 0.11, 0.09, 0.05"
+        up_str = get_uptime_string()
+        load1 = round(random.uniform(0.0, 0.1), 2)
+        load5 = round(random.uniform(0.0, 0.1), 2)
+        load15 = round(random.uniform(0.0, 0.05), 2)
+        return f" {up_str},  1 user,  load average: {load1:.2f}, {load5:.2f}, {load15:.2f}"
     elif command == "systemctl" or command.startswith("systemctl "):
         return handle_systemctl(command, services)
     elif command.startswith("service "):
@@ -593,16 +626,16 @@ def route_command(command, session_manager, attack_type="Unknown"):
     elif command.startswith("which"):
         return handle_which(command)
     elif command.startswith("who"):
-        return handle_who(command)
+        return handle_who(command, session_manager)
     elif command == "w":
-        return handle_w(command)
+        return handle_w(command, session_manager)
     elif command.startswith("alias"):
         return handle_alias(command)
     elif command.startswith("history"):
         return handle_history(command, session_manager)
 
     # --------------------------
-    # ATTACKER COMMANDS
+    # ATTACKER COMMANDS (Task 2 Integrated)
     # --------------------------
     elif command.startswith("wget"):
         return malware_detector.handle_wget(command)[0]
@@ -611,11 +644,13 @@ def route_command(command, session_manager, attack_type="Unknown"):
     elif command.startswith("scp"):
         return malware_detector.handle_scp(command)[0]
     elif command.startswith("chmod"):
-        return handle_chmod(command)
-    elif command.startswith("nc"):
-        return "Connection established"
+        args = " ".join(cmd_parts[1:])
+        return fake_advanced.chmod(args)
+    elif command.startswith("nc") or command.startswith("netcat"):
+        args = " ".join(cmd_parts[1:])
+        return fake_advanced.nc(args)
 
     # --------------------------
-    # DEFAULT
+    # DEFAULT (Task 2 Error Handlers)
     # --------------------------
-    return f"{command}: command not found"
+    return fake_advanced.get_common_error(base_cmd, "", "not_found")
