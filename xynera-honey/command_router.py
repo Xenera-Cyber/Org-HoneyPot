@@ -21,6 +21,7 @@ from fake_network import (
 from fake_process import ps, ps_aux
 import malware_detector
 import deception_engine
+import ai_client
 
 # ==========================================================
 # Delay Configuration (configurable, never hardcoded)
@@ -214,15 +215,21 @@ def handle_which(command):
     return ""
 
 
-def handle_who(command):
-    return "root     pts/0        2026-06-29 10:14 (192.168.1.45)"
+def handle_who(command, session_manager):
+    """
+    Bug fix: previously hardcoded "root" regardless of the session's
+    actual identity. Now reads it from the same source of truth as
+    whoami/id/env (session_manager).
+    """
+    return f"{session_manager.username:<9}pts/0        2026-06-29 10:14 (192.168.1.45)"
 
 
-def handle_w(command):
+def handle_w(command, session_manager):
+    """Bug fix: same stale-"root" issue as handle_who(); see above."""
     now = datetime.now().strftime("%H:%M:%S")
     return f""" {now} up 14 days,  3:12,  1 user,  load average: 0.00, 0.00, 0.00
 USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
-root     pts/0    192.168.1.45     10:14    1.00s  0.02s  0.00s -bash"""
+{session_manager.username:<9}pts/0    192.168.1.45     10:14    1.00s  0.02s  0.00s -bash"""
 
 
 def handle_alias(command):
@@ -274,13 +281,13 @@ def handle_history(command, session_manager):
 
 SESSION_EXPANSION_HANDLERS = (
     ("printenv", handle_printenv), ("env", handle_env),
-    ("history", handle_history),
+    ("history", handle_history), ("who", handle_who),
 )
 
 EXPANSION_HANDLERS = (
     ("date", handle_date), ("echo", handle_echo),
     ("clear", handle_clear), ("which", handle_which),
-    ("who", handle_who), ("alias", handle_alias),
+    ("alias", handle_alias),
 )
 
 
@@ -639,8 +646,6 @@ def handle_cd(command, filesystem, cwd, session_manager):
     return error
 
 
-PROCESS_HANDLERS = {"ps": ps, "ps aux": ps_aux}
-
 ATTACKER_PREFIX_HANDLERS = (
     ("wget", lambda command: malware_detector.handle_wget(command)[0]),
     ("curl", lambda command: malware_detector.handle_curl(command)[0]),
@@ -708,8 +713,13 @@ def route_command(command, session_manager, attack_type="Unknown"):
     elif command.partition(" ")[0] in FILESYSTEM_WRITE_HANDLERS:
         return _filesystem_write_response(command, session_manager, filesystem, cwd)
 
-    elif command in PROCESS_HANDLERS:
-        return PROCESS_HANDLERS[command]()
+    elif command == "ps":
+        return ps()
+    elif command == "ps aux":
+        # ps_aux() takes the live session username so the attacker's own
+        # shell/`ps aux` rows never show a stale identity (see
+        # fake_process.py).
+        return ps_aux(username=session_manager.username)
 
     elif command in NETWORK_EXACT_HANDLERS:
         return NETWORK_EXACT_HANDLERS[command](services)
@@ -741,12 +751,35 @@ def route_command(command, session_manager, attack_type="Unknown"):
     elif any(command.startswith(prefix) for prefix, _handler in EXPANSION_HANDLERS):
         return _prefixed_response(command, EXPANSION_HANDLERS)
     elif command == "w":
-        return handle_w(command)
+        return handle_w(command, session_manager)
 
     elif any(command.startswith(prefix) for prefix, _handler in ATTACKER_PREFIX_HANDLERS):
         return _attacker_response(command)
 
     # --------------------------
-    # DEFAULT
+    # DEFAULT -> AI FALLBACK
     # --------------------------
+    # Nothing in the static routing table above matched. Before giving up
+    # with "command not found", give the AI backend a chance to improvise
+    # a plausible response for this session.
+    ai_result = ai_client.send_to_ai(
+        ip=session["attacker_ip"],
+        command=command,
+        history=session["command_history"],
+        attack_type=attack_type,
+        session_id=session["session_id"],
+        cwd=cwd,
+    )
+    if ai_result and ai_result.get("backend") == "local":
+        # Personality is analyst metadata only — it is NEVER used to
+        # change the attacker-visible hostname/username. See
+        # session_manager.py for why.
+        session_manager.update_personality(
+            personality_name=ai_result.get("personality_name"),
+        )
+        if ai_result.get("reply"):
+            return ai_result["reply"]
+
+    # AI backend offline/timed out/empty reply — degrade gracefully.
     return f"{command}: command not found"
+

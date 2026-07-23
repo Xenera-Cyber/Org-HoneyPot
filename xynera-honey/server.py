@@ -2,6 +2,7 @@ import socket
 import threading
 from datetime import datetime
 
+import ai_client
 from command_router import route_command
 from session_manager import SessionManager
 from attack_analyzer import classify, threat_score
@@ -9,23 +10,6 @@ from logger import log_command
 
 HOST = "0.0.0.0"
 PORT = 2222
-
-print_lock = threading.Lock()
-
-def format_prompt(path, home_dir):
-    """
-    Convert the home directory to '~' like a real Linux shell.
-
-    Examples:
-        /home/<user>              -> ~
-        /home/<user>/Documents    -> ~/Documents
-        /etc                      -> /etc
-    """
-    if path == home_dir:
-        return "~"
-    if path.startswith(home_dir + "/"):
-        return "~" + path[len(home_dir):]
-    return path
 
 
 def start_server():
@@ -45,6 +29,12 @@ def start_server():
         )
         print("-" * 105)
 
+    # ----------------------------------------------------------
+    # AI Backend Health Check (startup)
+    # ----------------------------------------------------------
+    if not ai_client.check_ai_backend():
+        print("[!] WARNING: AI backend unreachable at startup. Honeypot will run in local-only fallback mode.")
+
     while True:
         conn, addr = server.accept()
         thread = threading.Thread(target=handle_client, args=(conn, addr), daemon=True)
@@ -60,21 +50,17 @@ def handle_client(conn, addr):
     session = session_manager.get_session()
     conn.send(b"Welcome to XYNERA Honeypot\n")
 
-    try:
-        while True:
-            # ----------------------------
-            # Terminal Prompt
-            # ----------------------------
-            current_dir = session_manager.get_cwd()
-            display_dir = format_prompt(
-                current_dir,
-                session_manager.home_dir,
-            )
-            prompt = (
-                f"{session_manager.username}@"
-                f"{session_manager.hostname}:{display_dir}$ "
-            )
-            conn.send(prompt.encode())
+        try:
+            while True:
+                # ----------------------------
+                # Terminal Prompt
+                # ----------------------------
+                # Built live from the session's identity (username/
+                # hostname/cwd) — see session_manager.get_prompt(). Never
+                # hardcode username/hostname here; that was the source of
+                # the stale-identity bug this replaces.
+                prompt = session_manager.get_prompt()
+                conn.send(prompt.encode())
 
             data = conn.recv(1024)
             if not data:

@@ -15,8 +15,14 @@ def ps():
   942 pts/0    00:00:00 ps"""
 
 
-def ps_aux():
-    return """USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+def ps_aux(username="ubuntu"):
+    """
+    Bug fix: the last two process rows (the attacker's own shell + this
+    `ps aux` command) previously hardcoded "ubuntu" as the owning user,
+    even after the session identity changed. They now reflect whatever
+    username is currently active for this session.
+    """
+    return f"""USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
 root         1  0.0  0.1 169280 11232 ?        Ss   08:10   0:02 /sbin/init
 root         2  0.0  0.0      0     0 ?        S    08:10   0:00 [kthreadd]
 root         4  0.0  0.0      0     0 ?        I<   08:10   0:00 [kworker/0:0]
@@ -28,5 +34,6 @@ root       315  0.2  0.5 284320 20124 ?        Ssl  08:11   0:02 /usr/bin/python
 mysql      334  0.4  1.3 1723456 53212 ?       Ssl  08:11   0:05 /usr/sbin/mysqld
 www-data   567  0.1  0.4 225480 16784 ?        S    08:11   0:01 nginx: master process /usr/sbin/nginx
 www-data   568  0.0  0.4 225480 16784 ?        S    08:11   0:01 nginx: worker process
-ubuntu     890  0.0  0.1  22040  5408 pts/0    Ss   08:20   0:00 -bash
-ubuntu     942  0.0  0.1  11824  3104 pts/0    R+   08:23   0:00 ps aux"""
+{username:<10} 890  0.0  0.1  22040  5408 pts/0    Ss   08:20   0:00 -bash
+{username:<10} 942  0.0  0.1  11824  3104 pts/0    R+   08:23   0:00 ps aux"""
+

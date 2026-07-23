@@ -1,61 +1,31 @@
-import requests
+"""
+replay.py
 
-AI_BACKEND_URL = "http://10.200.200.30:5000/process"
-TIMEOUT = 335
+Thin wrapper around ai_client.py's AI-backend communication helpers.
 
+This module previously duplicated ai_client.py's send_to_ai()/clean_response()
+implementation verbatim. That duplication has been removed (Baseline V3.2
+integration) so replay/testing tooling always uses the same retry, offline
+fallback, and response-validation logic as the live honeypot instead of a
+copy that can silently drift out of sync.
+"""
 
-def clean_response(text):
-    # ensure valid string
-    if not isinstance(text, str):
-        return None
+from ai_client import (
+    AI_BACKEND_URL,
+    AI_HEALTH_URL,
+    TIMEOUT,
+    clean_response,
+    send_to_ai,
+    check_ai_backend,
+    get_offline_fallback,
+)
 
-    # remove markdown if present
-    if text.startswith("```") and text.endswith("```"):
-        text = text.strip("```")
-
-    text = text.strip()
-
-    # IMPORTANT: return None instead of empty string
-    return text if text else None
-
-
-def send_to_ai(ip, command, history=None, attack_type=None):
-    try:
-        payload = {
-            "ip": ip,
-            "command": command,
-            "history": history or [],
-            "local_attack_type": attack_type
-        }
-        print(f"[AI REQUEST] {payload}")
-
-        response = requests.post(
-            AI_BACKEND_URL,
-            json=payload,
-            timeout=TIMEOUT
-        )
-        print(f"[AI STATUS] {response.status_code}")
-
-        if response.status_code != 200:
-            print("[AI ERROR] Non-200 response")
-            return None
-
-        try:
-            data = response.json()
-        except Exception:
-            print("[AI ERROR] Invalid JSON")
-            return None
-
-        reply = data.get("reply")
-        cleaned = clean_response(reply)
-        return cleaned
-
-    except requests.exceptions.Timeout:
-        print("[AI ERROR] Timeout")
-        return None
-    except requests.exceptions.ConnectionError:
-        print("[AI ERROR] Connection failed")
-        return None
-    except Exception as e:
-        print(f"[AI ERROR] {e}")
-        return None
+__all__ = [
+    "AI_BACKEND_URL",
+    "AI_HEALTH_URL",
+    "TIMEOUT",
+    "clean_response",
+    "send_to_ai",
+    "check_ai_backend",
+    "get_offline_fallback",
+]
