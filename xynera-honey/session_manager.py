@@ -1,6 +1,7 @@
 import uuid
 import json
 import os
+import threading
 from datetime import datetime
 
 from fake_filesystem import create_filesystem
@@ -758,39 +759,97 @@ class SessionManager:
 # ==========================================================
 class MultiSessionManager:
     """
-    Tracks every live SessionManager, keyed by session_id, so server.py can
-    support more than one concurrent attacker connection (each gets its
-    own SessionManager -> its own filesystem/services/identity), and so a
-    reconnecting IP can be resumed rather than starting a brand new session.
+    Thread-safe registry that maps each attacker IP to its live SessionManager.
+
+    Every public method acquires ``_lock`` (a ``threading.Lock``) before
+    reading or writing ``_sessions``, ensuring that concurrent client threads
+    cannot corrupt the shared registry even when multiple attackers connect
+    simultaneously -- including connections from the same IP address.
+
+    Public API
+    ----------
+    create_session(attacker_ip)  -> SessionManager
+        Instantiate and register a new SessionManager for the given IP.
+        If a session already exists for that IP, the existing one is returned
+        unchanged (prevents duplicate sessions for the same identifier).
+
+    get_session(attacker_ip)     -> SessionManager | None
+        Return the live SessionManager for *attacker_ip*, or None if no
+        session exists for that IP.
+
+    remove_session(attacker_ip)
+        Deregister and discard the session for *attacker_ip*.
+        The caller must call ``session_manager.close_session()`` *before*
+        calling this method so that the session is properly finalised and
+        its log exported before the reference is dropped.
+
+    active_sessions()            -> dict[str, SessionManager]
+        Return a shallow snapshot copy of the live {ip: SessionManager}
+        mapping.  The snapshot is safe to iterate outside the lock because
+        it is a separate dict; the live registry can continue to be mutated
+        by other threads without affecting the caller's view.
     """
 
     def __init__(self):
-        self.sessions = {}
+        self._lock = threading.Lock()
+        # Keyed by attacker IP (str) -> SessionManager
+        self._sessions = {}
+
+    # ------------------------------------------------------------------
+    # Core API (required by server.py)
+    # ------------------------------------------------------------------
 
     def create_session(self, attacker_ip):
-        session = SessionManager(attacker_ip)
-        self.sessions[session.get_session()["session_id"]] = session
+        """Create and register a new SessionManager for *attacker_ip*.
+
+        If a session already exists for this IP, it is returned as-is so
+        that duplicate sessions for the same identifier never occur.
+
+        Returns
+        -------
+        SessionManager
+            The (newly created or pre-existing) session for *attacker_ip*.
+        """
+        with self._lock:
+            if attacker_ip in self._sessions:
+                return self._sessions[attacker_ip]
+            session = SessionManager(attacker_ip)
+            self._sessions[attacker_ip] = session
         return session
 
-    def get_session(self, session_id):
-        return self.sessions.get(session_id)
+    def get_session(self, attacker_ip):
+        """Return the active SessionManager for *attacker_ip*, or None."""
+        with self._lock:
+            return self._sessions.get(attacker_ip)
+
+    def remove_session(self, attacker_ip):
+        """Remove the session for *attacker_ip* from the registry.
+
+        Does **not** call ``close_session()`` -- the caller is responsible
+        for closing the session before (or immediately after) calling this
+        method, ensuring the session log is exported before the reference
+        is dropped and no stale sessions remain in the registry.
+        """
+        with self._lock:
+            self._sessions.pop(attacker_ip, None)
+
+    def active_sessions(self):
+        """Return a snapshot of the live {ip: SessionManager} mapping."""
+        with self._lock:
+            return dict(self._sessions)
+
+    # ------------------------------------------------------------------
+    # Convenience helpers (backward-compatible extras)
+    # ------------------------------------------------------------------
 
     def get_all_sessions(self):
-        return self.sessions
-
-    def remove_session(self, session_id):
-        session = self.sessions.pop(session_id, None)
-        if session:
-            session.close_session()
+        """Alias for active_sessions() -- returns a snapshot dict."""
+        return self.active_sessions()
 
     def get_session_by_ip(self, attacker_ip):
-        for session in self.sessions.values():
-            if session.get_session()["attacker_ip"] == attacker_ip:
-                return session
-        return None
+        """Look up a session by IP (same as get_session; kept for compat)."""
+        return self.get_session(attacker_ip)
 
     def get_or_create_session(self, attacker_ip):
-        session = self.get_session_by_ip(attacker_ip)
-        if session is None:
-            session = self.create_session(attacker_ip)
-        return session
+        """Return existing session for *attacker_ip* or create one."""
+        return self.create_session(attacker_ip)
