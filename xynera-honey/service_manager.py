@@ -178,3 +178,4 @@ class ServiceManager:
             if info["status"].startswith("active"):
                 lines.append(f"tcp LISTEN 0.0.0.0:{info['port']}")
         return "\n".join(lines)
+

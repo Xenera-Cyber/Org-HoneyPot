@@ -61,8 +61,6 @@ class ThreatEngine:
             indicator = "🟢"
 
         return {
-            "score": final_score,
-            "risk_level": level,
             "final_score": final_score,
             "threat_level": level,
             "base_score": base_score,
