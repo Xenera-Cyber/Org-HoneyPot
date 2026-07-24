@@ -36,14 +36,14 @@ def start_server():
         print("-" * 105)
 
     # ----------------------------------------------------------
-    # AI Backend Health Check (startup)
+    # AI Backend Health Monitor (continuous, background thread)
     # ----------------------------------------------------------
-    if not ai_client.check_ai_backend():
-        with print_lock:
-            print(
-                "[!] WARNING: AI backend unreachable at startup. "
-                "Honeypot will run in local-only fallback mode."
-            )
+    # Replaces the one-shot startup check.  The monitor daemon polls
+    # the /health endpoint every HEALTH_CHECK_INTERVAL seconds and
+    # automatically switches between AI routing and fallback mode
+    # without any server restart.  State-change messages are logged
+    # exactly once per transition via ai_client's logger.
+    ai_client.start_health_monitor()
 
     while True:
         conn, addr = server.accept()
