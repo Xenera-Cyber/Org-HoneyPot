@@ -9,6 +9,26 @@ from logger import log_command
 HOST = "0.0.0.0"
 PORT = 2222
 
+HOSTNAME = "web-prod-01"
+USERNAME = "ubuntu"
+HOME_DIR = "/home/ubuntu"
+
+
+def format_prompt(path):
+    """
+    Convert the home directory to '~' like a real Linux shell.
+
+    Examples:
+        /home/ubuntu              -> ~
+        /home/ubuntu/Documents    -> ~/Documents
+        /etc                      -> /etc
+    """
+    if path == HOME_DIR:
+        return "~"
+    if path.startswith(HOME_DIR + "/"):
+        return "~" + path[len(HOME_DIR):]
+    return path
+
 
 def start_server():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -37,8 +57,12 @@ def start_server():
 
         try:
             while True:
+                # ----------------------------
+                # Terminal Prompt
+                # ----------------------------
                 current_dir = session_manager.get_cwd()
-                prompt = f"ubuntu@web-prod-01:{current_dir}$ "
+                display_dir = format_prompt(current_dir)
+                prompt = f"{USERNAME}@{HOSTNAME}:{display_dir}$ "
                 conn.send(prompt.encode())
 
                 data = conn.recv(1024)
@@ -46,20 +70,29 @@ def start_server():
                     break
 
                 command = data.decode().strip()
+                if not command:
+                    conn.send(b"\n")
+                    continue
                 if command.lower() == "exit":
                     conn.send(b"logout\n")
                     break
 
-                # Session tracking
+                # ----------------------------
+                # Session Tracking
+                # ----------------------------
                 session_manager.add_command(command)
 
-                # Attack analysis
+                # ----------------------------
+                # Attack Classification
+                # ----------------------------
                 attack_type = classify(command)
                 session_manager.add_attack_type(attack_type)
                 score = threat_score(attack_type)
                 session_manager.update_threat_score(score)
 
-                # Log attack
+                # ----------------------------
+                # Logging
+                # ----------------------------
                 log_command(
                     command=command,
                     attack_type=attack_type,
@@ -67,7 +100,9 @@ def start_server():
                     session_id=session["session_id"],
                 )
 
-                # Console monitoring
+                # ----------------------------
+                # Live Monitoring
+                # ----------------------------
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 print(
                     f"{timestamp:<22}"
@@ -77,16 +112,25 @@ def start_server():
                     f"{score}"
                 )
 
-                # Route command
-                response = route_command(command, session_manager)
+                # ----------------------------
+                # Execute Command
+                # ----------------------------
+                response = route_command(command, session_manager, attack_type)
                 conn.send((response + "\n").encode())
 
         except Exception as e:
-            print(f"[ERROR] {e}")
+            print(f"[ERROR] {attacker_ip}: {e}")
         finally:
             session_manager.close_session()
             print("\n========== SESSION SUMMARY ==========")
-            print(session_manager.summary())
+            summary = session_manager.summary()
+            print(f"Session ID        : {summary['session_id']}")
+            print(f"Attacker IP       : {summary['attacker_ip']}")
+            print(f"Commands Executed : {summary['commands_executed']}")
+            print(f"Attack Types      : {summary['attack_types']}")
+            print(f"Threat Score      : {summary['threat_score']}")
+            if "current_directory" in summary:
+                print(f"Last Directory    : {summary['current_directory']}")
             print("=====================================\n")
             conn.close()
             print(f"[-] {attacker_ip} disconnected")
