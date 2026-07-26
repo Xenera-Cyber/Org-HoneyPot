@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Define dark theme variables by default */
+    --bg-app: #090d16;
+    --bg-header: rgba(13, 20, 35, 0.7);
+    --bg-panel: #0d1527;
+    --bg-card: #121e36;
+    --bg-input: #0a101e;
+    --bg-hover: #172645;
+    --border-subtle: rgba(255, 255, 255, 0.05);
+    --border-medium: rgba(255, 255, 255, 0.1);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-primary: #3b82f6;
+  }
+
+  [data-theme='light'] {
+    --bg-app: #f8fafc;
+    --bg-header: rgba(255, 255, 255, 0.8);
+    --bg-panel: #ffffff;
+    --bg-card: #f1f5f9;
+    --bg-input: #ffffff;
+    --bg-hover: #e2e8f0;
+    --border-subtle: rgba(0, 0, 0, 0.06);
+    --border-medium: rgba(0, 0, 0, 0.1);
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --accent-primary: #2563eb;
+  }
+
+  [data-theme='ocean'] {
+    --bg-app: #011627;
+    --bg-header: rgba(1, 30, 54, 0.7);
+    --bg-panel: #02243d;
+    --bg-card: #033254;
+    --bg-input: #011a2f;
+    --bg-hover: #05406c;
+    --border-subtle: rgba(6, 182, 212, 0.15);
+    --border-medium: rgba(6, 182, 212, 0.25);
+    --text-primary: #e0f2fe;
+    --text-secondary: #7dd3fc;
+    --accent-primary: #06b6d4;
+  }
+
+  [data-theme='midnight'] {
+    --bg-app: #0c061a;
+    --bg-header: rgba(18, 10, 36, 0.7);
+    --bg-panel: #160d2b;
+    --bg-card: #231542;
+    --bg-input: #0f0722;
+    --bg-hover: #2f1d56;
+    --border-subtle: rgba(139, 92, 246, 0.15);
+    --border-medium: rgba(139, 92, 246, 0.25);
+    --text-primary: #ede9fe;
+    --text-secondary: #a78bfa;
+    --accent-primary: #8b5cf6;
+  }
+
+  [data-theme='forest'] {
+    --bg-app: #04140b;
+    --bg-header: rgba(6, 28, 16, 0.7);
+    --bg-panel: #092415;
+    --bg-card: #103b22;
+    --bg-input: #061a0e;
+    --bg-hover: #16502f;
+    --border-subtle: rgba(34, 197, 94, 0.15);
+    --border-medium: rgba(34, 197, 94, 0.25);
+    --text-primary: #dcfce7;
+    --text-secondary: #4ade80;
+    --accent-primary: #22c55e;
+  }
+
+  /* Support compact mode */
+  .compact main {
+    padding: 1.5rem !important;
+  }
+  
+  /* Support animations toggle */
+  .no-animations * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
