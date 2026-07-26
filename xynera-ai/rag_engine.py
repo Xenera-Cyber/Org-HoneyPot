@@ -2,7 +2,7 @@ import httpx
 import re
 import asyncio
 from knowledge_base import knowledge_documents
-from config import GROQ_API_KEY, GROQ_MODEL
+from config import GROQ_API_KEY, GROQ_MODEL, get_dynamic_config
 from guardrails import apply_guardrails
 from attacker_profile import get_session_data
 import vector_store
@@ -12,21 +12,26 @@ sorted_docs = sorted(knowledge_documents, key=lambda x: len(x["command"]), rever
 
 
 async def call_groq_api(prompt, max_tokens=1024):
+    dyn_config = get_dynamic_config()
+    model = dyn_config.get("model", GROQ_MODEL)
+    temp = dyn_config.get("temperature", 0.1)
+    limit_tokens = dyn_config.get("maxResponseLength", max_tokens)
+
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json"
     }
     payload = {
-        "model": GROQ_MODEL,
+        "model": model,
         "messages": [
             {
                 "role": "user",
                 "content": prompt
             }
         ],
-        "max_tokens": max_tokens,
-        "temperature": 0.1
+        "max_tokens": limit_tokens,
+        "temperature": temp
     }
     
     retries = 6
@@ -270,14 +275,20 @@ async def generate_response(command, personality, attacker_profile, threat_score
             "response_style": "concise, accurate, and professional"
         }
 
-    try:
-        context_doc = retrieve_context(
-            command,
-            session_id=session_id
-        )
-    except Exception as e:
-        print(f"[RAG ERROR] {e}")
-        context_doc = None
+    # Check if RAG is enabled dynamically
+    dyn_config = get_dynamic_config()
+    rag_enabled = dyn_config.get("ragEnabled", True)
+    
+    context_doc = None
+    if rag_enabled:
+        try:
+            context_doc = retrieve_context(
+                command,
+                session_id=session_id
+            )
+        except Exception as e:
+            print(f"[RAG ERROR] {e}")
+            context_doc = None
 
     # Shortcuts
     if context_doc:
@@ -413,7 +424,12 @@ async def generate_response(command, personality, attacker_profile, threat_score
     else:
         response = clean_llm_output(raw_response, command)
 
-    return apply_guardrails(command, response)
+    # Check if Guardrails is enabled dynamically
+    dyn_config = get_dynamic_config()
+    guardrails_enabled = dyn_config.get("guardrailsEnabled", True)
+    if guardrails_enabled:
+        return apply_guardrails(command, response)
+    return response
 
 
 async def generate_deception(command, history=None, cwd=None, attack_type=None, hostname=None, username=None, session_id=None):
