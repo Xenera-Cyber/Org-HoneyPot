@@ -2,31 +2,39 @@
 
 ---
 
-## ⚙️ Run Both Servers
+## ⚙️ Run the System (Backend + Frontend)
 
-### 🔹 Step 1: XYNERA-AI
-
-> ⚠️ Remember to change the API
+### 🔹 Step 1: XYNERA-AI (AI Backend)
 
 | Step         | Command                           |
 | ------------ | --------------------------------- |
-| Go to folder | `cd <xynera-ai-folder>`           |
-| Create env   | `python3 -m venv venv`            |
-| Activate env | `source venv/bin/activate`        |
+| Go to folder | `cd xynera-ai`                    |
+| Create env   | `python -m venv venv`             |
+| Activate env | `venv\Scripts\activate` (Windows) or `source venv/bin/activate` (Linux/Mac) |
 | Install deps | `pip install -r requirements.txt` |
-| Run server   | `python3 api_server.py`           |
+| Run server   | `python api_server.py`            |
 
 ---
 
-### 🔹 Step 2: XYNERA-HONEYPOT
+### 🔹 Step 2: XYNERA-HONEYPOT (Honeypot Service)
 
 | Step         | Command                           |
 | ------------ | --------------------------------- |
-| Go to folder | `cd <xynera-honeypot-folder>`     |
-| Create env   | `python3 -m venv venv`            |
-| Activate env | `source venv/bin/activate`        |
+| Go to folder | `cd xynera-honey`                 |
+| Create env   | `python -m venv venv`             |
+| Activate env | `venv\Scripts\activate` (Windows) or `source venv/bin/activate` (Linux/Mac) |
 | Install deps | `pip install -r requirements.txt` |
-| Run server   | `python3 server.py`               |
+| Run server   | `python server.py`                |
+
+---
+
+### 🔹 Step 3: XYNERA-UI (React Dashboard)
+
+| Step         | Command                           |
+| ------------ | --------------------------------- |
+| Go to folder | `cd UIprogress/dashboard-integrated` |
+| Install deps | `npm install`                     |
+| Run server   | `npm run dev`                     |
 
 ---
 
@@ -448,3 +456,19 @@ Improved code modularity and separation of responsibilities across all component
 Increased realism of the honeypot environment to provide a more convincing attacker experience.
 Enhanced scalability by preparing the architecture for future integration with SQLite, AI-based deception, dashboards, and advanced threat analysis.
 Maintained compatibility with the existing project structure while providing a stronger and more extensible baseline for future development.
+
+---
+
+//Updates from AI & UI integration team (Author- Vidit):
+1. **Integrated React Dashboard (`UIprogress/dashboard-integrated`)**
+   - Designed a comprehensive modern frontend using React, TypeScript, and Vite.
+   - Features real-time event logs, active sessions list, geographic severity visualization map, and detailed command execution timelines.
+   - Includes a settings control panel to modify threat engine levels, AI model options, temperatures, and toggle deception pipeline layers dynamically.
+
+2. **Dynamic Configuration System (`xynera-ai/dynamic_config.json`)**
+   - Implemented runtime configuration reload for the AI Backend.
+   - Allows dynamically setting models (e.g. `llama-3.1-8b-instant`), temperatures, max response limits, and toggling RAG / Guardrails systems globally on-the-fly without service restarts.
+
+3. **Session-Level Threat Engine & Scoring**
+   - Integrated command-by-command real-time threat analysis scoring within the `xynera-ai` API backend.
+   - Returns cumulative threat scores and intent classification parameters to the honeypot (`xynera-honey`) to profile attacker interest levels (reconnaissance, privilege escalation, malware deployment) dynamically and save session details for visual frontend analytics.
