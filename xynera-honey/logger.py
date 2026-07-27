@@ -1,27 +1,12 @@
 import os
 import logging
 from logging.handlers import RotatingFileHandler
+from attack_analyzer import SHARED_ATTACK_SCORES
 
 LOG_DIR = "logs"
 LOG_FILE = os.path.join(LOG_DIR, "attacks.log")
 MAX_BYTES = 5 * 1024 * 1024
 BACKUP_COUNT = 3
-
-ATTACK_SCORES = {
-    "Reconnaissance": 20,
-    "Directory Navigation": 10,
-    "Credential Enumeration": 60,
-    "Malware Download": 90,
-    "Malware Preparation": 95,
-    "Malware Execution": 100,
-    "File Transfer": 80,
-    "Privilege Escalation": 95,
-    "Lateral Movement": 80,
-    "Destructive Attack": 100,
-    "Reverse Shell Activity": 100,
-    "Unknown": 5,
-}
-
 
 def setup_logger():
     os.makedirs(LOG_DIR, exist_ok=True)
@@ -45,9 +30,7 @@ def setup_logger():
     logger.addHandler(handler)
     return logger
 
-
 _logger = setup_logger()
-
 
 def log_command(
     command,
@@ -56,7 +39,8 @@ def log_command(
     session_id="NO-SESSION",
     severity="INFO"
 ):
-    score = ATTACK_SCORES.get(attack_type, 5)
+    # Uses the shared dictionary
+    score = SHARED_ATTACK_SCORES.get(attack_type, 5)
     level = getattr(
         logging,
         severity.upper(),
@@ -72,3 +56,4 @@ def log_command(
     )
 
     _logger.log(level, message)
+

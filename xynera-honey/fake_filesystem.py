@@ -24,6 +24,7 @@ Responsibility boundary:
 from copy import deepcopy
 from datetime import datetime
 from posixpath import basename, dirname, normpath
+import threading
 
 
 # ==========================================================
@@ -254,6 +255,25 @@ CREATE TABLE users(
 """
 }
 
+# System files are root-owned on a real Linux box, unlike an attacker's
+# own home-directory files (which stay owner=ubuntu, the default). Wrap
+# just these entries into the richer {content, owner, group} form so
+# `ls -l` on /etc/passwd et al. shows "root root" instead of "ubuntu
+# ubuntu" -- FileSystem.from_template() below understands both the plain
+# string form and this dict form.
+_ROOT_OWNED_FILES = (
+    "/etc/passwd", "/etc/hosts", "/etc/hostname",
+    "/var/log/auth.log", "/var/log/syslog",
+    "/opt/backups/db_backup.sql",
+)
+for _path in _ROOT_OWNED_FILES:
+    if _path in file_contents:
+        file_contents[_path] = {
+            "content": file_contents[_path],
+            "owner": "root",
+            "group": "root",
+        }
+
 
 # ==========================================================
 # Dynamic, Per-Session Filesystem
@@ -425,6 +445,10 @@ class FileSystem:
 
     def __init__(self, root=None):
         self.root = root or Directory(name="", parent=None)
+        # Each session owns its own FileSystem instance, but a session's
+        # AI-backend calls and command handling can run on different
+        # threads in the new multi-client server; guard mutations.
+        self._lock = threading.RLock()
 
     @classmethod
     def from_template(cls, template_filesystem=None, template_file_contents=None):
@@ -432,6 +456,19 @@ class FileSystem:
         template_file_contents = template_file_contents or file_contents
 
         fs = cls()
+
+        def _make_file(name, file_data):
+            """file_data is either a plain content string, or a dict of
+            {content, owner, group, permissions} for files that need
+            non-default ownership (e.g. root-owned system files)."""
+            if isinstance(file_data, dict):
+                metadata = Metadata(
+                    owner=file_data.get("owner", DEFAULT_OWNER),
+                    group=file_data.get("group", DEFAULT_GROUP),
+                    permissions=file_data.get("permissions", DEFAULT_FILE_PERMISSIONS),
+                )
+                return File(name=name, content=file_data.get("content", ""), metadata=metadata)
+            return File(name=name, content=file_data)
 
         for directory_path, children in template_filesystem.items():
             parent = fs._ensure_directory(directory_path)
@@ -441,22 +478,22 @@ class FileSystem:
                     fs._ensure_directory(child_path)
                 elif child_name not in parent.children:
                     if child_path in template_file_contents:
-                        content = template_file_contents[child_path]
-                        parent.add_child(File(name=child_name, content=content))
+                        parent.add_child(_make_file(child_name, template_file_contents[child_path]))
                     elif "." in child_name:
                         parent.add_child(File(name=child_name, content=""))
                     else:
                         parent.add_child(Directory(name=child_name))
 
-        for file_path, content in template_file_contents.items():
+        for file_path, file_data in template_file_contents.items():
             parent_path = dirname(file_path) or "/"
             file_name = basename(file_path)
             parent = fs._ensure_directory(parent_path)
             existing = parent.children.get(file_name)
+            content = file_data.get("content", "") if isinstance(file_data, dict) else file_data
             if isinstance(existing, File):
                 existing.content = content
             elif existing is None:
-                parent.add_child(File(name=file_name, content=content))
+                parent.add_child(_make_file(file_name, file_data))
 
         return fs
 
@@ -583,36 +620,38 @@ class FileSystem:
             return "touch: missing file operand"
 
         target_path = self.resolve_path(cwd, path)
-        target = self.get_node(target_path)
-        if target is not None:
-            target.metadata.touch()
+        with self._lock:
+            target = self.get_node(target_path)
+            if target is not None:
+                target.metadata.touch()
+                return ""
+
+            parent = self.get_node(dirname(target_path) or "/")
+            if parent is None:
+                return f"touch: cannot touch '{path}': No such file or directory"
+            if not isinstance(parent, Directory):
+                return f"touch: cannot touch '{path}': Not a directory"
+
+            parent.add_child(File(name=basename(target_path), content=""))
             return ""
-
-        parent = self.get_node(dirname(target_path) or "/")
-        if parent is None:
-            return f"touch: cannot touch '{path}': No such file or directory"
-        if not isinstance(parent, Directory):
-            return f"touch: cannot touch '{path}': Not a directory"
-
-        parent.add_child(File(name=basename(target_path), content=""))
-        return ""
 
     def mkdir(self, cwd, path):
         if not path:
             return "mkdir: missing operand"
 
         target_path = self.resolve_path(cwd, path)
-        if self.exists(target_path):
-            return f"mkdir: cannot create directory '{path}': File exists"
+        with self._lock:
+            if self.exists(target_path):
+                return f"mkdir: cannot create directory '{path}': File exists"
 
-        parent = self.get_node(dirname(target_path) or "/")
-        if parent is None:
-            return f"mkdir: cannot create directory '{path}': No such file or directory"
-        if not isinstance(parent, Directory):
-            return f"mkdir: cannot create directory '{path}': Not a directory"
+            parent = self.get_node(dirname(target_path) or "/")
+            if parent is None:
+                return f"mkdir: cannot create directory '{path}': No such file or directory"
+            if not isinstance(parent, Directory):
+                return f"mkdir: cannot create directory '{path}': Not a directory"
 
-        parent.add_child(Directory(name=basename(target_path)))
-        return ""
+            parent.add_child(Directory(name=basename(target_path)))
+            return ""
 
     def rm(self, cwd, path, recursive=False, force=False):
         if not path:
@@ -622,14 +661,15 @@ class FileSystem:
         if target_path == "/":
             return "rm: it is dangerous to operate recursively on '/'"
 
-        target = self.get_node(target_path)
-        if target is None:
-            return "" if force else f"rm: cannot remove '{path}': No such file or directory"
-        if isinstance(target, Directory) and not recursive:
-            return f"rm: cannot remove '{path}': Is a directory"
+        with self._lock:
+            target = self.get_node(target_path)
+            if target is None:
+                return "" if force else f"rm: cannot remove '{path}': No such file or directory"
+            if isinstance(target, Directory) and not recursive:
+                return f"rm: cannot remove '{path}': Is a directory"
 
-        target.parent.remove_child(target.name)
-        return ""
+            target.parent.remove_child(target.name)
+            return ""
 
     def mv(self, cwd, source, destination):
         if not source or not destination:
@@ -643,34 +683,35 @@ class FileSystem:
             return "mv: cannot move '/': Device or resource busy"
 
         destination_path = self.resolve_path(cwd, destination)
-        destination_node = self.get_node(destination_path)
-        if isinstance(destination_node, Directory):
-            new_parent = destination_node
-            new_name = source_node.name
-        else:
-            new_parent = self.get_node(dirname(destination_path) or "/")
-            new_name = basename(destination_path)
+        with self._lock:
+            destination_node = self.get_node(destination_path)
+            if isinstance(destination_node, Directory):
+                new_parent = destination_node
+                new_name = source_node.name
+            else:
+                new_parent = self.get_node(dirname(destination_path) or "/")
+                new_name = basename(destination_path)
 
-        if new_parent is None:
-            return f"mv: cannot move '{source}' to '{destination}': No such file or directory"
-        if not isinstance(new_parent, Directory):
-            return f"mv: cannot move '{source}' to '{destination}': Not a directory"
-        if isinstance(source_node, Directory) and self._is_descendant(new_parent, source_node):
-            return f"mv: cannot move '{source}' to a subdirectory of itself, '{destination}'"
+            if new_parent is None:
+                return f"mv: cannot move '{source}' to '{destination}': No such file or directory"
+            if not isinstance(new_parent, Directory):
+                return f"mv: cannot move '{source}' to '{destination}': Not a directory"
+            if isinstance(source_node, Directory) and self._is_descendant(new_parent, source_node):
+                return f"mv: cannot move '{source}' to a subdirectory of itself, '{destination}'"
 
-        existing = new_parent.children.get(new_name)
-        if isinstance(existing, Directory) and isinstance(source_node, File):
-            return f"mv: cannot overwrite directory '{destination}' with non-directory"
-        if isinstance(existing, File) and isinstance(source_node, Directory):
-            return f"mv: cannot overwrite non-directory '{destination}' with directory"
-        if existing is not None:
-            new_parent.remove_child(existing.name)
+            existing = new_parent.children.get(new_name)
+            if isinstance(existing, Directory) and isinstance(source_node, File):
+                return f"mv: cannot overwrite directory '{destination}' with non-directory"
+            if isinstance(existing, File) and isinstance(source_node, Directory):
+                return f"mv: cannot overwrite non-directory '{destination}' with directory"
+            if existing is not None:
+                new_parent.remove_child(existing.name)
 
-        source_node.parent.remove_child(source_node.name)
-        source_node.name = new_name
-        new_parent.add_child(source_node)
-        source_node.metadata.touch()
-        return ""
+            source_node.parent.remove_child(source_node.name)
+            source_node.name = new_name
+            new_parent.add_child(source_node)
+            source_node.metadata.touch()
+            return ""
 
     def cp(self, cwd, source, destination, recursive=False):
         if not source or not destination:
@@ -684,29 +725,30 @@ class FileSystem:
             return f"cp: -r not specified; omitting directory '{source}'"
 
         destination_path = self.resolve_path(cwd, destination)
-        destination_node = self.get_node(destination_path)
-        if isinstance(destination_node, Directory):
-            new_parent = destination_node
-            new_name = source_node.name
-        else:
-            new_parent = self.get_node(dirname(destination_path) or "/")
-            new_name = basename(destination_path)
+        with self._lock:
+            destination_node = self.get_node(destination_path)
+            if isinstance(destination_node, Directory):
+                new_parent = destination_node
+                new_name = source_node.name
+            else:
+                new_parent = self.get_node(dirname(destination_path) or "/")
+                new_name = basename(destination_path)
 
-        if new_parent is None:
-            return f"cp: cannot create regular file '{destination}': No such file or directory"
-        if not isinstance(new_parent, Directory):
-            return f"cp: cannot create regular file '{destination}': Not a directory"
+            if new_parent is None:
+                return f"cp: cannot create regular file '{destination}': No such file or directory"
+            if not isinstance(new_parent, Directory):
+                return f"cp: cannot create regular file '{destination}': Not a directory"
 
-        existing = new_parent.children.get(new_name)
-        if existing is not None:
-            new_parent.remove_child(existing.name)
+            existing = new_parent.children.get(new_name)
+            if existing is not None:
+                new_parent.remove_child(existing.name)
 
-        copied = source_node.clone(parent=None)
-        copied.name = new_name
-        copied.metadata = deepcopy(copied.metadata)
-        copied.metadata.touch()
-        new_parent.add_child(copied)
-        return ""
+            copied = source_node.clone(parent=None)
+            copied.name = new_name
+            copied.metadata = deepcopy(copied.metadata)
+            copied.metadata.touch()
+            new_parent.add_child(copied)
+            return ""
 
     def _is_descendant(self, possible_child, parent):
         current = possible_child
@@ -725,6 +767,37 @@ class FileSystem:
             f"{size:>5} {timestamp} {display_name or node.name}"
         )
 
+    def verify_consistency(self):
+        """
+        Read-only tree-integrity self-check: confirms every child's
+        parent pointer actually points back to a node that lists it as
+        a child. Used by session_manager.verify_consistency() for
+        regression/stress testing after a batch of filesystem writes --
+        never called on the attacker response path.
+        """
+        issues = []
+
+        def check_node(node, path):
+            if node.parent and node.parent.children.get(node.name) is not node:
+                issues.append(f"Orphaned node: {path}")
+            if isinstance(node, Directory):
+                for child in node.children.values():
+                    check_node(child, node.path() + "/" + child.name)
+
+        check_node(self.root, "/")
+        return {
+            "consistent": len(issues) == 0,
+            "issues": issues,
+            "total_nodes": self._count_nodes(self.root),
+        }
+
+    def _count_nodes(self, node):
+        count = 1
+        if isinstance(node, Directory):
+            for child in node.children.values():
+                count += self._count_nodes(child)
+        return count
+
 
 # Built once at import time; every session clones it rather than
 # reparsing the template, so per-session filesystems stay cheap to create.
@@ -734,3 +807,4 @@ ORIGINAL_FILESYSTEM = FileSystem.from_template()
 def create_filesystem():
     """Return a fresh, independent FileSystem for a new attacker session."""
     return ORIGINAL_FILESYSTEM.clone()
+
