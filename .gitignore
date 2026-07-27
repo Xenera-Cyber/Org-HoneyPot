@@ -1,0 +1,5 @@
+
+xynera-ai/.env
+xynera-ai/.cache/
+.env
+*.log
