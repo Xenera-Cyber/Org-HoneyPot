@@ -2,6 +2,7 @@ import time
 import random
 import shlex
 from datetime import datetime
+from posixpath import dirname
 
 from fake_network import (
     netstat,
@@ -127,9 +128,17 @@ def _backend_read(session_manager, key, local_reader):
     return response
 
 
-def _backend_write(session_manager, local_writer):
+def _backend_write(session_manager, local_writer, affected_paths=None):
+    """
+    Run a filesystem-mutating command, then invalidate only the cache
+    entries that command could have made stale (see `_affected_paths()`
+    below) instead of clearing the whole session cache. If the caller
+    can't determine a precise set of affected paths, `affected_paths`
+    stays None and `sync_backend_after_filesystem_write()` safely falls
+    back to a full clear.
+    """
     response = local_writer()
-    session_manager.sync_backend_after_filesystem_write()
+    session_manager.sync_backend_after_filesystem_write(affected_paths)
     return response
 
 
@@ -551,7 +560,7 @@ def handle_cp(command, filesystem, cwd, session_manager=None):
     if error:
         return error
     if len(parts) < 3:
-        return "cp: missing file operand"
+        return "cp: missing destination file operand"
 
     flags, operands = _split_flags_paths(parts)
     if len(operands) < 2:
@@ -598,12 +607,56 @@ def _chown_new_nodes(command, verb, filesystem, cwd, session_manager):
     session_manager._apply_ownership(dest_path, owner, group)
 
 
+def _affected_paths(command, verb, filesystem, cwd, session_manager):
+    """
+    Work out exactly which absolute paths' cached ls/cat/cd reads go
+    stale because of this write, so `sync_backend_after_filesystem_write()`
+    can drop just those (plus anything nested under a directory among
+    them) instead of clearing the whole session cache.
+
+    For every write, a path's PARENT directory listing changes too (the
+    entry appears/disappears from `ls`), so the parent is always
+    included alongside the target(s) themselves:
+
+      - touch/mkdir: every operand is a new/updated target.
+      - rm: every operand is a target being removed (recursively, if
+        it was a directory -- everything nested under it is now gone).
+      - mv: BOTH the source (which vanishes) and the destination
+        (which is created/overwritten) are affected.
+      - cp: only the destination changes; the source is untouched, so
+        its cache stays warm.
+    """
+    parts, error = _split_command(command)
+    if error or len(parts) < 2:
+        return []
+
+    _flags, operands = _split_flags_paths(parts)
+    if not operands:
+        return []
+
+    if verb == "cp":
+        targets = operands[1:2]
+    elif verb == "mv":
+        targets = operands[:2]
+    else:  # touch, mkdir, rm
+        targets = operands
+
+    affected = []
+    for operand in targets:
+        resolved = filesystem.resolve_path(cwd, _expand_home(operand, session_manager))
+        affected.append(resolved)
+        affected.append(dirname(resolved) or "/")
+    return affected
+
+
 def _filesystem_write_response(command, session_manager, filesystem, cwd):
     verb = command.partition(" ")[0]
     handler = FILESYSTEM_WRITE_HANDLERS[verb]
+    affected = _affected_paths(command, verb, filesystem, cwd, session_manager)
     result = _backend_write(
         session_manager,
         lambda: handler(command, filesystem, cwd, session_manager),
+        affected_paths=affected,
     )
     if verb in _CREATES_NEW_NODE:
         _chown_new_nodes(command, verb, filesystem, cwd, session_manager)
@@ -668,10 +721,6 @@ def route_command(command, session_manager, attack_type="Unknown"):
     filesystem = session_manager.filesystem
     services = session_manager.service_manager
     command = command.strip()
-
-    # Single source of truth for identity. Every command below that
-    # needs a username/hostname reads it from here -- never hardcoded.
-    identity = session_manager.get_identity()
 
     time.sleep(get_command_delay(command))
 
@@ -786,4 +835,3 @@ def route_command(command, session_manager, attack_type="Unknown"):
 
     # AI backend offline/timed out/empty reply — degrade gracefully.
     return f"{command}: command not found"
-

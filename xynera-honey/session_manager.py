@@ -259,10 +259,31 @@ class SessionManager:
             for name, info in self.services.services.items()
         }
 
-    def sync_backend_after_filesystem_write(self):
-        # Filesystem mutations can affect many read keys (ls/cat/cd/pwd), so
-        # the safest synchronization boundary is to clear stale backend reads.
-        self.invalidate_backend()
+    def sync_backend_after_filesystem_write(self, affected_paths=None):
+        """
+        Filesystem mutations (touch/mkdir/rm/mv/cp) only ever change the
+        target path itself (and, when it's a directory, whatever is
+        nested under it) plus the listing of its parent directory.
+        Everything else an attacker has already read this session --
+        other files, other directories -- is still perfectly valid.
+
+        `affected_paths` should be the resolved absolute path(s) touched
+        by the write (see command_router.py's `_affected_paths()`), and
+        each one gets selectively dropped -- along with any cached
+        ls/cat/cd entries nested underneath it -- instead of nuking the
+        whole session cache.
+
+        If no paths are supplied (callers that haven't been updated yet,
+        or a write whose blast radius isn't precisely known), this falls
+        back to the old, safe behaviour of clearing everything, so
+        nothing regresses.
+        """
+        if not affected_paths:
+            self.invalidate_backend()
+            return
+
+        for path in affected_paths:
+            self.invalidate_backend(path, recursive=True)
 
     def backend_exists(self, path):
         return path in self.backend_cache["filesystem"]
@@ -285,11 +306,60 @@ class SessionManager:
         self.invalidate_backend(path)
         return self.save_backend(path, content)
 
-    def invalidate_backend(self, path=None):
+    @staticmethod
+    def _cache_key_path(key):
+        """
+        Recover the filesystem path a cache key refers to.
+
+        command_router.py builds composed keys like
+        "fs:<subcommand>:<path>[:extra fields]" via `_cache_key()`, so for
+        those the path is always the third colon-separated segment.
+        Other call sites (e.g. `preload_backend`) store entries directly
+        under the raw path as the key, so for those the key itself IS the
+        path. Since POSIX paths never contain a colon, this distinction
+        is unambiguous.
+        """
+        if key.startswith("fs:"):
+            parts = key.split(":")
+            if len(parts) >= 3:
+                return parts[2]
+        return key
+
+    def invalidate_backend(self, path=None, recursive=False):
+        """
+        Drop cached backend filesystem reads.
+
+        - path=None: clear the whole cache. Reserved for changes with a
+          genuinely session-wide blast radius (e.g. identity resync,
+          where /etc/passwd, /etc/hosts, ownership, and the prompt all
+          shift at once) -- see `_sync_identity_cache()`.
+        - path given, recursive=False (default): exact-match removal of
+          that single literal cache key, same as before. Keeps
+          `preload_backend()` (which stores/removes entries under a raw
+          path key) working unchanged.
+        - path given, recursive=True: selective invalidation for a
+          filesystem write. Drops every cached ls/cat/cd entry whose
+          path equals `path` or sits underneath it (e.g. removing a
+          directory invalidates every cached read for its former
+          contents), while leaving cache entries for unrelated paths
+          untouched.
+        """
         if path is None:
             self.backend_cache["filesystem"].clear()
             return
-        self.backend_cache["filesystem"].pop(path, None)
+
+        if not recursive:
+            self.backend_cache["filesystem"].pop(path, None)
+            return
+
+        prefix = path.rstrip("/") or "/"
+        stale_keys = [
+            key for key in self.backend_cache["filesystem"]
+            if self._cache_key_path(key) == prefix
+            or self._cache_key_path(key).startswith(prefix + "/")
+        ]
+        for key in stale_keys:
+            self.backend_cache["filesystem"].pop(key, None)
 
     def response_exists(self, command):
         return command in self.backend_cache["responses"]
