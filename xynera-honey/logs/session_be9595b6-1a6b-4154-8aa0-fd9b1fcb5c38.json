@@ -1,0 +1,95 @@
+{
+    "session_id": "be9595b6-1a6b-4154-8aa0-fd9b1fcb5c38",
+    "ip": "127.0.0.1",
+    "start_time": "2026-07-20T14:34:09.957261",
+    "end_time": "2026-07-20T14:34:31.772985",
+    "current_directory": "/home/ubuntu",
+    "commands": [
+        {
+            "command": "whoami",
+            "timestamp": "2026-07-20T14:34:09.957261",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "pwd",
+            "timestamp": "2026-07-20T14:34:10.152600",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "ls -la",
+            "timestamp": "2026-07-20T14:34:10.375359",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "id",
+            "timestamp": "2026-07-20T14:34:10.667295",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "mkdir test_folder",
+            "timestamp": "2026-07-20T14:34:10.840282",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "ls",
+            "timestamp": "2026-07-20T14:34:11.069913",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "cd test_folder",
+            "timestamp": "2026-07-20T14:34:11.270026",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "pwd",
+            "timestamp": "2026-07-20T14:34:11.461895",
+            "cwd": "/home/ubuntu/test_folder"
+        },
+        {
+            "command": "cd ..",
+            "timestamp": "2026-07-20T14:34:11.634615",
+            "cwd": "/home/ubuntu/test_folder"
+        },
+        {
+            "command": "rmdir test_folder",
+            "timestamp": "2026-07-20T14:34:11.806967",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "cat /etc/passwd",
+            "timestamp": "2026-07-20T14:34:12.871652",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "ps aux",
+            "timestamp": "2026-07-20T14:34:13.241975",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "ifconfig",
+            "timestamp": "2026-07-20T14:34:13.892913",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "nmap -sV 192.168.1.1",
+            "timestamp": "2026-07-20T14:34:14.636236",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "cat /etc/shadow",
+            "timestamp": "2026-07-20T14:34:31.365518",
+            "cwd": "/home/ubuntu"
+        }
+    ],
+    "threat_score": 65,
+    "attack_types": [
+        "Reconnaissance",
+        "Unknown",
+        "Directory Navigation",
+        "Credential Enumeration"
+    ],
+    "attacker_profile": {
+        "intent": "credential"
+    },
+    "session_duration": "0:00:21.815724"
+}

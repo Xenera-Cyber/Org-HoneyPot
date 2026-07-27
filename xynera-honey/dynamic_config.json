@@ -1,0 +1,9 @@
+{
+    "maxConcurrentSessions": 50,
+    "sessionTimeoutMinutes": 30,
+    "logRetentionDays": 30,
+    "maxCommandsPerSession": 250,
+    "sshEnabled": true,
+    "httpEnabled": true,
+    "ftpEnabled": true
+}

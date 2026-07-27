@@ -1,0 +1,181 @@
+
+Company: XyneraProduct: Honey for HackersType: AI-Integrated Honeypot System
+
+The system currently achieves:
+Capturing attacker commands from honeypot (Cowrie)
+Forwarding commands to AI backend
+Processing commands using COE AI API
+Generating terminal-like responses
+Returning responses back into interaction loop
+Manual testing of full pipeline
+⚠️ NOTE: No assumptions beyond this are included.
+
+Device: HP Victus 15-fa0xxx
+OS: Ubuntu 24.04.4 LTS
+Kernel: 6.17.x
+RAM: 16 GB
+CPU: Intel i7-12650H
+GPU: RTX 3050 + Integrated
+Storage: 1 TB SSD
+Current setup is single-machine local lab:
+Honeypot → running locally
+AI Backend → running locally
+Communication → localhost (127.0.0.1)
+No distributed deployment yet.
+
+[Attacker]
+|
+v
+[SSH Session - Cowrie]
+|
+v
+[Command Captured]
+|
+v
+[Forward to Backend API]
+|
+v
+[Flask Server]
+|
+v
+[COE AI Request]
+|
+v
+[AI Response Generated]
+|
+v
+[Return to Flask]
+|
+v
+[Send Back to Honeypot]
+|
+v
+[Displayed to Attacker]
+
+Accept SSH connections
+Simulate Linux shell
+Capture attacker input commands
+Commands are intercepted
+Forwarded externally (manual/logic-based integration)
+No internal modification of Cowrie core yet (light integration stage)
+Cowrie successfully logs commands
+Interaction is real-time enough for testing
+
+Python 3
+Flask
+app.py
+
+POST /process
+{
+"ip": "string",
+"command": "string"
+}
+ip → attacker IP (currently passed manually or from honeypot)
+command → raw command entered by attacker
+
+{
+"response": "string"
+}
+
+Flask receives request
+|
+v
+JSON parsing
+|
+v
+Extract IP + Command
+|
+v
+Validate input (basic level)
+|
+v
+Send command to COE AI
+|
+v
+Wait for AI response
+|
+v
+Extract generated text
+|
+v
+Return JSON response
+
+Flask route listens on /process
+Accepts POST only
+Content-Type: application/json
+request.json used
+No strict schema validation implemented yet
+Command forwarded directly
+No preprocessing / filtering
+No context memory
+AI output treated as final response
+No formatting layer
+
+command: ls
+Received by Flask
+Forwarded to AI
+AI generates directory listing
+file1.txt
+config.json
+logs/
+
+curl -X POST http://localhost:5000/process \\
+-H "Content-Type: application/json" \\
+-d '{"ip":"10.200.200.10","command":"ps"}'
+API reachable
+Response returned successfully
+Handles simple commands
+
+xynera-ai/
+│
+├── app.py # Flask server
+├── requirements.txt # dependencies
+├── venv/ # virtual environment
+
+cd xynera-ai
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python3 app.py
+curl POST /process
+
+Input: raw attacker commands
+Output: AI-generated text
+Stateless
+One request → one response
+No logs stored in DB
+No session tracking
+
+Empty command → undefined behavior (depends on AI)
+Invalid JSON → Flask error
+Multi-line input → inconsistent handling
+Interrupted curl → no response
+
+Response latency depends on AI API
+No async handling
+Blocking request-response cycle
+
+Minimal / default Flask errors
+No custom error messages
+No retry logic
+
+No authentication on API
+No rate limiting
+No input sanitization
+
+Functional pipeline
+AI response generation works
+Manual testing confirmed
+Basic integration with honeypot
+
+No database
+No RAG
+No attack classification
+No deception profiles
+No automation
+No scaling
+
+System currently proves:
+✔ AI can generate believable shell responses✔ Honeypot → AI → Response loop works✔ Architecture is functional at base level
+This is a validated prototype stage, not a production system.
+

@@ -1,0 +1,21 @@
+{
+    "session_id": "07ac6cfa-480b-40f4-b0fc-853f256af377",
+    "ip": "127.0.0.1",
+    "commands": [
+        {
+            "command": "top",
+            "timestamp": "2026-07-08T17:34:01.521090",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "crontab -e",
+            "timestamp": "2026-07-08T17:34:11.921985",
+            "cwd": "/home/ubuntu"
+        }
+    ],
+    "threat_score": 10,
+    "attack_types": [
+        "Unknown"
+    ],
+    "session_duration": "0:00:20.628722"
+}

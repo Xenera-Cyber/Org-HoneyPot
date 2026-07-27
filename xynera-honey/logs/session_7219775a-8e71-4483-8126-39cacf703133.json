@@ -1,0 +1,33 @@
+{
+    "session_id": "7219775a-8e71-4483-8126-39cacf703133",
+    "ip": "127.0.0.1",
+    "commands": [
+        {
+            "command": "ls",
+            "timestamp": "2026-07-08T18:58:35.247939",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "cd Documents",
+            "timestamp": "2026-07-08T18:58:41.275098",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "ls",
+            "timestamp": "2026-07-08T18:58:43.569492",
+            "cwd": "/home/ubuntu/Documents"
+        },
+        {
+            "command": "cat meeting_notes.txt",
+            "timestamp": "2026-07-08T18:58:52.956189",
+            "cwd": "/home/ubuntu/Documents"
+        }
+    ],
+    "threat_score": 55,
+    "attack_types": [
+        "Reconnaissance",
+        "Directory Navigation",
+        "Unknown"
+    ],
+    "session_duration": "0:01:41.577749"
+}

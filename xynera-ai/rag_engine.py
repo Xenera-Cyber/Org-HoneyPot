@@ -1,8 +1,9 @@
 import httpx
 import re
 import asyncio
+from typing import Optional, Dict
 from knowledge_base import knowledge_documents
-from config import GROQ_API_KEY, GROQ_MODEL
+from config import GROQ_API_KEY, GROQ_MODEL, get_dynamic_config
 from guardrails import apply_guardrails
 from attacker_profile import get_session_data
 import vector_store
@@ -10,32 +11,124 @@ import vector_store
 # Pre-sort the knowledge documents by command length in reverse order once at module-load time
 sorted_docs = sorted(knowledge_documents, key=lambda x: len(x["command"]), reverse=True)
 
+# Connection pool: Global async client to reuse TCP/TLS sessions
+_async_client: Optional[httpx.AsyncClient] = None
+
+# Response cache mapping: (command_cleaned, username, hostname, cwd) -> response_text
+_response_cache = {}
+
+def get_async_client() -> httpx.AsyncClient:
+    global _async_client
+    if _async_client is None:
+        _async_client = httpx.AsyncClient(timeout=25.0)
+    return _async_client
+
+
+def simulate_command_locally(command: str, personality: dict, cwd: str) -> Optional[str]:
+    """
+    Simulate standard shell commands locally to completely bypass LLM queries.
+    Returns simulated stdout/stderr string if successful, or None to fall back to LLM.
+    """
+    if not command:
+        return None
+        
+    cmd_stripped = command.strip()
+    parts = cmd_stripped.split()
+    if not parts:
+        return None
+        
+    base_cmd = parts[0]
+    username = personality.get("user", "ubuntu")
+    hostname = personality.get("hostname", "ubuntu-server")
+    home_dir = "/home/" + username if username != "root" else "/root"
+    active_cwd = cwd or home_dir
+    
+    # 1. pwd
+    if cmd_stripped == "pwd":
+        return active_cwd
+        
+    # 2. whoami
+    if cmd_stripped == "whoami":
+        return username
+        
+    # 3. hostname
+    if cmd_stripped == "hostname":
+        return hostname
+        
+    # 4. groups
+    if cmd_stripped == "groups":
+        if username == "root":
+            return "root"
+        return "ubuntu sudo lxd"
+        
+    # 5. id
+    if cmd_stripped == "id":
+        if username == "root":
+            return "uid=0(root) gid=0(root) groups=0(root)"
+        return "uid=1000(ubuntu) gid=1000(ubuntu) groups=1000(ubuntu),27(sudo),110(lxd)"
+        
+    # 6. history -c
+    if cmd_stripped == "history -c" or (base_cmd == "history" and "-c" in parts):
+        return ""
+        
+    # 7. clear
+    if cmd_stripped == "clear":
+        return "\033[2J\033[H"
+        
+    # 8. echo
+    if base_cmd == "echo":
+        echo_content = cmd_stripped[4:].strip()
+        if (echo_content.startswith("'") and echo_content.endswith("'")) or \
+           (echo_content.startswith('"') and echo_content.endswith('"')):
+            echo_content = echo_content[1:-1]
+            
+        echo_content = echo_content.replace("$USER", username)
+        echo_content = echo_content.replace("$HOSTNAME", hostname)
+        echo_content = echo_content.replace("$PWD", active_cwd)
+        echo_content = echo_content.replace("$HOME", home_dir)
+        return echo_content
+        
+    # 9. Silent successful command simulation (chmod, mkdir, touch, rm, mv, cp, cd)
+    # Silent output on success in Linux terminal unless help/verbose is specified.
+    silent_commands = {"chmod", "mkdir", "touch", "rm", "mv", "cp", "cd"}
+    if base_cmd in silent_commands:
+        has_verbose_or_help = any(flag in parts for flag in ["-v", "--verbose", "-h", "--help", "--version"])
+        if not has_verbose_or_help:
+            return ""
+            
+    return None
+
 
 async def call_groq_api(prompt, max_tokens=1024):
+    dyn_config = get_dynamic_config()
+    model = dyn_config.get("model", GROQ_MODEL)
+    temp = dyn_config.get("temperature", 0.1)
+    limit_tokens = dyn_config.get("maxResponseLength", max_tokens)
+
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json"
     }
     payload = {
-        "model": GROQ_MODEL,
+        "model": model,
         "messages": [
             {
                 "role": "user",
                 "content": prompt
             }
         ],
-        "max_tokens": max_tokens,
-        "temperature": 0.1
+        "max_tokens": limit_tokens,
+        "temperature": temp
     }
     
     retries = 6
     delay = 2.0
+    client = get_async_client()
     
     for attempt in range(retries):
         try:
-            async with httpx.AsyncClient(timeout=25.0) as client:
-                response = await client.post(url, json=payload, headers=headers)
+            response = await client.post(url, json=payload, headers=headers)
             
             if response.status_code == 200:
                 result = response.json()
@@ -270,14 +363,33 @@ async def generate_response(command, personality, attacker_profile, threat_score
             "response_style": "concise, accurate, and professional"
         }
 
-    try:
-        context_doc = retrieve_context(
-            command,
-            session_id=session_id
-        )
-    except Exception as e:
-        print(f"[RAG ERROR] {e}")
-        context_doc = None
+    # 1. Local command simulation (instant bypass)
+    simulated_output = simulate_command_locally(command, personality, cwd)
+    if simulated_output is not None:
+        return simulated_output
+
+    # 2. Response cache lookup
+    active_host = personality.get("hostname", "ubuntu-server")
+    active_user = personality.get("user", "ubuntu")
+    cleaned_cmd = " ".join(command.strip().split())
+    cache_key = (cleaned_cmd, active_user, active_host, cwd or "")
+    if cache_key in _response_cache:
+        return _response_cache[cache_key]
+
+    # Check if RAG is enabled dynamically
+    dyn_config = get_dynamic_config()
+    rag_enabled = dyn_config.get("ragEnabled", True)
+    
+    context_doc = None
+    if rag_enabled:
+        try:
+            context_doc = retrieve_context(
+                command,
+                session_id=session_id
+            )
+        except Exception as e:
+            print(f"[RAG ERROR] {e}")
+            context_doc = None
 
     # Shortcuts
     if context_doc:
@@ -413,7 +525,16 @@ async def generate_response(command, personality, attacker_profile, threat_score
     else:
         response = clean_llm_output(raw_response, command)
 
-    return apply_guardrails(command, response)
+    # Check if Guardrails is enabled dynamically
+    dyn_config = get_dynamic_config()
+    guardrails_enabled = dyn_config.get("guardrailsEnabled", True)
+    if guardrails_enabled:
+        final_response = apply_guardrails(command, response)
+    else:
+        final_response = response
+
+    _response_cache[cache_key] = final_response
+    return final_response
 
 
 async def generate_deception(command, history=None, cwd=None, attack_type=None, hostname=None, username=None, session_id=None):

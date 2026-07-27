@@ -1,0 +1,14 @@
+{
+    "session_id": "8a3f914e-45d1-4563-8e51-a9e7fe85e2eb",
+    "ip": "127.0.0.1",
+    "start_time": "2026-07-17T11:26:56.282451",
+    "end_time": "2026-07-17T11:26:56.282451",
+    "current_directory": "/home/ubuntu",
+    "commands": [],
+    "threat_score": 0,
+    "attack_types": [],
+    "attacker_profile": {
+        "intent": "recon"
+    },
+    "session_duration": "0:00:00"
+}
