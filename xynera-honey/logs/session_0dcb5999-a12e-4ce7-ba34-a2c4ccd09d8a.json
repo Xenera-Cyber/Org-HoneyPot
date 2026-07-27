@@ -1,0 +1,16 @@
+{
+    "session_id": "0dcb5999-a12e-4ce7-ba34-a2c4ccd09d8a",
+    "ip": "127.0.0.1",
+    "commands": [
+        {
+            "command": "top",
+            "timestamp": "2026-07-08T18:55:35.128974",
+            "cwd": "/home/ubuntu"
+        }
+    ],
+    "threat_score": 5,
+    "attack_types": [
+        "Unknown"
+    ],
+    "session_duration": "0:00:35.749679"
+}

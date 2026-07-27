@@ -1,0 +1,22 @@
+{
+    "session_id": "65905d3c-40bd-4b35-b11b-2f3d46c956e5",
+    "ip": "127.0.0.1",
+    "start_time": "2026-07-17T12:08:18.769830",
+    "end_time": "2026-07-17T12:08:19.771277",
+    "current_directory": "/home/ubuntu",
+    "commands": [
+        {
+            "command": "ls",
+            "timestamp": "2026-07-17T12:08:18.769830",
+            "cwd": "/home/ubuntu"
+        }
+    ],
+    "threat_score": 20,
+    "attack_types": [
+        "Reconnaissance"
+    ],
+    "attacker_profile": {
+        "intent": "recon"
+    },
+    "session_duration": "0:00:01.001447"
+}

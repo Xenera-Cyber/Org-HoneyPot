@@ -1,0 +1,22 @@
+{
+    "session_id": "b5d35edc-318b-48e7-8d5b-28cae6a360e5",
+    "ip": "127.0.0.1",
+    "start_time": "2026-07-27T16:44:39.428113",
+    "end_time": "2026-07-27T16:44:41.253126",
+    "current_directory": "/home/ubuntu",
+    "commands": [],
+    "threat_score": 0,
+    "attack_types": [],
+    "attacker_profile": {
+        "intent": "recon"
+    },
+    "session_duration": "0:00:01.825013",
+    "hostname": "node-1",
+    "username": "ubuntu",
+    "groups": [
+        "ubuntu",
+        "sudo",
+        "docker"
+    ],
+    "personality": null
+}

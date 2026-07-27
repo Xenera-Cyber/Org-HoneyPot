@@ -1,0 +1,30 @@
+{
+    "session_id": "183d92c9-be38-4298-96c7-79b9b3adc422",
+    "ip": "127.0.0.1",
+    "start_time": "2026-07-27T16:43:25.252847",
+    "end_time": "2026-07-27T16:43:28.265024",
+    "current_directory": "/home/ubuntu",
+    "commands": [
+        {
+            "command": "ls",
+            "timestamp": "2026-07-27T16:43:28.092081",
+            "cwd": "/home/ubuntu"
+        }
+    ],
+    "threat_score": 20,
+    "attack_types": [
+        "Reconnaissance"
+    ],
+    "attacker_profile": {
+        "intent": "recon"
+    },
+    "session_duration": "0:00:03.012177",
+    "hostname": "node-1",
+    "username": "ubuntu",
+    "groups": [
+        "ubuntu",
+        "sudo",
+        "docker"
+    ],
+    "personality": null
+}

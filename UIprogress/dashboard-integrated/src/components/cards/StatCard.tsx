@@ -13,6 +13,12 @@ export default function StatCard({
   subtitle,
   icon,
 }: StatCardProps) {
+  const getFontSize = (val: string) => {
+    if (val.length > 7) return "text-2xl";
+    if (val.length > 4) return "text-3xl";
+    return "text-5xl";
+  };
+
   return (
     <div
       className="
@@ -51,7 +57,7 @@ export default function StatCard({
         <div>
           <p className="text-sm text-gray-400">{title}</p>
 
-          <h2 className="mt-3 text-5xl font-bold tracking-tight text-white">
+          <h2 className={`mt-3 font-bold tracking-tight text-white ${getFontSize(value)}`}>
             {value}
           </h2>
 

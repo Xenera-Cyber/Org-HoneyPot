@@ -1,0 +1,27 @@
+{
+    "session_id": "3aff9d2e-84e4-4d78-bad4-515329c9bfd1",
+    "ip": "127.0.0.1",
+    "start_time": "2026-07-17T11:49:35.384639",
+    "end_time": "2026-07-17T11:49:39.386976",
+    "current_directory": "/home/ubuntu",
+    "commands": [
+        {
+            "command": "top",
+            "timestamp": "2026-07-17T11:49:35.384639",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "crontab -e",
+            "timestamp": "2026-07-17T11:49:37.385990",
+            "cwd": "/home/ubuntu"
+        }
+    ],
+    "threat_score": 10,
+    "attack_types": [
+        "Unknown"
+    ],
+    "attacker_profile": {
+        "intent": "recon"
+    },
+    "session_duration": "0:00:04.002337"
+}

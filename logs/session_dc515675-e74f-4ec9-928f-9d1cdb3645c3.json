@@ -1,0 +1,33 @@
+{
+    "session_id": "dc515675-e74f-4ec9-928f-9d1cdb3645c3",
+    "ip": "127.0.0.1",
+    "start_time": "2026-07-17T13:37:40.665961",
+    "end_time": "2026-07-17T13:37:46.667892",
+    "current_directory": "/home/ubuntu",
+    "commands": [
+        {
+            "command": "ls",
+            "timestamp": "2026-07-17T13:37:40.665961",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "ls -a",
+            "timestamp": "2026-07-17T13:37:42.666998",
+            "cwd": "/home/ubuntu"
+        },
+        {
+            "command": "cat company_directory/employees.csv",
+            "timestamp": "2026-07-17T13:37:44.667610",
+            "cwd": "/home/ubuntu"
+        }
+    ],
+    "threat_score": 30,
+    "attack_types": [
+        "Reconnaissance",
+        "Unknown"
+    ],
+    "attacker_profile": {
+        "intent": "recon"
+    },
+    "session_duration": "0:00:06.001931"
+}

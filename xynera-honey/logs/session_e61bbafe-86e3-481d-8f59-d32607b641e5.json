@@ -1,0 +1,18 @@
+{
+    "session_id": "e61bbafe-86e3-481d-8f59-d32607b641e5",
+    "ip": "127.0.0.1",
+    "start_time": "2026-07-26T14:07:31.139283",
+    "end_time": "2026-07-26T14:07:31.145269",
+    "current_directory": "/home/ubuntu",
+    "commands": [],
+    "threat_score": 0,
+    "attack_types": [],
+    "attacker_profile": {
+        "intent": "recon"
+    },
+    "session_duration": "0:00:00.005986",
+    "duration_seconds": 0.005986,
+    "is_active": false,
+    "username": "ubuntu",
+    "hostname": "web-prod-01"
+}

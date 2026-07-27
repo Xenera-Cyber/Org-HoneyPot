@@ -13,6 +13,13 @@ export default function SessionStatCard({
   color,
   icon,
 }: Props) {
+  const getFontSize = (val: string) => {
+    if (val.length > 12) return "text-xl";
+    if (val.length > 7) return "text-2xl";
+    if (val.length > 4) return "text-3xl";
+    return "text-4xl";
+  };
+
   return (
     <div
       className="
@@ -36,7 +43,7 @@ export default function SessionStatCard({
               {title}
             </p>
             <h2
-              className={`mt-2 text-4xl font-bold tracking-tight break-words ${color}`}
+              className={`mt-2 font-bold tracking-tight break-words ${getFontSize(value)} ${color}`}
             >
               {value}
             </h2>
