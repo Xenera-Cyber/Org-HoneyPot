@@ -93,6 +93,16 @@ class SessionManager:
             # what kind of attacker this is. Never surfaced in the
             # attacker-visible prompt or output.
             "personality": None,
+
+            # ------------------------------------------------------------
+            # AI Threat Synchronization -- a running record of the AI
+            # backend's OWN attack-type reads / threat predictions for
+            # this session, kept entirely separate from "attack_types"
+            # and "threat_score" above (which stay 100% local-classifier
+            # driven -- see attack_analyzer.classify()). Neither list
+            # ever overwrites the other; see add_ai_prediction().
+            # ------------------------------------------------------------
+            "ai_predictions": [],
         }
 
         self._sync_environment()
@@ -184,6 +194,31 @@ class SessionManager:
     def update_personality(self, personality_name=None):
         if personality_name:
             self.session["personality"] = personality_name
+
+    # ------------------------------------------------------------------
+    # AI THREAT SYNCHRONIZATION
+    # ------------------------------------------------------------------
+    def add_ai_prediction(self, command, ai_attack_type=None, prediction=None):
+        """
+        Records the AI backend's own attack-type classification and/or
+        threat prediction for a command as ADDITIONAL session metadata.
+
+        This deliberately never touches `attack_types` or `threat_score`
+        -- those remain purely the local classifier's (attack_analyzer.
+        classify() + threat_score()) call, unchanged. The AI's read is
+        appended to `ai_predictions` instead, so both signals stay
+        visible side by side (complementary) rather than one silently
+        overwriting or deleting the other. `export_session()` persists
+        this list too, so it's part of the permanent session record.
+        """
+        entry = {
+            "command": command,
+            "ai_attack_type": ai_attack_type,
+            "prediction": prediction,
+            "timestamp": datetime.now().isoformat(),
+        }
+        self.session["ai_predictions"].append(entry)
+        return entry
 
     # ------------------------------------------------------------------
     # SESSION IDENTITY
@@ -522,6 +557,10 @@ class SessionManager:
             # Analyst metadata only -- what the AI classified this
             # attacker/session as, for later review.
             "personality": self.session["personality"],
+            # AI Threat Synchronization record -- every AI backend
+            # prediction seen this session, kept separate from
+            # attack_types/threat_score above (see add_ai_prediction()).
+            "ai_predictions": self.session["ai_predictions"],
         }
 
         filename = f"{log_dir}/session_{self.session['session_id']}.json"
@@ -544,6 +583,7 @@ class SessionManager:
             "threat_score": self.session["threat_score"],
             "is_active": self.session["is_active"],
             "personality": self.session["personality"],
+            "ai_predictions_count": len(self.session["ai_predictions"]),
         }
 
 

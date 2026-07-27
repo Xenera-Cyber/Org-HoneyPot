@@ -23,6 +23,7 @@ from fake_process import ps, ps_aux
 import malware_detector
 import deception_engine
 import ai_client
+from logger import log_ai_prediction
 
 # ==========================================================
 # Delay Configuration (configurable, never hardcoded)
@@ -824,6 +825,31 @@ def route_command(command, session_manager, attack_type="Unknown"):
         cwd=cwd,
     )
     if ai_result and ai_result.get("backend") == "local":
+        # --------------------------------------------------------
+        # AI THREAT SYNCHRONIZATION
+        # --------------------------------------------------------
+        # The AI backend has its own read on this command (attack_type
+        # / prediction). This is recorded as ADDITIONAL session metadata
+        # and logged as a separate line -- it never overwrites or
+        # removes the local classifier's attack_type/threat_score that
+        # server.py already computed via attack_analyzer.classify() for
+        # this same command. Both systems' outputs stay complementary.
+        ai_attack_type = ai_result.get("attack_type")
+        prediction = ai_result.get("prediction")
+        if ai_attack_type or prediction is not None:
+            session_manager.add_ai_prediction(
+                command=command,
+                ai_attack_type=ai_attack_type,
+                prediction=prediction,
+            )
+            log_ai_prediction(
+                command=command,
+                ip_address=session["attacker_ip"],
+                session_id=session["session_id"],
+                ai_attack_type=ai_attack_type or "Unknown",
+                prediction=prediction,
+            )
+
         # Personality is analyst metadata only — it is NEVER used to
         # change the attacker-visible hostname/username. See
         # session_manager.py for why.
