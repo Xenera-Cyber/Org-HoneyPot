@@ -399,52 +399,32 @@ rag_engine.py
 
 
 
-//Updates from cyber team(Author- Hriday):
-1. fake_filesystem.py
-Expanded the fake Linux filesystem to resemble a realistic enterprise server.
-Added multiple directories such as /bin, /boot, /opt, /usr, /var/log, and backup locations.
-Introduced realistic files including employee records, meeting notes, server inventory, authentication logs, database backups, and bash history.
-Improved file contents to provide more believable information during attacker interaction.
+CONTRIBUTIONS:
 
-2. fake_process.py
-Increased the number of simulated running processes to better mimic a production Linux environment.
-Added common system services such as cron, rsyslog, fail2ban, PostgreSQL, Redis, and multiple Nginx worker processes.
-Implemented support for the ps aux command in addition to the existing ps command.
+🧵 1. The Concurrency Engine (server.py)
 
-3. fake_network.py
-Enhanced simulated network services by adding HTTPS, PostgreSQL, Redis, Jenkins, and Prometheus ports.
-Added support for additional networking commands including netstat -tulpn, ifconfig, and ip addr.
-Improved network responses with realistic interface configurations and service information.
+Thread-Safe Architecture: Upgraded the core listener into a multi-threaded TCP server. Implemented threading.Lock and daemon threads to handle simultaneous, overlapping attacker connections without blocking or log interleaving.
 
-4. session_manager.py
-Redesigned session handling using an object-oriented SessionManager class.
-Added session metadata including session ID, attacker IP, timestamps, threat score, attack history, and session status.
-Implemented dedicated methods for command tracking, directory management, attack recording, session summary generation, and session closure.
+Background Health Monitoring: Integrated a continuous, background daemon thread to monitor the AI backend's health, allowing the server to seamlessly hot-swap between LLM-driven responses and local fallback emulation without requiring a server restart.
 
-5. logger.py
-Introduced a dedicated logging module for structured attack logging.
-Implemented rotating log files with automatic log directory creation.
-Added timestamped logging of attacker IP, session ID, attack type, and executed command for improved monitoring and forensic analysis.
+🧠 2. The State Controller (session_manager.py)
 
-6. attack_analyzer.py
-Expanded attack classification by adding Privilege Escalation and Reverse Shell Activity detection.
-Introduced a threat scoring mechanism to assign severity levels to different attack categories.
-Improved the foundation for future threat monitoring and reporting.
+Multi-Client State Tracking: Engineered a thread-safe MultiSessionManager to uniquely identify and track sessions by attacker IP, preventing state corruption during concurrent attacks.
 
-7. command_router.py
-Reorganized command handling into logical categories for better readability and maintainability.
-Added support for several new Linux commands including users, ls -la, ps aux, netstat -tulpn, hostname, uname -a, uptime, systemctl, ifconfig, and ip addr.
-Improved path handling for cd and enhanced file access logic for cat.
-Extended support for common attacker commands such as wget, curl, chmod, and nc.
+Identity Synchronization: Built a rigorous identity management system. If an attacker escalates privileges or changes hostnames, the state propagates instantly across the entire simulation—automatically rewriting simulated system files (like /etc/passwd and /etc/hosts), updating environment variables ($USER, $PWD), and adjusting the live shell prompt.
 
-8. server.py
-Improved overall server workflow by integrating session tracking, attack classification, threat scoring, and centralized logging.
-Added real-time console monitoring of attacker commands and detected attack types.
-Implemented automatic session summary generation upon client disconnection.
-Improved modular interaction between the server and supporting components.
+📁 3. The Virtual Sandbox (fake_filesystem.py)
 
-Overall Project Enhancements
-Improved code modularity and separation of responsibilities across all components.
-Increased realism of the honeypot environment to provide a more convincing attacker experience.
-Enhanced scalability by preparing the architecture for future integration with SQLite, AI-based deception, dashboards, and advanced threat analysis.
-Maintained compatibility with the existing project structure while providing a stronger and more extensible baseline for future development.
+Isolated Tree-Based Filesystem: Replaced static text outputs with a fully mutable, tree-based virtual filesystem. Every attacker session receives a strictly isolated, sandbox clone of the OS structure.
+
+Dynamic AI Seeding: Tied the filesystem generation to unique session IDs, allowing the AI to dynamically seed realistic documents, .ssh keys, and configuration files into the environment before the attacker even runs ls.
+
+Stateful Metadata: Implemented a Metadata tracking class to realistically simulate file ownership, permissions, and creation/modification timestamps as attackers interact with the environment (touch, mkdir, rm, cp).
+
+🔀 4. The Simulation Router (command_router.py)
+
+Dynamic Telemetry & Timing: Stripped hardcoded system responses, replacing them with a persistent SYSTEM_BOOT_TIME algorithm. Commands like uptime, w, and who now tick realistically and accurately reflect the attacker's true login IP and session duration.
+
+Backend Caching & Optimization: Implemented selective cache invalidation to drastically reduce AI latency. When an attacker modifies a file, the router intelligently flushes only the affected paths from the cache.
+
+Intelligent File Inheritance: Engineered logic within file-creation handlers to ensure any new nodes automatically inherit the simulated UID/GID of the active attacker session, further cementing the illusion of a real Linux box.
