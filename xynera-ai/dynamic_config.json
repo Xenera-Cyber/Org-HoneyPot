@@ -1,0 +1,10 @@
+{
+    "personality": "auto",
+    "model": "llama-3.1-8b-instant",
+    "confidenceThreshold": 85,
+    "temperature": 0.1,
+    "maxContext": 4096,
+    "maxResponseLength": 1024,
+    "ragEnabled": true,
+    "guardrailsEnabled": true
+}
