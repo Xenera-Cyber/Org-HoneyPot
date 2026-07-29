@@ -34,6 +34,7 @@ class ProcessResponse(BaseModel):
     hostname: Optional[str] = None
     username: Optional[str] = None
     prediction: Optional[dict] = None
+    threat_score: Optional[int] = None
 
 
 @app.get("/health")
@@ -142,7 +143,8 @@ async def process_command(payload: ProcessRequest):
         personality_name=personality.get("name", "Normal Server"),
         hostname=personality.get("hostname", "ubuntu-server"),
         username=personality.get("user", "ubuntu"),
-        prediction=prediction_result
+        prediction=prediction_result,
+        threat_score=threat_score.get("score")
     )
 
 

@@ -4,32 +4,28 @@ from datetime import datetime
 # Risk Score Mapping
 RISK_SCORES = {
     "Reconnaissance": 3,
-    "Privilege Enumeration": 5,
-    "System Enumeration": 4,
-    "Network/User Enumeration": 4,
     "Malware Download Attempt": 8,
-    "Privilege Escalation Attempt": 10,
-    "Persistence Attempt": 12,
+    "Permission Manipulation": 5,
     "Reverse Shell Attempt": 15,
-    "C2 / Backdoor Attempt": 18,
-    "System Destruction Attempt": 20,
-    "Suspicious Script Execution": 7,
+    "SQL Injection Attempt": 12,
+    "Defense Evasion": 10,
+    "Persistence Creation": 12,
+    "Privilege Escalation Attempt": 10,
+    "Malware Execution Attempt": 14,
     "Unknown": 1
 }
 
 # Confidence Mapping
 CONFIDENCE_MAPPING = {
     "Reconnaissance": 0.85,
-    "Privilege Enumeration": 0.90,
-    "System Enumeration": 0.85,
-    "Network/User Enumeration": 0.85,
     "Malware Download Attempt": 0.95,
-    "Privilege Escalation Attempt": 0.95,
-    "Persistence Attempt": 0.90,
+    "Permission Manipulation": 0.90,
     "Reverse Shell Attempt": 0.95,
-    "C2 / Backdoor Attempt": 0.95,
-    "System Destruction Attempt": 0.95,
-    "Suspicious Script Execution": 0.85,
+    "SQL Injection Attempt": 0.95,
+    "Defense Evasion": 0.90,
+    "Persistence Creation": 0.90,
+    "Privilege Escalation Attempt": 0.95,
+    "Malware Execution Attempt": 0.90,
     "Unknown": 0.50
 }
 
@@ -82,24 +78,24 @@ def classify_command(command: str, ip: str = "192.168.1.100") -> dict:
     cmd = command.lower().strip()
 
     # CLASSIFICATION 
-    if any(x in cmd for x in ["nmap", "masscan", "rustscan", "netdiscover", "arp-scan", "ping", "traceroute"]):
-        attack_type = "Reconnaissance"
-    elif any(x in cmd for x in ["/etc/passwd", "/etc/shadow", "id ", "sudo -l", "cat /etc/"]):
-        attack_type = "Privilege Enumeration"
-    elif any(x in cmd for x in ["ls -la", "find /", "uname -a"]):
-        attack_type = "System Enumeration"
-    elif any(x in cmd for x in ["netstat", "ss ", "ps aux"]):
-        attack_type = "Network/User Enumeration"
-    elif any(x in cmd for x in ["wget ", "curl -O", "git clone"]):
-        attack_type = "Malware Download Attempt"
-    elif any(x in cmd for x in ["sudo ", "su ", "pkexec", "chmod +s"]):
+    if any(x in cmd for x in ["chmod "]):
+        attack_type = "Permission Manipulation"
+    elif any(x in cmd for x in ["sqlmap"]):
+        attack_type = "SQL Injection Attempt"
+    elif any(x in cmd for x in ["history -c", "rm -rf", "stop auditd"]):
+        attack_type = "Defense Evasion"
+    elif any(x in cmd for x in ["crontab", "authorized_keys", "useradd"]):
+        attack_type = "Persistence Creation"
+    elif any(x in cmd for x in ["find / -perm", "pkexec", "dirtycow"]):
         attack_type = "Privilege Escalation Attempt"
-    elif any(x in cmd for x in ["crontab", "authorized_keys", ".bashrc"]):
-        attack_type = "Persistence Attempt"
-    elif any(x in cmd for x in ["nc -lvnp", "bash -i >& /dev/tcp", "reverse shell"]):
+    elif any(x in cmd for x in ["xmrig", "minerd", "miner", "exploit", "mkdir /tmp/"]):
+        attack_type = "Malware Execution Attempt"
+    elif any(x in cmd for x in ["nmap", "masscan", "rustscan", "netdiscover", "arp-scan", "ping", "traceroute"]):
+        attack_type = "Reconnaissance"
+    elif any(x in cmd for x in ["wget", "curl", "git clone"]):
+        attack_type = "Malware Download Attempt"
+    elif any(x in cmd for x in ["nc -lv", "netcat", "reverse shell"]):
         attack_type = "Reverse Shell Attempt"
-    elif any(x in cmd for x in ["rm -rf", "dd if=", "> /dev/sda"]):
-        attack_type = "System Destruction Attempt"
     else:
         attack_type = "Unknown"
 

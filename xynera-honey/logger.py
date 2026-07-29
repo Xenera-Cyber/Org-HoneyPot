@@ -3,7 +3,8 @@ import logging
 from logging.handlers import RotatingFileHandler
 from attack_analyzer import SHARED_ATTACK_SCORES
 
-LOG_DIR = "logs"
+script_dir = os.path.dirname(os.path.abspath(__file__))
+LOG_DIR = os.path.join(script_dir, "logs")
 LOG_FILE = os.path.join(LOG_DIR, "attacks.log")
 MAX_BYTES = 5 * 1024 * 1024
 BACKUP_COUNT = 3

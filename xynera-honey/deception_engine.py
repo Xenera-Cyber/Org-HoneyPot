@@ -201,4 +201,3 @@ def adapt_response(command, session, attack_type):
     handler = DECEPTION_HANDLERS.get(attack_type, default_deception)
     return handler(command, session)
 
-

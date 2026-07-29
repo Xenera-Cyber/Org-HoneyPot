@@ -1,8 +1,9 @@
 import time
 import random
 import shlex
-from datetime import datetime
+from datetime import datetime, timedelta
 
+import fake_advanced
 from fake_network import (
     netstat,
     netstat_tulpn,
@@ -83,6 +84,36 @@ COMMAND_DELAYS = {
     "nc": 1.5,
 }
 
+# ==========================================================
+# Dynamic System Boot Time
+# Generated once when the module loads (process start) so `uptime`
+# ticks forward consistently for the life of the honeypot process,
+# instead of returning the same static string forever.
+# ==========================================================
+SYSTEM_BOOT_TIME = datetime.now() - timedelta(
+    days=random.randint(14, 45),
+    hours=random.randint(1, 23),
+    minutes=random.randint(1, 59),
+)
+
+# Package managers / editors a hardened production box wouldn't let an
+# unprivileged attacker touch. Returned as an immediate permission-denied
+# rather than falling through to the (slower) AI fallback path.
+BLOCKED_COMMANDS = ("apt-get", "apt", "yum", "dpkg", "npm", "pip", "git", "vim", "nano")
+
+
+def get_uptime_string():
+    """Consistent, ticking Linux `uptime` string derived from SYSTEM_BOOT_TIME."""
+    now = datetime.now()
+    delta = now - SYSTEM_BOOT_TIME
+    days = delta.days
+    hours, remainder = divmod(delta.seconds, 3600)
+    minutes, _ = divmod(remainder, 60)
+    current_time = now.strftime("%H:%M:%S")
+    if days > 0:
+        return f"{current_time} up {days} days, {hours:>2}:{minutes:02d}"
+    return f"{current_time} up {hours:>2}:{minutes:02d}"
+
 
 def get_command_delay(command):
     """Look up a configurable, optionally randomized delay for a command."""
@@ -127,9 +158,9 @@ def _backend_read(session_manager, key, local_reader):
     return response
 
 
-def _backend_write(session_manager, local_writer):
+def _backend_write(session_manager, local_writer, affected_paths=None):
     response = local_writer()
-    session_manager.sync_backend_after_filesystem_write()
+    session_manager.sync_backend_after_filesystem_write(affected_paths)
     return response
 
 
@@ -293,20 +324,14 @@ EXPANSION_HANDLERS = (
 
 def handle_chmod(command):
     """
-    Bug fix: chmod previously reported "Permissions updated" for any
-    input at all, including missing or nonsensical modes. It now
-    validates the mode argument like a real chmod would.
+    Realistic `chmod` simulation: validates both numeric (777, 0644) and
+    symbolic (u+x, g-rw, a=rwx) modes with proper GNU coreutils error
+    formatting, and simulates a permission-denied response for
+    system-critical targets. Real chmod is silent on success.
     """
-    parts = command.split()
-    if len(parts) < 3:
-        return "chmod: missing operand"
-
-    permission = parts[1]
-    valid_permissions = ["+x", "-x", "777", "755", "644", "600"]
-    if permission not in valid_permissions:
-        return f"chmod: invalid mode: '{permission}'"
-
-    return "Permissions updated"
+    args = command.split(maxsplit=1)
+    args = args[1] if len(args) > 1 else ""
+    return fake_advanced.chmod(args)
 
 
 def handle_service(command, services):
@@ -598,12 +623,31 @@ def _chown_new_nodes(command, verb, filesystem, cwd, session_manager):
     session_manager._apply_ownership(dest_path, owner, group)
 
 
+def _affected_paths(command, filesystem, cwd, session_manager):
+    """
+    Resolve every non-flag path operand in a filesystem-write command
+    (touch/mkdir/rm/mv/cp), so the backend cache can be invalidated
+    selectively (only entries touching these paths / their parent
+    directories) instead of being cleared wholesale on every write.
+    """
+    parts, error = _split_command(command)
+    if error or len(parts) < 2:
+        return []
+    operands = [p for p in parts[1:] if not p.startswith("-")]
+    return [
+        filesystem.resolve_path(cwd, _expand_home(p, session_manager))
+        for p in operands
+    ]
+
+
 def _filesystem_write_response(command, session_manager, filesystem, cwd):
     verb = command.partition(" ")[0]
     handler = FILESYSTEM_WRITE_HANDLERS[verb]
+    affected_paths = _affected_paths(command, filesystem, cwd, session_manager)
     result = _backend_write(
         session_manager,
         lambda: handler(command, filesystem, cwd, session_manager),
+        affected_paths=affected_paths,
     )
     if verb in _CREATES_NEW_NODE:
         _chown_new_nodes(command, verb, filesystem, cwd, session_manager)
@@ -646,12 +690,24 @@ def handle_cd(command, filesystem, cwd, session_manager):
     return error
 
 
+def handle_nc(command):
+    """
+    Netcat (`nc`/`netcat`) simulation covering listener mode (`-l`),
+    verbose connect/scan mode (`-v`, `-z`), and interactive client mode.
+    Replaces the previous static "Connection established" stub.
+    """
+    args = command.split(maxsplit=1)
+    args = args[1] if len(args) > 1 else ""
+    return fake_advanced.nc(args)
+
+
 ATTACKER_PREFIX_HANDLERS = (
     ("wget", lambda command: malware_detector.handle_wget(command)[0]),
     ("curl", lambda command: malware_detector.handle_curl(command)[0]),
     ("scp", lambda command: malware_detector.handle_scp(command)[0]),
     ("chmod", handle_chmod),
-    ("nc", lambda command: "Connection established"),
+    ("netcat", handle_nc),
+    ("nc", handle_nc),
 )
 
 
@@ -681,6 +737,16 @@ def route_command(command, session_manager, attack_type="Unknown"):
     deception_response = deception_engine.adapt_response(command, session, attack_type)
     if deception_response is not None:
         return deception_response
+
+    # --------------------------
+    # BLOCKED COMMANDS
+    # --------------------------
+    # Package managers / editors an unprivileged attacker shouldn't be
+    # able to touch on a hardened box — short-circuit straight to a
+    # permission-denied response instead of falling through to the AI.
+    base_cmd = command.split(" ", 1)[0] if command else ""
+    if base_cmd in BLOCKED_COMMANDS:
+        return fake_advanced.get_common_error(base_cmd, "", "permission_denied")
 
     if command == "whoami":
         return session_manager.username
@@ -714,12 +780,14 @@ def route_command(command, session_manager, attack_type="Unknown"):
         return _filesystem_write_response(command, session_manager, filesystem, cwd)
 
     elif command == "ps":
-        return ps()
+        return ps(services)
     elif command == "ps aux":
         # ps_aux() takes the live session username so the attacker's own
         # shell/`ps aux` rows never show a stale identity (see
-        # fake_process.py).
-        return ps_aux(username=session_manager.username)
+        # fake_process.py). It also takes the session's ServiceManager
+        # so stopped services vanish from the listing, consistently
+        # with systemctl/netstat/ss.
+        return ps_aux(username=session_manager.username, service_manager=services)
 
     elif command in NETWORK_EXACT_HANDLERS:
         return NETWORK_EXACT_HANDLERS[command](services)
@@ -740,7 +808,11 @@ def route_command(command, session_manager, attack_type="Unknown"):
             f"{session_manager.kernel_version} x86_64 GNU/Linux"
         )
     elif command == "uptime":
-        return "14:23:05 up 37 days, 3 users, load average: 0.11, 0.09, 0.05"
+        up_str = get_uptime_string()
+        load1 = round(random.uniform(0.0, 0.5), 2)
+        load5 = round(random.uniform(0.0, 0.4), 2)
+        load15 = round(random.uniform(0.0, 0.3), 2)
+        return f"{up_str},  3 users,  load average: {load1:.2f}, {load5:.2f}, {load15:.2f}"
     elif command == "systemctl" or command.startswith("systemctl "):
         return _synced_service_response(session_manager, handle_systemctl, command, services)
     elif command.startswith("service "):

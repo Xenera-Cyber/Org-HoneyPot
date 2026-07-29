@@ -1,0 +1,90 @@
+# ============================================================
+# XYNERA HONEYPOT — .gitignore
+# ============================================================
+
+# ------ Secrets & Environment ------
+.env
+.env.*
+!.env.example
+xynera-ai/.env
+xynera-honey/.env
+
+# ------ Python ------
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+*.spec
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ------ AI Cache & Vector Store ------
+xynera-ai/.cache/
+xynera-ai/__pycache__/
+*.index
+*.pkl
+*.npy
+
+# ------ Logs ------
+*.log
+logs/
+xynera-honey/logs/
+xynera-honey/logs/*.json
+xynera-honey/logs/*.log
+
+# ------ Node / Frontend ------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+dist/
+.next/
+.nuxt/
+.vite/
+*.local
+
+# ------ Build Outputs ------
+build/
+out/
+coverage/
+
+# ------ OS & Editor ------
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+.idea/
+.vscode/settings.json
+*.sublime-project
+*.sublime-workspace
+
+# ------ PDF Reports & Temp Files ------
+*.pdf
+*.tmp
+*.bak

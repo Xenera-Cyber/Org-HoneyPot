@@ -11,10 +11,13 @@ from logger import log_command
 HOST = "0.0.0.0"
 PORT = 2222
 
-# Thread-safe console printing
+# Thread-safe console printing -- multiple client threads print
+# concurrently, so every print of more than one line is wrapped in this
+# lock to keep log lines from interleaving.
 print_lock = threading.Lock()
 
-# Global thread-safe session registry (one SessionManager per attacker IP)
+# Global thread-safe session registry (one SessionManager per attacker IP).
+# See session_manager.MultiSessionManager for the locking details.
 multi_session_manager = MultiSessionManager()
 
 
@@ -38,15 +41,18 @@ def start_server():
     # ----------------------------------------------------------
     # AI Backend Health Monitor (continuous, background thread)
     # ----------------------------------------------------------
-    # Replaces the one-shot startup check.  The monitor daemon polls
+    # Replaces a one-shot startup check with a daemon thread that polls
     # the /health endpoint every HEALTH_CHECK_INTERVAL seconds and
-    # automatically switches between AI routing and fallback mode
-    # without any server restart.  State-change messages are logged
+    # automatically switches between AI routing and local fallback mode
+    # without any server restart. State-change messages are logged
     # exactly once per transition via ai_client's logger.
     ai_client.start_health_monitor()
 
     while True:
         conn, addr = server.accept()
+        # Each connection gets its own thread so multiple attackers
+        # (including several sessions from the same IP) are served
+        # concurrently instead of blocking on a single accept() loop.
         thread = threading.Thread(
             target=handle_client,
             args=(conn, addr),
@@ -71,7 +77,10 @@ def handle_client(conn, addr):
             # ----------------------------
             # Terminal Prompt
             # ----------------------------
-            # Built live from the session's identity.
+            # Built live from the session's identity (username/hostname/
+            # cwd) -- see session_manager.get_prompt(). Never hardcode
+            # username/hostname here; that was the source of the
+            # stale-identity bug this architecture replaces.
             prompt = session_manager.get_prompt()
             conn.send(prompt.encode())
 
@@ -90,51 +99,46 @@ def handle_client(conn, addr):
                 break
 
             # ----------------------------
-            # Session Tracking
+            # Session Tracking / Attack Classification / Execute
             # ----------------------------
-            session_manager.add_command(command)
+            # Held for the full command lifecycle (not just the write),
+            # since more than one live connection can share this exact
+            # SessionManager (repeat connections from the same attacker
+            # IP -- see MultiSessionManager.create_session). Without this,
+            # two such connections issuing commands at the same instant
+            # could interleave cwd/filesystem/history mutations.
+            with session_manager.command_lock:
+                session_manager.add_command(command)
 
-            # ----------------------------
-            # Attack Classification
-            # ----------------------------
-            attack_type = classify(command)
-            session_manager.add_attack_type(attack_type)
+                attack_type = classify(command)
+                session_manager.add_attack_type(attack_type)
 
-            score = threat_score(attack_type)
-            session_manager.update_threat_score(score)
+                score = threat_score(attack_type)
+                session_manager.update_threat_score(score)
 
-            # ----------------------------
-            # Logging
-            # ----------------------------
-            log_command(
-                command=command,
-                attack_type=attack_type,
-                ip_address=attacker_ip,
-                session_id=session["session_id"],
-            )
-
-            # ----------------------------
-            # Live Monitoring
-            # ----------------------------
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-            with print_lock:
-                print(
-                    f"{timestamp:<22}"
-                    f"{attacker_ip:<18}"
-                    f"{command:<22}"
-                    f"{attack_type:<28}"
-                    f"{score}"
+                log_command(
+                    command=command,
+                    attack_type=attack_type,
+                    ip_address=attacker_ip,
+                    session_id=session["session_id"],
                 )
 
-            # ----------------------------
-            # Execute Command
-            # ----------------------------
-            response = route_command(
-                command,
-                session_manager,
-                attack_type,
-            )
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                with print_lock:
+                    print(
+                        f"{timestamp:<22}"
+                        f"{attacker_ip:<18}"
+                        f"{command:<22}"
+                        f"{attack_type:<28}"
+                        f"{score}"
+                    )
+
+                response = route_command(
+                    command,
+                    session_manager,
+                    attack_type,
+                )
 
             conn.send((response + "\n").encode())
 

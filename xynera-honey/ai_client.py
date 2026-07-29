@@ -213,4 +213,3 @@ def send_to_ai(ip: str, command: str, history=None, attack_type=None, **kwargs) 
     final_elapsed = round((time.perf_counter() - start_time) * 1000)
     return get_offline_fallback(attack_type, final_elapsed)
 
-
