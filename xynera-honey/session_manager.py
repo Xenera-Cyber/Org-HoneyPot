@@ -25,17 +25,6 @@ DEFAULT_PERSONALITY = {
 
 class SessionManager:
     def __init__(self, attacker_ip):
-<<<<<<< HEAD
-        self.session_id = str(uuid.uuid4())
-        self.attacker_ip = attacker_ip
-        self.cwd = HOME_DIR
-        self.command_history = []
-        self.attack_types = []
-        self.threat_score = 0
-        self.is_active = True
-        self.start_time = datetime.now().isoformat()
-        self.end_time = None
-=======
         # Serializes command execution when more than one live connection
         # shares this SessionManager (MultiSessionManager returns the same
         # instance for repeat connections from the same attacker IP -- see
@@ -48,7 +37,6 @@ class SessionManager:
         # Generate session ID first to seed filesystem data generator
         import uuid
         session_id = str(uuid.uuid4())
->>>>>>> upstream/feature/vidit-knowledge-base
 
         # Per-session dynamic filesystem (touch/mkdir/rm/mv/cp persist for
         # the life of this session only, never leaking into other sessions).
@@ -126,15 +114,9 @@ class SessionManager:
         )
 
         self.session = {
-<<<<<<< HEAD
-            "session_id": self.session_id,
-            "attacker_ip": self.attacker_ip,
-            "start_time": self.start_time,
-=======
             "session_id": session_id,
             "attacker_ip": attacker_ip,
             "start_time": datetime.now().isoformat(),
->>>>>>> upstream/feature/vidit-knowledge-base
             "end_time": None,
             "cwd": self.cwd,
             "filesystem": self.filesystem,
@@ -153,35 +135,6 @@ class SessionManager:
             # (recon / credential / malware) so responses can adapt across
             # a session rather than per-command in isolation.
             "attacker_profile": {"intent": "recon"},
-<<<<<<< HEAD
-
-            # ------------------------------------------------------------
-            # Session identity -- the single source of truth for who the
-            # attacker currently appears to be logged in as. NOTHING
-            # outside this class should hardcode a username, hostname or
-            # prompt string; everything reads it via get_prompt() /
-            # get_identity(), so that if the identity is ever changed
-            # (set_identity()), every future prompt reflects it
-            # automatically.
-            # ------------------------------------------------------------
-            "username": DEFAULT_USERNAME,
-            "hostname": dynamic_hostname,
-            "groups": list(DEFAULT_GROUPS),
-            "home_dir": HOME_DIR,
-            "shell": "/bin/bash",
-            "kernel_version": DEFAULT_KERNEL,
-            "environment": {},
-            "service_manager": self.services,
-
-            # Analyst/logging metadata only -- the AI backend's read on
-            # what kind of attacker this is. Never surfaced in the
-            # attacker-visible prompt or output.
-            "personality": None,
-        }
-        self.apply_personality(DEFAULT_PERSONALITY)
-        self.sync_service_state()
-
-=======
 
             # ------------------------------------------------------------
             # Session identity -- the single source of truth for who the
@@ -207,16 +160,12 @@ class SessionManager:
             "personality": None,
         }
 
->>>>>>> upstream/feature/vidit-knowledge-base
         self._sync_environment()
         self._sync_identity_files(old_username=None)
         self._apply_ownership(self.session["home_dir"], self.session["username"], self.session["groups"][0])
         self._sync_identity_cache()
         self.sync_service_state()
-<<<<<<< HEAD
-=======
         self.save_active_session()
->>>>>>> upstream/feature/vidit-knowledge-base
 
     # ------------------------------------------------------------------
     # Attribute-style compatibility shims. `self.session` (the dict) is
@@ -282,10 +231,7 @@ class SessionManager:
         self.session["cwd"] = path
         self.session["environment"]["PWD"] = path
         self.backend_cache["metadata"]["cwd"] = path
-<<<<<<< HEAD
-=======
         self.save_active_session()
->>>>>>> upstream/feature/vidit-knowledge-base
 
     def add_command(self, command):
         self.command_history.append({
@@ -296,241 +242,6 @@ class SessionManager:
         self.save_active_session()
 
     def add_attack_type(self, attack_type):
-<<<<<<< HEAD
-        if attack_type not in self.attack_types:
-            self.attack_types.append(attack_type)
-
-    def update_threat_score(self, score):
-        self.threat_score += score
-        self.session["threat_score"] = self.threat_score
-
-    def sync_service_state(self):
-        self.backend_cache["services"] = {
-            name: dict(info)
-            for name, info in self.service_manager.services.items()
-        }
-
-    def sync_backend_after_filesystem_write(self):
-        # Filesystem mutations can affect many read keys (ls/cat/cd/pwd), so
-        # the safest synchronization boundary is to clear stale backend reads.
-        self.invalidate_backend()
-
-    def backend_exists(self, path):
-        return path in self.backend_cache["filesystem"]
-
-    def get_backend(self, path, default=None):
-        return self.backend_cache["filesystem"].get(path, default)
-
-    def save_backend(self, path, data):
-        self.backend_cache["filesystem"][path] = data
-        return data
-
-    def preload_backend(self, path, content):
-        """Pre-seed the backend cache with dataset content for a given path.
-
-        Calling this before the attacker reads `path` ensures the cache
-        returns the injected content rather than the FakeFilesystem default.
-        Invalidates any previously cached value for that path first so
-        preloads are always fresh.
-        """
-        self.invalidate_backend(path)
-        return self.save_backend(path, content)
-
-    def invalidate_backend(self, path=None):
-        if path is None:
-            self.backend_cache["filesystem"].clear()
-            return
-        self.backend_cache["filesystem"].pop(path, None)
-
-    def response_exists(self, command):
-        return command in self.backend_cache["responses"]
-
-    def get_response(self, command, default=None):
-        return self.backend_cache["responses"].get(command, default)
-
-    def save_response(self, command, response):
-        self.backend_cache["responses"][command] = response
-        return response
-
-    def _sync_identity_cache(self):
-        self.backend_cache["identity"] = {
-            "hostname": self.hostname,
-            "username": self.username,
-            "groups": list(self.groups),
-            "kernel_version": self.kernel_version,
-            "personality": dict(self.personality),
-            "environment": dict(self.environment),
-        }
-        self.backend_cache["responses"].clear()
-        self.invalidate_backend()
-
-    def apply_personality(self, personality=None):
-        personality = self._normalize_personality(personality)
-        old_home = self.home_dir
-        old_username = self.username
-
-        self.personality = personality
-        self.hostname = personality["hostname"]
-        self.username = personality["user"]
-        self.groups = list(personality["groups"])
-        self.home_dir = personality["home_dir"]
-        self.shell = personality["shell"]
-        self.kernel_version = personality.get("kernel", DEFAULT_KERNEL)
-        self.environment = self._build_environment()
-
-        if old_home != self.home_dir:
-            self._move_home_directory(old_home, self.home_dir)
-            if self.cwd == old_home or self.cwd.startswith(old_home + "/"):
-                self.change_directory(self.home_dir + self.cwd[len(old_home):])
-        else:
-            self.change_directory(self.cwd)
-
-        self._sync_identity_files(old_username)
-        self._apply_ownership(self.home_dir, self.username, self.groups[0])
-        self._sync_session_identity()
-        self._sync_identity_cache()
-
-    def _normalize_personality(self, personality):
-        data = dict(DEFAULT_PERSONALITY)
-        if isinstance(personality, dict):
-            data.update(personality)
-        elif isinstance(personality, str):
-            data["name"] = personality
-
-        username = data.get("user") or data.get("username") or self.username
-        hostname = data.get("hostname") or self.hostname
-        groups = data.get("groups") or [username]
-        if isinstance(groups, str):
-            groups = groups.split()
-
-        data["user"] = username
-        data["hostname"] = hostname
-        data["groups"] = list(groups)
-        data["home_dir"] = data.get("home_dir") or (
-            "/root" if username == "root" else f"/home/{username}"
-        )
-        data["shell"] = data.get("shell") or "/bin/bash"
-        return data
-
-    def _build_environment(self):
-        return {
-            "SHELL": self.shell,
-            "PWD": self.cwd,
-            "LOGNAME": self.username,
-            "HOME": self.home_dir,
-            "LANG": "en_US.UTF-8",
-            "TERM": "xterm-256color",
-            "USER": self.username,
-            "SHLVL": "1",
-            "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
-            "_": "/usr/bin/env",
-        }
-
-    def _move_home_directory(self, old_home, new_home):
-        old_node = self.filesystem.get_node(old_home)
-        new_node = self.filesystem.get_node(new_home)
-
-        if old_node is not None and new_node is not None:
-            if hasattr(old_node, "children") and hasattr(new_node, "children"):
-                for child in list(old_node.children.values()):
-                    if child.name in new_node.children:
-                        new_node.remove_child(child.name)
-                    old_node.remove_child(child.name)
-                    new_node.add_child(child)
-                if old_node.parent is not None:
-                    old_node.parent.remove_child(old_node.name)
-            return
-
-        if old_node is not None:
-            self.filesystem.mv("/", old_home, new_home)
-            return
-        parent = os.path.dirname(new_home.rstrip("/")) or "/"
-        if self.filesystem.exists(parent):
-            self.filesystem.mkdir("/", new_home)
-
-    def _sync_identity_files(self, old_username):
-        self._write_file("/etc/hostname", f"{self.hostname}\n")
-        self._write_file("/etc/hosts", self._render_hosts())
-        self._write_file("/etc/passwd", self._render_passwd(old_username))
-
-    def _render_hosts(self):
-        existing = self.filesystem.cat("/", "/etc/hosts")
-        if existing.startswith("cat:"):
-            existing = "127.0.0.1 localhost\n"
-        lines = [
-            line for line in existing.splitlines()
-            if not line.startswith("127.0.1.1 ")
-        ]
-        lines.append(f"127.0.1.1 {self.hostname}")
-        return "\n".join(lines) + "\n"
-
-    def _render_passwd(self, old_username):
-        existing = self.filesystem.cat("/", "/etc/passwd")
-        if existing.startswith("cat:"):
-            existing = "root:x:0:0:root:/root:/bin/bash\n"
-
-        if self.username == "root":
-            uid = gid = 0
-            full_name = "root"
-        else:
-            uid = gid = 1000
-            full_name = self.personality.get("name", self.username.title())
-
-        replacement = (
-            f"{self.username}:x:{uid}:{gid}:{full_name}:"
-            f"{self.home_dir}:{self.shell}"
-        )
-        lines = []
-        replaced = False
-        for line in existing.splitlines():
-            if not line:
-                continue
-            account = line.split(":", 1)[0]
-            if account in {old_username, self.username} and account != "root":
-                if not replaced:
-                    lines.append(replacement)
-                    replaced = True
-                continue
-            if account == "root" and self.username == "root":
-                lines.append(replacement)
-                replaced = True
-                continue
-            lines.append(line)
-
-        if not replaced:
-            lines.append(replacement)
-        return "\n".join(lines) + "\n"
-
-    def _write_file(self, path, content):
-        if not self.filesystem.exists(path):
-            self.filesystem.touch("/", path)
-        node = self.filesystem.get_node(path)
-        if node is not None and hasattr(node, "content"):
-            node.content = content
-            node.metadata.touch()
-
-    def _apply_ownership(self, path, owner, group):
-        node = self.filesystem.get_node(path)
-        if node is None:
-            return
-        node.owner = owner
-        node.group = group
-        if hasattr(node, "children"):
-            for child in node.children.values():
-                self._apply_ownership(child.path(), owner, group)
-
-    def _sync_session_identity(self):
-        self.session.update({
-            "cwd": self.cwd,
-            "hostname": self.hostname,
-            "username": self.username,
-            "groups": self.groups,
-            "personality": self.personality,
-            "environment": self.environment,
-            "service_manager": self.service_manager,
-        })
-
-=======
         if attack_type not in self.session["attack_types"]:
             self.session["attack_types"].append(attack_type)
             self.save_active_session()
@@ -539,7 +250,6 @@ class SessionManager:
         self.session["threat_score"] += score
         self.save_active_session()
 
->>>>>>> upstream/feature/vidit-knowledge-base
     # ------------------------------------------------------------------
     # PERSONALITY METADATA -- analyst-facing only.
     # Deliberately does NOT touch hostname/username; use set_identity()
@@ -549,8 +259,6 @@ class SessionManager:
     def update_personality(self, personality_name=None):
         if personality_name:
             self.session["personality"] = personality_name
-<<<<<<< HEAD
-=======
             self.save_active_session()
 
     def save_active_session(self):
@@ -580,7 +288,6 @@ class SessionManager:
                 json.dump(session_data, f, indent=4)
         except Exception as e:
             print(f"[ERROR] Failed to save active session: {e}")
->>>>>>> upstream/feature/vidit-knowledge-base
 
     # ------------------------------------------------------------------
     # SESSION IDENTITY
@@ -656,12 +363,6 @@ class SessionManager:
             for name, info in self.services.services.items()
         }
 
-<<<<<<< HEAD
-    def sync_backend_after_filesystem_write(self):
-        # Filesystem mutations can affect many read keys (ls/cat/cd/pwd), so
-        # the safest synchronization boundary is to clear stale backend reads.
-        self.invalidate_backend()
-=======
     def sync_backend_after_filesystem_write(self, affected_paths=None):
         """
         Backend-cache invalidation after a filesystem write.
@@ -695,7 +396,6 @@ class SessionManager:
         ]
         for key in stale_keys:
             self.backend_cache["filesystem"].pop(key, None)
->>>>>>> upstream/feature/vidit-knowledge-base
 
     def backend_exists(self, path):
         return path in self.backend_cache["filesystem"]
@@ -755,10 +455,7 @@ class SessionManager:
             "PWD": self.session["cwd"],
             "LOGNAME": self.session["username"],
             "HOME": self.session["home_dir"],
-<<<<<<< HEAD
-=======
             "HOSTNAME": self.session["hostname"],
->>>>>>> upstream/feature/vidit-knowledge-base
             "LANG": "en_US.UTF-8",
             "TERM": "xterm-256color",
             "USER": self.session["username"],
@@ -784,11 +481,7 @@ class SessionManager:
             existing = "127.0.0.1 localhost\n"
         lines = [
             line for line in existing.splitlines()
-<<<<<<< HEAD
-            if not line.startswith("127.0.1.1 ")
-=======
             if line.strip() and not line.startswith("127.0.1.1 ")
->>>>>>> upstream/feature/vidit-knowledge-base
         ]
         lines.append(f"127.0.1.1 {self.session['hostname']}")
         return "\n".join(lines) + "\n"
@@ -865,9 +558,6 @@ class SessionManager:
         self.is_active = False
         self.end_time = datetime.now().isoformat()
         self.session["is_active"] = False
-<<<<<<< HEAD
-        self.session["end_time"] = self.end_time
-=======
         self.session["end_time"] = datetime.now().isoformat()
 
         # Remove active session file
@@ -880,7 +570,6 @@ class SessionManager:
             except Exception as e:
                 print(f"[ERROR] Failed to remove active session file: {e}")
 
->>>>>>> upstream/feature/vidit-knowledge-base
         self.export_session()
 
     def export_session(self):
@@ -940,8 +629,6 @@ class SessionManager:
             "personality": self.session["personality"],
         }
 
-<<<<<<< HEAD
-=======
     # ------------------------------------------------------------------
     # DIAGNOSTICS -- read-only self-checks, never called on the attacker
     # response path. Useful for regression/stress testing (confirms a
@@ -1015,7 +702,6 @@ class SessionManager:
             "prompt": self.get_prompt(),
         }
 
->>>>>>> upstream/feature/vidit-knowledge-base
 
 # ==========================================================
 # Multi-Client Session Handling
@@ -1027,13 +713,9 @@ class MultiSessionManager:
     Every public method acquires ``_lock`` (a ``threading.Lock``) before
     reading or writing ``_sessions``, ensuring that concurrent client threads
     cannot corrupt the shared registry even when multiple attackers connect
-<<<<<<< HEAD
-    simultaneously -- including connections from the same IP address.
-=======
     simultaneously -- including connections from the same IP address. This
     is required now that server.py handles each connection on its own
     thread (see server.py's ThreadingTCPServer-style accept loop).
->>>>>>> upstream/feature/vidit-knowledge-base
 
     Public API
     ----------
@@ -1054,13 +736,7 @@ class MultiSessionManager:
 
     active_sessions()            -> dict[str, SessionManager]
         Return a shallow snapshot copy of the live {ip: SessionManager}
-<<<<<<< HEAD
-        mapping.  The snapshot is safe to iterate outside the lock because
-        it is a separate dict; the live registry can continue to be mutated
-        by other threads without affecting the caller's view.
-=======
         mapping, safe to iterate outside the lock.
->>>>>>> upstream/feature/vidit-knowledge-base
     """
 
     def __init__(self):
@@ -1068,12 +744,6 @@ class MultiSessionManager:
         # Keyed by attacker IP (str) -> SessionManager
         self._sessions = {}
 
-<<<<<<< HEAD
-    # ------------------------------------------------------------------
-    # Core API (required by server.py)
-    # ------------------------------------------------------------------
-
-=======
         # Clean up stale active session files on manager boot (server start)
         import glob
         script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -1088,20 +758,11 @@ class MultiSessionManager:
     # ------------------------------------------------------------------
     # Core API (required by server.py)
     # ------------------------------------------------------------------
->>>>>>> upstream/feature/vidit-knowledge-base
     def create_session(self, attacker_ip):
         """Create and register a new SessionManager for *attacker_ip*.
 
         If a session already exists for this IP, it is returned as-is so
         that duplicate sessions for the same identifier never occur.
-<<<<<<< HEAD
-
-        Returns
-        -------
-        SessionManager
-            The (newly created or pre-existing) session for *attacker_ip*.
-=======
->>>>>>> upstream/feature/vidit-knowledge-base
         """
         with self._lock:
             if attacker_ip in self._sessions:
@@ -1134,10 +795,6 @@ class MultiSessionManager:
     # ------------------------------------------------------------------
     # Convenience helpers (backward-compatible extras)
     # ------------------------------------------------------------------
-<<<<<<< HEAD
-
-=======
->>>>>>> upstream/feature/vidit-knowledge-base
     def get_all_sessions(self):
         """Alias for active_sessions() -- returns a snapshot dict."""
         return self.active_sessions()
@@ -1149,12 +806,9 @@ class MultiSessionManager:
     def get_or_create_session(self, attacker_ip):
         """Return existing session for *attacker_ip* or create one."""
         return self.create_session(attacker_ip)
-<<<<<<< HEAD
-=======
 
     def get_active_count(self):
         """Number of currently-active (not yet closed) sessions."""
         with self._lock:
             return len([s for s in self._sessions.values() if s.get_session()["is_active"]])
 
->>>>>>> upstream/feature/vidit-knowledge-base
