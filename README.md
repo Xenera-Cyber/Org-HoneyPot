@@ -405,15 +405,13 @@ rag_engine.py
 <img width="1267" height="906" alt="Screenshot from 2026-03-18 19-20-46" src="https://github.com/user-attachments/assets/e249d548-84f9-4920-a94b-9e9da52a9093" />
 <img width="1261" height="940" alt="Screenshot from 2026-03-18 10-50-25" src="https://github.com/user-attachments/assets/3c3128af-a32a-4b53-8287-a1b2c1a877a6" />
 
-
+#                                                                            XYNERA — Frontend Progress
 
 # ⚙️ XYNERA — Concurrency, State & Simulation Core
 
 > The engine room of the XYNERA SSH honeypot: the layer that lets multiple attackers exist at once, each inside their own fully consistent, mutable fake Linux box.
 
 ---
-
-## 🎯 Hero
 
 Logging tells you *what* an attacker did. This subsystem is what makes sure the attacker had something believable to do it to — and that XYNERA can handle more than one of them at a time without state bleeding between sessions.
 
@@ -606,11 +604,6 @@ flowchart LR
 
 ---
 
-<div align="center">
-
-**XYNERA Honeypot Project** · Concurrency, State & Simulation Core · Baseline V3.3
-
-</div>
 ## 🌐 `fake_network.py` — The Server's Identity Card
 
 Think of this file as the **honeypot's passport**. It decides, once and for
