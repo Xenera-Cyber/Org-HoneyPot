@@ -407,55 +407,172 @@ rag_engine.py
 
 
 
-//Updates from cyber team(Author- Hriday):
-1. fake_filesystem.py
-Expanded the fake Linux filesystem to resemble a realistic enterprise server.
-Added multiple directories such as /bin, /boot, /opt, /usr, /var/log, and backup locations.
-Introduced realistic files including employee records, meeting notes, server inventory, authentication logs, database backups, and bash history.
-Improved file contents to provide more believable information during attacker interaction.
+🧵 1. The Concurrency Engine (server.py)
 
-2. fake_process.py
-Increased the number of simulated running processes to better mimic a production Linux environment.
-Added common system services such as cron, rsyslog, fail2ban, PostgreSQL, Redis, and multiple Nginx worker processes.
-Implemented support for the ps aux command in addition to the existing ps command.
+Thread-Safe Architecture: Upgraded the core listener into a multi-threaded TCP server. Implemented threading.Lock and daemon threads to handle simultaneous, overlapping attacker connections without blocking or log interleaving.
 
-3. fake_network.py
-Enhanced simulated network services by adding HTTPS, PostgreSQL, Redis, Jenkins, and Prometheus ports.
-Added support for additional networking commands including netstat -tulpn, ifconfig, and ip addr.
-Improved network responses with realistic interface configurations and service information.
+Background Health Monitoring: Integrated a continuous, background daemon thread to monitor the AI backend's health, allowing the server to seamlessly hot-swap between LLM-driven responses and local fallback emulation without requiring a server restart.
 
-4. session_manager.py
-Redesigned session handling using an object-oriented SessionManager class.
-Added session metadata including session ID, attacker IP, timestamps, threat score, attack history, and session status.
-Implemented dedicated methods for command tracking, directory management, attack recording, session summary generation, and session closure.
+🧠 2. The State Controller (session_manager.py)
 
-5. logger.py
-Introduced a dedicated logging module for structured attack logging.
-Implemented rotating log files with automatic log directory creation.
-Added timestamped logging of attacker IP, session ID, attack type, and executed command for improved monitoring and forensic analysis.
+Multi-Client State Tracking: Engineered a thread-safe MultiSessionManager to uniquely identify and track sessions by attacker IP, preventing state corruption during concurrent attacks.
 
-6. attack_analyzer.py
-Expanded attack classification by adding Privilege Escalation and Reverse Shell Activity detection.
-Introduced a threat scoring mechanism to assign severity levels to different attack categories.
-Improved the foundation for future threat monitoring and reporting.
+Identity Synchronization: Built a rigorous identity management system. If an attacker escalates privileges or changes hostnames, the state propagates instantly across the entire simulation—automatically rewriting simulated system files (like /etc/passwd and /etc/hosts), updating environment variables ($USER, $PWD), and adjusting the live shell prompt.
 
-7. command_router.py
-Reorganized command handling into logical categories for better readability and maintainability.
-Added support for several new Linux commands including users, ls -la, ps aux, netstat -tulpn, hostname, uname -a, uptime, systemctl, ifconfig, and ip addr.
-Improved path handling for cd and enhanced file access logic for cat.
-Extended support for common attacker commands such as wget, curl, chmod, and nc.
+📁 3. The Virtual Sandbox (fake_filesystem.py)
 
-8. server.py
-Improved overall server workflow by integrating session tracking, attack classification, threat scoring, and centralized logging.
-Added real-time console monitoring of attacker commands and detected attack types.
-Implemented automatic session summary generation upon client disconnection.
-Improved modular interaction between the server and supporting components.
+Isolated Tree-Based Filesystem: Replaced static text outputs with a fully mutable, tree-based virtual filesystem. Every attacker session receives a strictly isolated, sandbox clone of the OS structure.
 
-Overall Project Enhancements
-Improved code modularity and separation of responsibilities across all components.
-Increased realism of the honeypot environment to provide a more convincing attacker experience.
-Enhanced scalability by preparing the architecture for future integration with SQLite, AI-based deception, dashboards, and advanced threat analysis.
-Maintained compatibility with the existing project structure while providing a stronger and more extensible baseline for future development.
+Dynamic AI Seeding: Tied the filesystem generation to unique session IDs, allowing the AI to dynamically seed realistic documents, .ssh keys, and configuration files into the environment before the attacker even runs ls.
+
+Stateful Metadata: Implemented a Metadata tracking class to realistically simulate file ownership, permissions, and creation/modification timestamps as attackers interact with the environment (touch, mkdir, rm, cp).
+
+🔀 4. The Simulation Router (command_router.py)
+
+Dynamic Telemetry & Timing: Stripped hardcoded system responses, replacing them with a persistent SYSTEM_BOOT_TIME algorithm. Commands like uptime, w, and who now tick realistically and accurately reflect the attacker's true login IP and session duration.
+
+Backend Caching & Optimization: Implemented selective cache invalidation to drastically reduce AI latency. When an attacker modifies a file, the router intelligently flushes only the affected paths from the cache.
+
+Intelligent File Inheritance: Engineered logic within file-creation handlers to ensure any new nodes automatically inherit the simulated UID/GID of the active attacker session, further cementing the illusion of a real Linux box.
+
+## 🌐 `fake_network.py` — The Server's Identity Card
+
+Think of this file as the **honeypot's passport**. It decides, once and for
+all, who this fake machine claims to be — and then never contradicts itself.
+
+**Fixed identity constants:**
+- Hostname (`web-prod-01`), IP, netmask, broadcast, MAC, IPv6 link-local — all
+  hardcoded so every command that reveals network identity tells the *same*
+  story.
+- `SERVICES`: a single shared list of `(proto, address, port, pid, program)`
+  tuples — the **one and only source of truth** for what's "listening" on
+  this box. `netstat`, `netstat -tulpn`, `ss`, and `service_manager.py` all
+  read from this same list, so nothing can ever drift out of sync.
+
+**The DNS illusion — `_resolve_domain()` / `_DNS_CACHE`:**
+Instead of generating a random IP every time an attacker looks up a domain,
+this uses a **seeded random generator** (`random.Random(domain_name)`) so a
+domain always resolves to the *same* fake IP for the life of the process —
+then caches it. Ask for `evil.com` twice, get the same answer twice. Realism
+through consistency, not randomness.
+
+**Command simulations included:**
+
+| Category | Commands | What they simulate |
+|---|---|---|
+| Discovery | `netstat()`, `netstat_tulpn()`, `ss()` | Listening ports + live connections, service-aware |
+| Interfaces | `ifconfig()`, `ip_addr()` | eth0/lo interface details, byte/packet counters |
+| Lateral movement | `ssh()`, `scp()`, `telnet()`, `ftp()` | Realistic failure modes (refused / timeout / no route / bad auth) with weighted randomness |
+| Reachability | `ping()`, `traceroute()` | Randomized latency, packet loss, and hop behavior |
+| DNS | `dig()`, `nslookup()`, `host()` | Full DNS tool output, backed by the shared cache |
+
+The clever bit: **every one of these accepts a `service_manager`**, so if an
+attacker stops `nginx` mid-session, `netstat` immediately stops showing port
+80 — no restart, no reload, just instant, believable consistency.
+
+---
+
+## 🧠 `service_manager.py` — The Session's Memory
+
+If `fake_network.py` is the passport, this is the **short-term memory** of
+one specific attacker's visit.
+
+A honeypot that forgets what the attacker just did (e.g., they run
+`service nginx stop`, and five commands later `nginx` mysteriously
+reappears) breaks the illusion instantly. `ServiceManager` exists to make
+sure that never happens.
+
+**How it works:**
+- One `ServiceManager` instance = one attacker session, fully isolated from
+  every other concurrent session.
+- On creation, it deep-copies default service states (`active (running)`)
+  built directly from `fake_network.SERVICES` — so port numbers and PIDs
+  can *never* disagree between the two files.
+- Every service action an attacker can type is covered:
+  - `start()`, `stop()`, `restart()` → backing state machine
+  - `handle_service_command()` → the actual `service <name> {start|stop|restart}` CLI verb
+  - `systemctl_status()` / `systemctl_overview()` → systemd-style status output
+  - `netstat_lines()`, `netstat_tulpn_lines()`, `ss_lines()` → alternate rendering paths kept in lockstep with `fake_network.py`
+
+**Why this matters for the honeypot's credibility:** an attacker probing with
+`service mysql stop` → `netstat` → `ps aux` → `systemctl status mysql` should
+get four *different-looking* commands that all tell the *same* story. That
+cross-command consistency is the whole point of this module's existence.
+
+---
+
+## 🧬 `fake_process.py` — The Process Table Mirror
+
+This file answers the question: *"If I stopped a service, would the process
+table actually notice?"*
+
+**`ps()` and `ps_aux()`** render Linux-realistic process listings —
+`systemd`, `kthreadd`, `cron`, `rsyslogd`, `fail2ban-server`, `mysqld`,
+`nginx` (dual worker/master rows, just like real nginx) — but each
+service-backed row is **conditionally shown** via `_service_active()`,
+which asks the session's `ServiceManager` whether that program is currently
+running.
+
+- No `ServiceManager` supplied → everything shows as running (safe default
+  for standalone/offline calls).
+- `ServiceManager` supplied → a stopped service's row **quietly disappears**,
+  and reappears with its *original PID* if restarted — exactly how a real
+  respawned daemon would behave with a fixed init entry.
+
+**Bug fix baked in:** `ps_aux()` takes a live `username` parameter instead of
+hardcoding `"ubuntu"`, so the attacker's own shell row (`bash`, `ps aux`)
+always reflects whoever is *actually* logged in during that session — even
+after identity/session changes mid-engagement.
+
+---
+
+## 🧰 `fake_advanced.py` — The Utility Belt
+
+The catch-all for commands that don't need a whole module of their own, but
+still need to feel authentically Linux.
+
+- **`chmod(args)`** — Full GNU Coreutils-style parsing:
+  - Validates both **numeric** (`chmod 755`) and **symbolic** (`chmod u+x`)
+    modes via regex, rejecting malformed input the same way real `chmod`
+    does.
+  - Returns realistic `Operation not permitted` errors for sensitive paths
+    (`/root`, `/etc/shadow`, `/etc/passwd`) — because a honeypot that lets
+    attackers "successfully" chmod `/etc/shadow` gives the game away
+    instantly.
+  - Silent on success, matching real Unix philosophy.
+
+- **`nc(args)`** — Netcat client *and* listener simulation:
+  - Detects listener mode (`-l`) vs client mode, parses bundled flags like
+    `-lvp 4444`, and returns the right flavor of silence or verbose output
+    (`Listening on [0.0.0.0]...`, `Connection ... succeeded!`) depending on
+    flags — covering the classic reverse-shell / port-scan patterns
+    attackers actually type.
+
+- **`get_common_error(command, target, error_type)`** — A tiny but important
+  **shared error dictionary** (`not_found`, `permission_denied`, `no_file`,
+  `is_directory`) so that *every* command across the entire honeypot returns
+  bash-identical error phrasing instead of each command inventing its own
+  slightly-different wording.
+
+---
+
+## 🔗 How It All Fits Together
+
+1. **`fake_network.py`** declares the server's identity and its list of
+   "real" services — the immutable ground truth.
+2. **`service_manager.py`** layers **session-specific state** on top of that
+   truth: who stopped what, and when, for *this* attacker only.
+3. **`fake_process.py`** reflects that state into `ps`/`ps aux`, so the
+   process table always matches the network table.
+4. **`fake_advanced.py`** rounds out the illusion with the everyday
+   utility commands (`chmod`, `nc`) and a shared error vocabulary that keeps
+   every module speaking the same "bash dialect."
+
+The result: an attacker can run `netstat`, `ss`, `ps aux`, `systemctl
+status nginx`, and `chmod 777 nginx.conf` in any order, from any session,
+and never once catch the honeypot contradicting itself.
+
+---
 
 ---
 
