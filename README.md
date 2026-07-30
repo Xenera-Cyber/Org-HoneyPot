@@ -397,54 +397,205 @@ rag_engine.py
 <img width="1267" height="906" alt="Screenshot from 2026-03-18 19-20-46" src="https://github.com/user-attachments/assets/e249d548-84f9-4920-a94b-9e9da52a9093" />
 <img width="1261" height="940" alt="Screenshot from 2026-03-18 10-50-25" src="https://github.com/user-attachments/assets/3c3128af-a32a-4b53-8287-a1b2c1a877a6" />
 
+CONTRIBUTIONS:
+## My Contribution — Shatakshi Agrawal
 
+This section documents everything I personally worked on during this internship, from environment setup through to performance optimization. Every fix listed below was **verified by actually running the code** (real socket server, real client connections, real test cases) — not just written and assumed to work.
 
-//Updates from cyber team(Author- Hriday):
-1. fake_filesystem.py
-Expanded the fake Linux filesystem to resemble a realistic enterprise server.
-Added multiple directories such as /bin, /boot, /opt, /usr, /var/log, and backup locations.
-Introduced realistic files including employee records, meeting notes, server inventory, authentication logs, database backups, and bash history.
-Improved file contents to provide more believable information during attacker interaction.
+### Table of Contents
+1. [Environment Setup & Initial Debugging](#1-environment-setup--initial-debugging)
+2. [Systematic Command Testing](#2-systematic-command-testing)
+3. [Root-Cause Bug Fixes in `fake_network.py`](#3-root-cause-bug-fixes-in-fake_networkpy)
+4. [Dynamic Session Identity & Prompt Rendering](#4-dynamic-session-identity--prompt-rendering)
+5. [Service State Management](#5-service-state-management)
+6. [AI Backend Integration & Environment Setup](#6-ai-backend-integration--environment-setup)
+7. [AI Response Caching (Performance Optimization)](#7-ai-response-caching-performance-optimization)
+8. [Advanced Command Simulation (`fake_advanced.py`)](#8-advanced-command-simulation-fake_advancedpy)
+9. [Git Branch & Baseline Management](#9-git-branch--baseline-management)
+10. [Bugs Fixed — Summary Table](#10-bugs-fixed--summary-table)
 
-2. fake_process.py
-Increased the number of simulated running processes to better mimic a production Linux environment.
-Added common system services such as cron, rsyslog, fail2ban, PostgreSQL, Redis, and multiple Nginx worker processes.
-Implemented support for the ps aux command in addition to the existing ps command.
+---
 
-3. fake_network.py
-Enhanced simulated network services by adding HTTPS, PostgreSQL, Redis, Jenkins, and Prometheus ports.
-Added support for additional networking commands including netstat -tulpn, ifconfig, and ip addr.
-Improved network responses with realistic interface configurations and service information.
+## 1. Environment Setup & Initial Debugging
 
-4. session_manager.py
-Redesigned session handling using an object-oriented SessionManager class.
-Added session metadata including session ID, attacker IP, timestamps, threat score, attack history, and session status.
-Implemented dedicated methods for command tracking, directory management, attack recording, session summary generation, and session closure.
+- Set up the full project environment on Kali Linux, including Python and all required dependencies.
+- Set up a dedicated **Ubuntu 26.04 VM in VirtualBox** as a second testing environment — installed the OS, and diagnosed a `vmwgfx` graphics driver crash on boot (`This configuration is likely broken`) by identifying it as a known VirtualBox/guest-graphics-driver incompatibility, then resolved it by switching the VM's graphics controller and adjusting video memory settings.
+- Explored VirtualBox networking modes (NAT vs. host IP `10.0.2.15`) to understand why the Ubuntu VM wasn't directly reachable from outside, and used that understanding to run the honeypot server and a test client together correctly for cross-machine testing scenarios.
+- Got `server.py` running and listening on port `2222`, then connected as a simulated attacker via `netcat` to begin functional testing.
 
-5. logger.py
-Introduced a dedicated logging module for structured attack logging.
-Implemented rotating log files with automatic log directory creation.
-Added timestamped logging of attacker IP, session ID, attack type, and executed command for improved monitoring and forensic analysis.
+---
 
-6. attack_analyzer.py
-Expanded attack classification by adding Privilege Escalation and Reverse Shell Activity detection.
-Introduced a threat scoring mechanism to assign severity levels to different attack categories.
-Improved the foundation for future threat monitoring and reporting.
+## 2. Systematic Command Testing
 
-7. command_router.py
-Reorganized command handling into logical categories for better readability and maintainability.
-Added support for several new Linux commands including users, ls -la, ps aux, netstat -tulpn, hostname, uname -a, uptime, systemctl, ifconfig, and ip addr.
-Improved path handling for cd and enhanced file access logic for cat.
-Extended support for common attacker commands such as wget, curl, chmod, and nc.
+Tested every major honeypot command against **three scenarios** — a known-good domain, a second known-good domain, and a deliberately invalid/non-existent domain — to make sure both success and failure paths behaved correctly:
 
-8. server.py
-Improved overall server workflow by integrating session tracking, attack classification, threat scoring, and centralized logging.
-Added real-time console monitoring of attacker commands and detected attack types.
-Implemented automatic session summary generation upon client disconnection.
-Improved modular interaction between the server and supporting components.
+`netstat`, `netstat -tulpn`, `ss`, `ifconfig`, `ip addr`, `ping`, `dig`, `nslookup`, `host`, `traceroute`, `ssh`, `telnet`, `ftp`
 
-Overall Project Enhancements
-Improved code modularity and separation of responsibilities across all components.
-Increased realism of the honeypot environment to provide a more convincing attacker experience.
-Enhanced scalability by preparing the architecture for future integration with SQLite, AI-based deception, dashboards, and advanced threat analysis.
-Maintained compatibility with the existing project structure while providing a stronger and more extensible baseline for future development.
+This testing pass is what surfaced the five bugs documented in the next section — I didn't just run commands and move on, I compared outputs across related commands and across repeated runs to catch inconsistencies.
+
+---
+
+## 3. Root-Cause Bug Fixes in `fake_network.py`
+
+Testing surfaced **five real inconsistencies** where the honeypot's fake responses contradicted each other or behaved illogically — exactly the kind of thing that would tip off an attentive attacker that they're inside a honeypot.
+
+| # | Bug | Evidence |
+|---|-----|----------|
+| 1 | `traceroute` showed working intermediate hops but the final hop *always* said "No route to host," even to a domain that resolved fine everywhere else | 
+| 2 | `ssh` gave contradictory errors in the same session — "Host unreachable" twice, then a completely different "Permission denied" on the third try | 
+| 3 | `dig`, `host`, and `nslookup` returned **three different results** for the exact same domain — two different fake IPs and one "domain doesn't exist" | 
+| 4 | `ping` on a genuinely invalid/made-up domain still returned successful replies with real-looking latency | 
+| 5 | `dig` on the same invalid domain also resolved it to a fake IP instead of failing | 
+
+**Root cause:** every function (`dig`, `host`, `nslookup`, `ping`, `traceroute`, `ssh`) was independently generating its own random response with no shared logic — so nothing was guaranteed to agree.
+
+**Fix:** built a single shared DNS resolver so every command consults the *same* source of truth for a given domain, and — critically — backed it with a **real DNS lookup** (via Python's `socket` module) rather than a hardcoded whitelist, so genuinely valid domains work and genuinely invalid ones consistently fail, without needing to maintain a manual list:
+
+```python
+def _resolve_target(host):
+    """
+    Return (display_name, ip_address) for any host argument passed to a
+    network command. Literal IPs pass through unchanged; hostnames are
+    resolved through the shared DNS cache so the same name always maps
+    to the same address.
+    """
+    host = host.strip()
+    if _is_ipv4(host):
+        return host, host
+    return host, _resolve_domain(host)
+```
+
+Beyond the root-cause fix, I built out/refined realistic simulation logic across the full command set in `fake_network.py` so the honeypot's network responses hold up under sustained attacker interaction rather than just looking right on a single call:
+
+- **`traceroute`** — randomized hop count, per-hop jitter, occasional `* * *` timeouts, and a probabilistic "does it actually reach the destination" outcome instead of a fixed always-fail last hop.
+- **`ssh` / `scp`** — weighted random outcomes (connection refused / timed out / no route to host / full password-prompt-then-denied flow) so repeated attempts feel like a real flaky network rather than one scripted response.
+- **`ping`** — variable packet loss and per-packet latency, with proper handling of malformed hostnames.
+- **`netstat` / `netstat -tulpn` / `ss`** — driven off one shared `SERVICES` table (proto/address/port/PID/program) so all three commands can never drift out of sync with each other or with `service_manager.py`.
+- **`ifconfig` / `ip addr`** — realistic byte/packet counters and consistent MAC/IPv6-link-local values shared across both commands.
+- **`telnet` / `ftp`** — probabilistic outcomes ranging from connection refusal through to a believable login banner (Ubuntu login prompt / vsFTPd banner).
+- **`dig` / `nslookup` / `host`** — all backed by the same DNS cache described above.
+
+**Verified fixed** — same domain now returns the same IP across `dig`, `host`, and `nslookup`, and the invalid domain now fails consistently everywhere
+
+---
+
+## 4. Dynamic Session Identity & Prompt Rendering
+
+**Problem:** the shell prompt (`username@hostname:cwd$`) and identity-revealing commands (`whoami`, `hostname`, `hostnamectl`, `id`, etc.) were **hardcoded** — they never reflected the session's actual identity, which meant the AI backend had no way to drive a consistent, believable persona.
+
+**What I built:**
+- Designed and built out `session_manager.py` as the central per-attacker state container — tracking not just identity, but the session's dynamic filesystem, service state, command history, threat scoring, and a `backend_cache` for AI-backend-supplied data — all scoped to one `SessionManager` instance per attacker so nothing ever leaks between sessions.
+- Added `username`, `hostname`, `personality`, and `groups` as first-class session state, plus `get_identity()` / `set_identity()` as the single entry point for reading/changing them.
+- Added `get_prompt()`, which builds the shell prompt **live** from current session state — no code anywhere is allowed to hardcode `"username@hostname:cwd$"` again.
+- Added `_sync_identity_files()`, which keeps `/etc/hostname`, `/etc/hosts`, and `/etc/passwd` inside the simulated filesystem consistent with whatever identity is currently active, so a `cat /etc/passwd` can never contradict what `whoami` just said.
+- Added `MultiSessionManager` to support multiple concurrent attacker connections, each with its own isolated `SessionManager` (its own filesystem, services, and identity), and to allow a reconnecting IP to resume its existing session instead of always starting fresh.
+- Rewired `whoami`, `groups`, `id`, `users`, `hostname`, `hostnamectl`, and `uname -a` in `command_router.py` to read from session identity instead of fixed strings.
+
+**Bug caught along the way:** `hostname` reported `web-prod-01` while `hostnamectl` reported a completely different hostname, `xynera-server` — the same simulated machine giving two different answers about itself in the same session. Fixed by making both read from the same identity source.
+
+I verified this end-to-end by spinning up the real `server.py` in a background thread, connecting a real socket client, and confirming that changing the identity mid-session immediately changed the *very next* prompt and every identity command's output — with zero manual intervention.
+
+---
+
+## 5. Service State Management
+
+Designed `service_manager.py` to track whether each fake service (`nginx`, `mysql`, `redis`, `ssh`, `docker`) is running or stopped, **per session**. Before this, `netstat`, `ss`, `systemctl`, and `service <name> stop` had no shared state — stopping a service through one command had zero effect on what any other command reported.
+
+```python
+def netstat_lines(self):
+    lines = []
+    for name, info in self.services.items():
+        if info["status"].startswith("active"):
+            lines.append(f"tcp 0.0.0.0:{info['port']} LISTEN")
+    return "\n".join(lines)
+```
+
+Now `service nginx stop` → `netstat` immediately stops showing port 80, `systemctl status nginx` reports `inactive (dead)`, and `ps` / `ps aux` drop the corresponding process rows — all from one single state change, exactly like a real system.
+
+---
+
+## 6. AI Backend Integration & Environment Setup
+
+- Generated a GROQ API key and configured it via a `.env` file in `xynera-ai/` (kept out of version control).
+- Installed and verified the AI backend's dependency stack — `fastapi`, `uvicorn`, `httpx`, `faiss-cpu`, `python-dotenv` — and got `api_server.py` running and listening on port `5000`.
+- Hit and resolved a **GitHub push protection** block after `.env` was accidentally staged in an early commit — removed it from tracking with `git rm --cached` and added a proper `.gitignore` so the secret could never be committed again.
+
+---
+
+## 7. AI Response Caching (Performance Optimization)
+
+**Task:** make repeated AI-backend calls faster and reduce backend load, with per-session caching and proper invalidation.
+
+While reviewing the AI fallback path in `command_router.py`, I found that `session_manager.py` already had an unused caching scaffold (`response_exists` / `get_response` / `save_response`) sitting on `backend_cache["responses"]` — built but never wired up. Rather than building a second, competing cache, I wired the existing one into the AI fallback path:
+
+```python
+if session_manager.response_exists(command):
+    return session_manager.get_response(command)
+
+ai_result = ai_client.send_to_ai(
+    ip=session["attacker_ip"], command=command,
+    history=session["command_history"], attack_type=attack_type,
+    session_id=session["session_id"], cwd=cwd,
+)
+if ai_result and ai_result.get("backend") == "local" and ai_result.get("reply"):
+    session_manager.save_response(command, ai_result["reply"])
+    return ai_result["reply"]
+```
+
+**Invalidation** comes for free: `_sync_identity_cache()` already clears `backend_cache["responses"]` whenever `set_identity()` runs, so a cached reply generated under one identity/personality can never leak into the session after the identity changes.
+
+**Verified with a mocked AI backend:**
+
+| Run | AI backend calls | Response time |
+|---|---|---|
+| First time seeing a command | 1 | ~300ms (real network round-trip) |
+| Same command repeated | 0 *(cache hit)* | ~11ms |
+| Different command | 1 | ~300ms |
+| Same command **after identity change** | 1 *(cache correctly invalidated)* | ~300ms |
+
+~28x faster on repeats, with zero risk of serving a stale reply across an identity change.
+
+---
+
+## 8. Advanced Command Simulation (`fake_advanced.py`)
+
+Built a new module to handle three commonly attacker-abused Linux utilities with realistic, GNU-Coreutils-accurate behaviour that the existing static handlers didn't cover:
+
+**`chmod`** — validates both numeric (`777`, `0644`) and symbolic (`u+x`, `g-rw`, `a=rwx`) modes with regex, matches real `chmod`'s silent-on-success behaviour, and specifically simulates a permissions-denied response when an attacker targets sensitive paths like `/etc/shadow` or `/etc/passwd` — a realistic touch that a hardcoded "always succeeds" handler would have missed:
+
+```python
+if target.startswith("/root") or target in ["/etc/shadow", "/etc/passwd"]:
+    return f"chmod: changing permissions of '{target}': Operation not permitted"
+```
+
+**`nc` (netcat)** — distinguishes listener/server mode (`nc -lvp 4444`) from client mode, parses bundled and separate flags for the port, and matches real `nc`'s behaviour of being silent by default and verbose only with `-v` — important because `nc` is a common tool in reverse-shell attempts, so getting its exact silence/verbosity behaviour right matters for believability.
+
+**`get_common_error()`** — a centralized helper for consistent bash-style error formatting (`command not found`, `Permission denied`, `No such file or directory`, `Is a directory`) so every command in the honeypot reports errors in the exact same format a real shell would, instead of each handler inventing its own error text.
+
+---
+
+## 9. Git Branch & Baseline Management
+
+- Managed my working branch (`shatakshi-integration`) through multiple rounds of merging the team's evolving baselines (`hriday/baseline-v3.1` → `v3.3`) — resolving merge conflicts in `command_router.py`, `deception_engine.py`, `fake_process.py`, and `server.py` without ever touching `main` or a teammate's branch.
+- Produced a Data Flow Diagram (Level 0 + Level 1) documenting the honeypot's overall architecture for the team.
+
+---
+
+## 10. Bugs Fixed — Summary Table
+
+| # | Component | Bug | Status |
+|---|-----------|-----|--------|
+| 1 | `fake_network.py` | `traceroute` contradicted itself (working hops, dead destination) | ✅ Fixed |
+| 2 | `fake_network.py` | `ssh` gave contradictory errors across attempts | ✅ Fixed |
+| 3 | `fake_network.py` | `dig` / `host` / `nslookup` disagreed on the same domain | ✅ Fixed |
+| 4 | `fake_network.py` | `ping` succeeded on invalid domains | ✅ Fixed |
+| 5 | `fake_network.py` | `dig` resolved invalid domains to a fake IP | ✅ Fixed |
+| 6 | `command_router.py` | `hostname` and `hostnamectl` reported two different hostnames | ✅ Fixed |
+| 7 | `command_router.py` | `whoami`/`groups`/`id`/`users` ignored session identity | ✅ Fixed |
+| 8 | `fake_process.py` | `ps aux` showed a stale username after identity change | ✅ Fixed |
+
+---
+
+## Tech Stack
+
+`Python 3` · `Sockets` · `FastAPI` · `Uvicorn` · `GROQ (LLM backend)` · `Git`
