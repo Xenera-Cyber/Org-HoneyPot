@@ -574,6 +574,542 @@ and never once catch the honeypot contradicting itself.
 
 ---
 
+# 🔹 Attack Analyzer (attack_analyzer.py)
+
+## 📖 Overview
+
+The **Attack Analyzer** is the first security analysis layer of the AI-Powered SSH Honeypot. It examines every command executed by an attacker, identifies the type of activity being performed, and assigns an appropriate threat score. The generated information helps other modules understand attacker behavior and respond accordingly.
+
+Rather than relying on complex machine learning models, the module uses lightweight rule-based detection, making it fast, reliable, and easy to maintain while supporting future expansion with additional attack patterns.
+
+---
+
+## 🎯 Objectives
+
+| Objective | Description |
+|-----------|-------------|
+| Command Analysis | Inspect every command executed by the attacker. |
+| Attack Classification | Categorize commands into predefined attack types. |
+| Threat Scoring | Assign a severity score for each detected attack. |
+| Module Integration | Provide analysis results to other honeypot modules. |
+| Scalability | Easily extend detection rules for new attack techniques. |
+
+---
+
+## ⚙️ Workflow
+
+```text
+                 Attacker Command
+                        │
+                        ▼
+              Normalize Command
+                        │
+                        ▼
+          Compare with Detection Rules
+                        │
+                        ▼
+           Identify Attack Category
+                        │
+                        ▼
+             Calculate Threat Score
+                        │
+                        ▼
+      Forward Result to Other Modules
+```
+
+---
+
+## 📂 Attack Categories
+
+| Category | Purpose | Example Commands |
+|----------|---------|------------------|
+| 🔍 Reconnaissance | Collect system information | `ls`, `pwd`, `whoami`, `uname` |
+| 📁 Directory Navigation | Explore directories | `cd` |
+| 🔑 Credential Enumeration | Access sensitive files | `cat /etc/passwd` |
+| 📥 Malware Download | Download payloads | `wget`, `curl` |
+| 📤 File Transfer | Copy files between systems | `scp` |
+| 🔓 Privilege Escalation | Gain elevated permissions | `sudo`, `su`, `chmod` |
+| 🌐 Lateral Movement | Connect to remote systems | `ssh` |
+| 💻 Reverse Shell | Create remote shell access | `nc`, `bash -i` |
+| ❓ Unknown | Unrecognized activity | Any unmatched command |
+
+---
+
+## 📊 Threat Score Matrix
+
+| Threat Level | Score |
+|-------------|------:|
+| Low | 5–20 |
+| Medium | 60–80 |
+| High | 90–95 |
+| Critical | 100 |
+
+---
+
+## 🧩 Core Functions
+
+| Function | Description |
+|----------|-------------|
+| `classify(command)` | Identifies the attack category based on command patterns. |
+| `threat_score(attack_type)` | Returns the predefined severity score for the detected attack. |
+
+---
+
+## 🔗 Module Integration
+
+```text
+                     server.py
+                         │
+                         ▼
+             attack_analyzer.py
+              │       │        │
+              ▼       ▼        ▼
+         logger.py session_manager.py
+                         │
+                         ▼
+                deception_engine.py
+```
+
+---
+
+## ⭐ Key Features
+
+| Feature | Benefit |
+|---------|---------|
+| Rule-Based Detection | Fast and efficient attack classification. |
+| Threat Scoring | Measures attack severity consistently. |
+| Lightweight Design | Minimal processing overhead. |
+| Modular Architecture | Easy to extend with new detection rules. |
+| Centralized Analysis | Provides standardized output to all modules. |
+| Easy Maintenance | Detection rules can be updated independently. |
+
+---
+
+## 📌 Summary
+
+The **Attack Analyzer** acts as the intelligence core of the honeypot's detection layer. By converting attacker commands into meaningful attack categories and threat scores, it enables accurate logging, session tracking, and adaptive deception while maintaining a lightweight and extensible architecture.
+
+# 🔹 Malware Detector (malware_detector.py)
+
+## 📖 Overview
+
+The **Malware Detector** module is responsible for safely simulating malware-related activities inside the SSH Honeypot. Instead of performing actual downloads or file transfers, it generates realistic terminal outputs for commonly used commands such as `wget`, `curl`, and `scp`. This allows attackers to believe their actions were successful while ensuring the host system remains completely isolated and secure.
+
+The module validates attacker-supplied targets using lightweight syntax checks without making DNS lookups, HTTP requests, or outbound network connections. By producing convincing command outputs, it strengthens the deception capabilities of the honeypot while preventing any real malware execution. :contentReference[oaicite:0]{index=0}
+
+---
+
+## 🎯 Objectives
+
+| Objective | Description |
+|-----------|-------------|
+| Malware Simulation | Emulate malware download commands without real execution. |
+| Safe Environment | Prevent outbound network communication from the honeypot. |
+| Realistic Responses | Generate believable Linux terminal outputs. |
+| Target Validation | Verify URLs and hostnames using syntax checks. |
+| Deception Support | Keep attackers engaged with convincing responses. |
+
+---
+
+## ⚙️ Workflow
+
+```text
+                Attacker Command
+                       │
+                       ▼
+               Extract Target
+                       │
+                       ▼
+              Validate Target
+                 │          │
+          Valid  │          │ Invalid
+                 ▼          ▼
+     Generate Simulation   Return Error
+                 │
+                 ▼
+      Return Simulated Output
+```
+
+---
+
+## 📂 Supported Commands
+
+| Command | Purpose | Simulated Response |
+|---------|---------|--------------------|
+| `wget` | Download remote files | Download progress, speed, completion message |
+| `curl` | Retrieve remote content | Transfer statistics and progress output |
+| `scp` | Secure file transfer | File transfer summary with completion details |
+
+---
+
+## 🧩 Core Functions
+
+| Function | Description |
+|----------|-------------|
+| `extract_target(command)` | Extracts the target URL or filename from the attacker command. |
+| `is_valid_target(target)` | Validates the syntax of URLs and hostnames. |
+| `handle_wget(command)` | Simulates Linux `wget` output. |
+| `handle_curl(command)` | Simulates Linux `curl` transfer output. |
+| `handle_scp(command)` | Simulates secure file transfer without copying files. |
+
+---
+
+## 🔗 Module Integration
+
+```text
+               attack_analyzer.py
+                        │
+                        ▼
+              deception_engine.py
+                        │
+                        ▼
+             malware_detector.py
+                        │
+            ┌───────────┴───────────┐
+            ▼                       ▼
+     command_router.py       Simulated Output
+```
+
+---
+
+## ⭐ Key Features
+
+| Feature | Benefit |
+|---------|---------|
+| Safe Malware Simulation | Prevents real malware execution. |
+| No Outbound Traffic | Blocks external network communication. |
+| Dynamic Output | Uses randomized values for realistic responses. |
+| URL Validation | Accepts only syntactically valid targets. |
+| Lightweight Design | Fast execution with minimal overhead. |
+| Modular Architecture | Easy to extend with additional download utilities. |
+
+---
+
+## 💡 Highlights
+
+- Simulates **`wget`**, **`curl`**, and **`scp`** commands without contacting external systems.
+- Produces realistic Linux terminal outputs using randomized values.
+- Performs only syntax validation to maintain complete isolation.
+- Integrates seamlessly with the **Deception Engine** to enhance attacker engagement.
+- Prevents attackers from using the honeypot as a relay for malicious activities.
+
+---
+
+## 📌 Summary
+
+The **Malware Detector** enhances the realism of the AI-Powered SSH Honeypot by safely emulating malware download and file transfer activities. Through realistic terminal simulations, secure validation, and seamless integration with the deception engine, it keeps attackers engaged while ensuring the underlying system remains fully protected and isolated. :contentReference[oaicite:1]{index=1}
+
+---
+
+# 🔹 Deception Engine (deception_engine.py)
+
+## 📖 Overview
+
+The **Deception Engine** is responsible for generating intelligent and realistic responses based on the attacker's actions. After an attack is classified, this module determines whether a custom deceptive response should be returned or if the command should continue through the normal execution flow.
+
+It also maintains a lightweight attacker profile for each active session, ensuring interactions remain consistent and realistic throughout the attack. This modular design allows the honeypot to support future AI-driven deception while keeping the current implementation flexible and easy to extend. :contentReference[oaicite:0]{index=0}
+
+---
+
+## 🎯 Objectives
+
+| Objective | Description |
+|-----------|-------------|
+| Adaptive Deception | Generate attack-specific responses. |
+| Session Profiling | Maintain attacker intent throughout a session. |
+| Dynamic Responses | Improve realism using customized outputs. |
+| Modular Design | Separate deception logic from command execution. |
+| AI Ready | Support future AI and RAG-based enhancements. |
+
+---
+
+## ⚙️ Workflow
+
+```text
+              Attacker Command
+                     │
+                     ▼
+         Receive Attack Category
+                     │
+                     ▼
+        Update Attacker Profile
+                     │
+                     ▼
+       Select Deception Handler
+             │             │
+        Available      Not Available
+             │             │
+             ▼             ▼
+ Generate Response   Continue Normal Flow
+             │
+             ▼
+      Return Final Output
+```
+
+---
+
+## 📂 Supported Deception Types
+
+| Attack Type | Response |
+|-------------|----------|
+| 🔍 Reconnaissance | Simulates realistic system information. |
+| 🔑 Credential Enumeration | Generates fake `/etc/passwd` and `/etc/shadow` data. |
+| 📥 Malware Download | Delegates to `malware_detector.py`. |
+| 🌐 Lateral Movement | Allows network simulation modules to respond. |
+| 🖥 Reverse Shell | Placeholder for future implementation. |
+| 🔓 Privilege Escalation | Reserved for future adaptive simulation. |
+
+---
+
+## 🧩 Core Functions
+
+| Function | Description |
+|----------|-------------|
+| `update_profile()` | Stores attacker intent within the active session. |
+| `get_dynamic_uptime()` | Generates randomized Linux uptime information. |
+| `credential_enumeration_deception()` | Returns simulated credential files. |
+| `malware_download_deception()` | Routes download commands to the malware detector. |
+| `adapt_response()` | Selects and executes the appropriate deception handler. |
+
+---
+
+## 👤 Attacker Profiling
+
+| Intent | Trigger |
+|--------|---------|
+| Reconnaissance | Information gathering commands |
+| Credential | Access to `/etc/passwd` or `/etc/shadow` |
+| Malware | Commands like `wget`, `curl`, or `nc` |
+
+Maintaining these profiles allows the honeypot to produce more consistent and believable responses during an attack session. :contentReference[oaicite:1]{index=1}
+
+---
+
+## 🔗 Module Integration
+
+```text
+                attack_analyzer.py
+                        │
+                        ▼
+              deception_engine.py
+             │          │           │
+             ▼          ▼           ▼
+ malware_detector  command_router  session_manager
+```
+
+---
+
+## ⭐ Key Features
+| Feature | Benefit |
+|---------|---------|
+| Adaptive Responses | Generates context-aware deception. |
+| Session Profiling | Tracks attacker intent during a session. |
+| Dynamic System Data | Produces realistic and non-repetitive outputs. |
+| Modular Handlers | Easy to add new deception strategies. |
+| AI-Ready Design | Supports future intelligent deception. |
+| Lightweight Architecture | Maintains performance with minimal overhead. |
+
+---
+
+## 💡 Why This Module Matters
+The **Deception Engine** is the heart of the honeypot's realism. Instead of returning static outputs, it adapts responses based on attacker behavior, creating a more convincing environment while safely collecting valuable attack intelligence.
+
+---
+
+## 📌 Summary
+The **Deception Engine** bridges attack analysis and response generation by delivering adaptive, attack-aware interactions. Through session profiling, dynamic content generation, and seamless integration with supporting modules, it significantly improves the effectiveness and realism of the AI-Powered SSH Honeypot. :contentReference[oaicite:2]{index=2}
+
+
+# 🔹 AI Client (`ai_client.py`)
+
+## 📖 Overview
+
+The **AI Client** serves as the communication bridge between the SSH Honeypot and the AI backend. It forwards attacker commands along with session context to the backend, receives AI-generated responses, and returns them to the honeypot. This enables intelligent and context-aware interactions without tightly coupling the honeypot to the AI service.
+
+To ensure reliability, the module continuously monitors backend availability. If the AI service becomes unavailable, it automatically switches to an offline fallback mode and seamlessly restores AI communication once the backend recovers. :contentReference[oaicite:0]{index=0}
+
+---
+
+## 🎯 Objectives
+
+| Objective | Description |
+|-----------|-------------|
+| AI Communication | Exchange requests and responses with the AI backend. |
+| Context Sharing | Send attacker commands and session information for analysis. |
+| Health Monitoring | Continuously monitor backend availability. |
+| Automatic Recovery | Restore AI communication after backend recovery. |
+| Reliable Operation | Ensure uninterrupted honeypot functionality using fallback responses. |
+
+---
+
+## ⚙️ Communication Workflow
+
+```text
+            Attacker Command
+                    │
+                    ▼
+            Prepare AI Request
+                    │
+                    ▼
+       Check Backend Availability
+             │              │
+       Available      Unavailable
+             │              │
+             ▼              ▼
+     Send Request     Return Fallback
+             │
+             ▼
+      Receive AI Response
+             │
+             ▼
+      Validate & Clean Data
+             │
+             ▼
+      Return Final Response
+```
+
+---
+
+## 📂 Core Components
+
+| Component | Purpose |
+|-----------|---------|
+| `send_to_ai()` | Sends attacker requests to the AI backend. |
+| `check_ai_backend()` | Verifies backend availability using the health endpoint. |
+| `start_health_monitor()` | Starts the background health monitoring thread. |
+| `_health_monitor_loop()` | Continuously monitors backend status. |
+| `get_offline_fallback()` | Generates fallback responses when the backend is unavailable. |
+| `clean_response()` | Removes unnecessary formatting before returning the response. |
+
+---
+
+## ❤️ Backend Health Monitoring
+
+```text
+        AI Backend
+             │
+             ▼
+     Health Check (/health)
+             │
+      ┌──────┴──────┐
+      ▼             ▼
+   Online        Offline
+      │             │
+      ▼             ▼
+ Use AI        Return Fallback
+      │             │
+      └──────┬──────┘
+             ▼
+     Continue Monitoring
+```
+
+---
+
+## 🔗 Module Integration
+
+```text
+          command_router.py
+                  │
+                  ▼
+             ai_client.py
+          │             │
+          ▼             ▼
+   AI Backend      session_manager.py
+          │
+          ▼
+ attack_analyzer.py
+```
+
+---
+
+## ⭐ Key Features
+
+| Feature | Benefit |
+|---------|---------|
+| AI Backend Integration | Enables intelligent response generation. |
+| Health Monitoring | Continuously checks backend availability. |
+| Automatic Recovery | Restores AI routing without restarting the server. |
+| Offline Fallback | Keeps the honeypot operational during backend failures. |
+| Persistent HTTP Session | Reduces communication overhead and improves efficiency. |
+| Thread-Safe Design | Supports multiple concurrent attacker sessions safely. |
+
+---
+
+## 🔄 Response Lifecycle
+
+| Stage | Action |
+|-------|--------|
+| Request | Collect attacker command and session context. |
+| Processing | Forward request to the AI backend. |
+| Validation | Verify the received response. |
+| Cleanup | Remove unnecessary formatting. |
+| Delivery | Return the final response to the attacker. |
+
+---
+
+## 💡 Why This Module Matters
+
+The **AI Client** enables intelligent and adaptive interactions by connecting the honeypot with an external AI backend. Its built-in health monitoring, automatic recovery, and offline fallback mechanisms ensure reliable operation even during temporary backend failures, making the system resilient and scalable.
+
+---
+
+## 📌 Summary
+
+The **AI Client** provides secure and reliable communication between the honeypot and the AI backend. Through continuous health monitoring, thread-safe request handling, automatic failover, and seamless recovery, it ensures uninterrupted AI-assisted deception while maintaining a modular architecture. :contentReference[oaicite:1]{index=1}
+
+# 🔄 Overall System Workflow
+
+The AI-Powered SSH Honeypot follows a modular workflow where each component performs a dedicated task while collaborating to provide a realistic and secure deception environment.
+
+```text
+                    Attacker
+                        │
+                        ▼
+               SSH Connection
+                        │
+                        ▼
+                  server.py
+                        │
+                        ▼
+            attack_analyzer.py
+                        │
+        ┌───────────────┼───────────────┐
+        ▼               ▼               ▼
+ logger.py      session_manager.py  deception_engine.py
+                                        │
+                        ┌───────────────┴───────────────┐
+                        ▼                               ▼
+            malware_detector.py                command_router.py
+                                                        │
+                                                        ▼
+                                                   ai_client.py
+                                                        │
+                                                        ▼
+                                                   AI Backend
+                                                        │
+                                                        ▼
+                                              Intelligent Response
+```
+
+---
+
+# ✨ Key Features
+
+| Feature | Description |
+|---------|-------------|
+| 🔍 Rule-Based Attack Detection | Classifies attacker commands into predefined attack categories. |
+| 📊 Threat Scoring | Assigns severity scores based on attacker behaviour. |
+| 🎭 Adaptive Deception | Generates realistic responses to mislead attackers. |
+| 📥 Malware Simulation | Safely emulates malware download and transfer commands. |
+| 🤖 AI Integration | Uses an external AI backend for intelligent response generation. |
+| ❤️ Health Monitoring | Continuously checks AI backend availability. |
+| 🔄 Automatic Recovery | Restores AI communication without restarting the server. |
+| 📜 Session Management | Maintains attacker history and behavioural profiles. |
+| 📝 Comprehensive Logging | Records attacker commands, sessions, and threat information. |
+| ⚡ Multi-Client Support | Handles multiple attacker sessions concurrently. |
+
+---
+
 ---
 
 //Updates from AI & UI integration team (Author- Vidit):
