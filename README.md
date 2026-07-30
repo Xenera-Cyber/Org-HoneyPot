@@ -407,34 +407,210 @@ rag_engine.py
 
 
 
-🧵 1. The Concurrency Engine (server.py)
+# ⚙️ XYNERA — Concurrency, State & Simulation Core
 
-Thread-Safe Architecture: Upgraded the core listener into a multi-threaded TCP server. Implemented threading.Lock and daemon threads to handle simultaneous, overlapping attacker connections without blocking or log interleaving.
+> The engine room of the XYNERA SSH honeypot: the layer that lets multiple attackers exist at once, each inside their own fully consistent, mutable fake Linux box.
 
-Background Health Monitoring: Integrated a continuous, background daemon thread to monitor the AI backend's health, allowing the server to seamlessly hot-swap between LLM-driven responses and local fallback emulation without requiring a server restart.
+---
 
-🧠 2. The State Controller (session_manager.py)
+## 🎯 Hero
 
-Multi-Client State Tracking: Engineered a thread-safe MultiSessionManager to uniquely identify and track sessions by attacker IP, preventing state corruption during concurrent attacks.
+Logging tells you *what* an attacker did. This subsystem is what makes sure the attacker had something believable to do it to — and that XYNERA can handle more than one of them at a time without state bleeding between sessions.
 
-Identity Synchronization: Built a rigorous identity management system. If an attacker escalates privileges or changes hostnames, the state propagates instantly across the entire simulation—automatically rewriting simulated system files (like /etc/passwd and /etc/hosts), updating environment variables ($USER, $PWD), and adjusting the live shell prompt.
+Four modules work together here: a **thread-safe listener** that never blocks on a single connection, a **state controller** that keeps every attacker's identity consistent across the whole simulation, a **tree-based virtual filesystem** that behaves like a real disk instead of a wall of static text, and a **routing layer** that ties commands to that filesystem efficiently, with caching and realistic ownership.
 
-📁 3. The Virtual Sandbox (fake_filesystem.py)
+```
+🔌 Concurrent Connections  →  🧠 Per-Session Identity  →  📁 Mutable Sandbox  →  🔀 Realistic Routing
+```
 
-Isolated Tree-Based Filesystem: Replaced static text outputs with a fully mutable, tree-based virtual filesystem. Every attacker session receives a strictly isolated, sandbox clone of the OS structure.
+This document covers `server.py`, `session_manager.py`, `fake_filesystem.py`, and `command_router.py` exactly as implemented in the V3.3 baseline.
 
-Dynamic AI Seeding: Tied the filesystem generation to unique session IDs, allowing the AI to dynamically seed realistic documents, .ssh keys, and configuration files into the environment before the attacker even runs ls.
+---
 
-Stateful Metadata: Implemented a Metadata tracking class to realistically simulate file ownership, permissions, and creation/modification timestamps as attackers interact with the environment (touch, mkdir, rm, cp).
+## 🏗️ Core Engine Architecture
 
-🔀 4. The Simulation Router (command_router.py)
+```mermaid
+flowchart TD
+    A[Attacker Connections] -->|accept loop| B[server.py]
+    B -->|threading.Thread per connection, daemon=True| C[handle_client]
+    C -->|per-connection lock| D[session_manager.py]
+    D -->|MultiSessionManager tracks by IP| E[SessionManager instance]
+    E -->|owns| F[fake_filesystem.py]
+    C -->|dispatches command| G[command_router.py]
+    G -->|reads/writes| F
+    G -->|selective cache invalidation| E
+    B -->|background daemon| H[ai_client health monitor]
+    H -->|hot-swap| G
 
-Dynamic Telemetry & Timing: Stripped hardcoded system responses, replacing them with a persistent SYSTEM_BOOT_TIME algorithm. Commands like uptime, w, and who now tick realistically and accurately reflect the attacker's true login IP and session duration.
+    style A fill:#ff6b6b,color:#fff
+    style F fill:#ffe66d,color:#333
+    style H fill:#4ecdc4,color:#333
+```
 
-Backend Caching & Optimization: Implemented selective cache invalidation to drastically reduce AI latency. When an attacker modifies a file, the router intelligently flushes only the affected paths from the cache.
+---
 
-Intelligent File Inheritance: Engineered logic within file-creation handlers to ensure any new nodes automatically inherit the simulated UID/GID of the active attacker session, further cementing the illusion of a real Linux box.
+## 📦 Module Responsibilities
 
+| Module | Responsibility | Key Output |
+|---|---|---|
+| `server.py` | Accepts connections, spins up one thread per attacker, monitors AI backend health in the background | Live, non-blocking multi-attacker TCP service |
+| `session_manager.py` | Tracks per-attacker state, keeps identity consistent across the whole simulated filesystem | `SessionManager` / `MultiSessionManager` instances |
+| `fake_filesystem.py` | Provides an isolated, mutable, tree-structured virtual filesystem per session | `Node` tree (files/directories) with real metadata |
+| `command_router.py` | Dispatches parsed commands against the filesystem and session state, with caching and ownership handling | Realistic shell responses (`uptime`, `w`, `ls -l`, etc.) |
+
+---
+
+## 🔄 Complete Execution Workflow
+
+1. `server.py` starts `ai_client.start_health_monitor()` as a background daemon thread, then enters its `accept()` loop.
+2. Every new connection is handed to `handle_client()` on its **own daemon thread**, so N attackers are served concurrently instead of queued behind a single accept loop.
+3. `session_manager.py` generates a UUID4 session ID first — this same ID later seeds the attacker's virtual filesystem — then registers the session in `MultiSessionManager`, keyed by attacker IP.
+4. `fake_filesystem.create_filesystem(session_id)` builds an isolated clone of the base OS template for that session, optionally pre-seeded with AI-generated content via `data_generator.get_generated_all(seed=...)`.
+5. As the attacker types, `command_router.py` resolves filesystem-write commands (`touch`, `mkdir`, `rm`, `mv`, `cp`) to their affected paths, applies the session's simulated UID/GID as file ownership, and selectively invalidates only the cache entries touching those paths.
+6. If the attacker escalates privileges or changes hostname, `session_manager.set_identity()` fires: it rewrites `/etc/hostname`, `/etc/hosts`, and `/etc/passwd` inside the *actual* virtual filesystem, updates the `$USER`/`$PWD` environment block, and refreshes the live prompt — instantly and consistently.
+7. Every command handled under a session acquires that session's `command_lock` (an `RLock`), so two connections sharing one `SessionManager` (e.g. repeat connections from the same IP) can never interleave filesystem or history mutations.
+8. If the AI backend goes down or comes back, the health-monitor thread flips `ai_client`'s shared availability flag — `command_router.py` picks that up on the very next fallback command, no restart required.
+
+---
+
+## 🔬 Individual Module Breakdown
+
+### `server.py`
+
+**Purpose:** The connection edge of the honeypot — turns a raw TCP listener into a concurrent, self-healing service.
+
+**Internal workflow:**
+- Wraps the accept loop so each `conn, addr` pair is immediately handed to a new `threading.Thread(target=handle_client, daemon=True)` — connections are never processed sequentially.
+- Calls `ai_client.start_health_monitor()` once at startup, which is safe to call repeatedly (it no-ops if the monitor thread is already alive).
+- Uses a module-level `print_lock` around all console output so interleaved attacker sessions don't garble the operator's terminal.
+
+**Role in architecture:** The only module that owns the raw socket and the thread lifecycle for every attacker connection.
+
+**Interaction with other modules:** Imports `ai_client`, `command_router.route_command`, `session_manager.SessionManager`/`MultiSessionManager`, `attack_analyzer`, and `logger` — it's the coordination point that ties the whole engine together per request.
+
+---
+
+### `session_manager.py`
+
+**Purpose:** The single source of truth for "who is this attacker, right now" — and the module responsible for making sure that truth is reflected everywhere else in the simulation.
+
+**Internal workflow:**
+- `MultiSessionManager` holds one `SessionManager` per attacker IP, guarded by its own `threading.Lock` so concurrent connections from different (or the same) IPs never corrupt each other's state.
+- `SessionManager` itself uses a `threading.RLock` (`command_lock`) around command handling, so multiple live connections that legitimately share one session never race on `cwd`, filesystem, or history mutations.
+- `set_identity()` is the propagation point: on privilege escalation or hostname change it rewrites `/etc/hostname`, `_render_hosts()` rewrites `/etc/hosts` (replacing any stale `127.0.1.1` entry), and `_render_passwd()` rewrites `/etc/passwd` — all inside the attacker's *own* virtual filesystem, not just in memory.
+- Maintains a `backend_cache` dict (`filesystem`, `responses`, `identity`, `services`, `metadata`) with targeted invalidation helpers (`invalidate_backend(path=None)`) so a single file write doesn't force a full cache wipe.
+
+**Role in architecture:** Sits between the router and the filesystem, making sure every subsystem that cares about "who is logged in" sees the same answer at the same time.
+
+**Interaction with other modules:** Owns and creates the session's `fake_filesystem.py` instance; is read and written by `command_router.py` on nearly every command; supplies the `session_id` that `logger.py` stamps onto log lines.
+
+---
+
+### `fake_filesystem.py`
+
+**Purpose:** Replaces static, hardcoded command output with a real, walkable, mutable filesystem tree — so the sandbox behaves like an OS instead of a script.
+
+**Internal workflow:**
+- `Node` is the shared base class for both files and directories, carrying a `name`, `parent` reference, and a `Metadata` object (`owner`/`group` exposed as properties that read/write through to that metadata).
+- `Metadata` tracks realistic per-file state — ownership, permissions, and creation/modification timestamps — updated as the attacker runs `touch`, `mkdir`, `rm`, `cp`.
+- `create_filesystem(session_id)` returns a fresh clone of a base `ORIGINAL_FILESYSTEM` template for every session; if a `session_id` is supplied, it additionally hashes that ID (`hashlib.md5`) into a seed, imports `data_generator.get_generated_all(seed=...)` from the sibling `xynera-ai` package, and merges the generated dataset into the session's file contents before the attacker's first command.
+
+**Role in architecture:** The actual "disk" every other module reads from and writes to — command router output, `ls -l` ownership, and identity rewrites all resolve against this tree.
+
+**Interaction with other modules:** Instantiated per-session by `session_manager.py`; read and mutated by `command_router.py`'s file-handling commands; its `/etc/passwd` and `/etc/hosts` entries are the exact target of `session_manager.set_identity()`'s rewrites.
+
+---
+
+### `command_router.py`
+
+**Purpose:** Turns a parsed attacker command into a filesystem-consistent, session-aware response — efficiently.
+
+**Internal workflow:**
+- Replaced hardcoded `uptime`/`w`/`who` output with a persistent `SYSTEM_BOOT_TIME` reference computed once at import time; each call derives real elapsed uptime and reflects the attacker's actual login IP and session duration.
+- `_affected_paths(command, filesystem, cwd, session_manager)` resolves every non-flag path operand in filesystem-write commands (`touch`/`mkdir`/`rm`/`mv`/`cp`), so `session_manager.invalidate_backend()` only has to drop cache entries for paths that actually changed — not the whole cache.
+- Newly created files/directories have their owner and group set via `session_manager._apply_ownership(dest_path, owner, group)`, pulling directly from the active session's simulated username/groups, so every new node inherits the attacker's live UID/GID.
+- Falls back to `ai_client.send_to_ai()` only when no static routing rule matches a command, keeping the fast, deterministic path for common commands and reserving the AI backend for the unexpected ones.
+
+**Role in architecture:** The dispatch layer that connects attacker input to both the filesystem and the identity/caching machinery in `session_manager.py`.
+
+**Interaction with other modules:** Reads and writes through `fake_filesystem.py`; calls into `session_manager.py` for ownership and cache invalidation; calls `ai_client.py` (not `replay.py` — see the Logging & Replay subsystem doc) for AI fallback responses.
+
+---
+
+## 🔀 Internal Data Flow
+
+```mermaid
+flowchart LR
+    CONN[New Connection] --> THREAD[Dedicated Thread]
+    THREAD --> SESSION[MultiSessionManager: get/create by IP]
+    SESSION --> FS[fake_filesystem.create_filesystem]
+    THREAD --> CMD[Attacker Command]
+    CMD --> ROUTE[command_router.route_command]
+    ROUTE --> AFFECTED[_affected_paths]
+    AFFECTED --> CACHE[Selective Cache Invalidation]
+    ROUTE --> OWN[_apply_ownership]
+    OWN --> FS
+    CMD --> IDCHANGE{Privilege / Hostname Change?}
+    IDCHANGE -->|yes| SETID[session_manager.set_identity]
+    SETID --> ETCFILES[/etc/hostname, /etc/hosts, /etc/passwd/]
+    ETCFILES --> FS
+```
+
+---
+
+## 🔗 Integration with the Entire Honeypot
+
+| Module | How it connects to the Core Engine |
+|---|---|
+| `logger.py` | Consumes the `session_id` minted by `session_manager.py` on every logged command |
+| `attack_analyzer.py` | Its `classify()` output flows into `command_router.py`'s decision of whether to answer statically or fall back to the AI backend |
+| `ai_client.py` | The health-monitor daemon started by `server.py` continuously informs `command_router.py`'s AI-fallback path of backend availability |
+| `deception_engine.py` | Sits in front of `command_router.py`, so any command it intercepts never reaches the routing/filesystem layer described here |
+
+---
+
+## 💡 Why This Subsystem Matters
+
+- **Realism under load** — a honeypot that blocks on one attacker, or lets two attackers see each other's files, breaks the illusion immediately. Thread-per-connection plus per-session locking prevents both.
+- **Consistency after privilege escalation** — an attacker who becomes `root` and checks `/etc/passwd` should see themselves reflected there; `set_identity()` is what makes that true instead of just updating an in-memory flag.
+- **Performance without sacrificing accuracy** — selective cache invalidation means the router doesn't have to choose between "fast" and "correct" after every file write.
+- **A believable sandbox** — ownership inheritance, real metadata, and AI-seeded content are what separate a tree of empty folders from something an attacker will actually explore and trust.
+
+---
+
+## ✅ Key Features
+
+- [x] Thread-per-connection TCP server with daemon threads (never blocks on a single attacker)
+- [x] Background AI-backend health monitoring with automatic hot-swap to local fallback
+- [x] Per-IP session tracking via `MultiSessionManager`
+- [x] Reentrant per-session locking (`command_lock`) to prevent state corruption on concurrent commands
+- [x] Live identity propagation across `/etc/hostname`, `/etc/hosts`, `/etc/passwd`, environment variables, and shell prompt
+- [x] Tree-based, mutable virtual filesystem (`Node` + `Metadata`) isolated per session
+- [x] AI-seeded filesystem content, keyed by session ID
+- [x] Realistic file metadata: ownership, permissions, timestamps
+- [x] Dynamic, non-hardcoded `uptime`/`w`/`who` output via `SYSTEM_BOOT_TIME`
+- [x] Selective backend-cache invalidation on filesystem writes
+- [x] Automatic UID/GID inheritance for newly created files and directories
+
+---
+
+## 🚀 Future Improvements
+
+> Natural next steps suggested by the current architecture — not implemented today.
+
+- 🔐 **Per-session filesystem quotas** to cap sandbox growth under sustained attacker activity.
+- 🧵 **Configurable thread-pool limits** to bound resource use under connection floods.
+- 📊 **Live session dashboard** surfacing `MultiSessionManager` state in real time (pairs well with the Logging & Replay subsystem's dashboards).
+- 🧬 **Richer AI-seeded personas** — extending `data_generator.get_generated_all()` output beyond files into believable shell history and bash aliases.
+- 🩺 **Configurable health-check strategy** (currently a fixed interval) for the AI backend monitor.
+
+---
+
+<div align="center">
+
+**XYNERA Honeypot Project** · Concurrency, State & Simulation Core · Baseline V3.3
+
+</div>
 ## 🌐 `fake_network.py` — The Server's Identity Card
 
 Think of this file as the **honeypot's passport**. It decides, once and for
