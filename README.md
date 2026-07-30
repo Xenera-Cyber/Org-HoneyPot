@@ -1487,7 +1487,7 @@ flowchart LR
 
 <div align="center">
 
-**XYNERA Honeypot Project** | Progress on frontend | 
+**XYNERA Honeypot Project** | Progress on frontend | End of report
 
 </div>
 
