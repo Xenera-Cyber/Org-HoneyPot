@@ -1126,8 +1126,7 @@ That is the job of this subsystem. It sits quietly behind every live session, tu
 🖥️  Live Attack  →  📝 Structured Log  →  🔍 Analyst Investigation
 ```
 
-This document covers the three modules that make that pipeline work — `logger.py`, `log_viewer.py`, and `replay.py` — exactly as they exist in the V3.3 baseline, with no invented functionality.
-
+This part covers the three modules that make that pipeline work — `logger.py`, `log_viewer.py`, and `replay.py`.
 ---
 
 ## 🏗️ Logging & Replay Architecture
@@ -1319,7 +1318,7 @@ flowchart LR
 
 <div align="center">
 
-**XYNERA Honeypot Project** · Logging & Attack Replay Subsystem · Baseline V3.3
+**XYNERA Honeypot Project** | Progress on frontend | 
 
 </div>
 
