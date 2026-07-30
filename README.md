@@ -1110,6 +1110,219 @@ The AI-Powered SSH Honeypot follows a modular workflow where each component perf
 
 ---
 
+# 🧭 XYNERA — Logging & Attack Replay Subsystem
+
+> The forensic backbone of the XYNERA SSH honeypot: every attacker command becomes a structured, queryable, replayable record.
+
+---
+
+## 🎯 Hero
+
+An SSH honeypot is only as useful as the trail it leaves behind. XYNERA can simulate a filesystem, fake a shell, and improvise responses all day long — but none of that has analytical value unless the attacker's behaviour is **captured, stored, and made explorable after the fact**.
+
+That is the job of this subsystem. It sits quietly behind every live session, turning raw attacker input into a durable, rotating log file, and then gives analysts a rich CLI to interrogate that log: filter it, score it, graph it, export it, and **replay it back at the same pace the attacker typed it**.
+
+```
+🖥️  Live Attack  →  📝 Structured Log  →  🔍 Analyst Investigation
+```
+
+This document covers the three modules that make that pipeline work — `logger.py`, `log_viewer.py`, and `replay.py` — exactly as they exist in the V3.3 baseline, with no invented functionality.
+
+---
+
+## 🏗️ Logging & Replay Architecture
+
+```mermaid
+flowchart TD
+    A[Attacker] -->|SSH session| B[server.py]
+    B -->|per-connection thread| C[command_router.py]
+    C -->|simulated shell output| B
+    B -->|attack_analyzer.classify| D[attack_analyzer.py]
+    D -->|attack_type + score| B
+    B -->|logger.log_command| E[logger.py]
+    E -->|RotatingFileHandler| F[(logs/attacks.log)]
+    F -->|load_logs / regex parse| G[log_viewer.py]
+    G -->|filter · search · timeline · analytics · export| H[Human Analyst]
+
+    style A fill:#ff6b6b,color:#fff
+    style H fill:#4ecdc4,color:#fff
+    style F fill:#ffe66d,color:#333
+```
+
+> **Note on scope:** `logger.py` is called directly by `server.py`, not by `command_router.py`. The router is responsible for producing the attacker-visible *response*; logging happens as a separate step once the command has been classified.
+
+---
+
+## 📦 Module Responsibilities
+
+| Module | Responsibility | Key Output |
+|---|---|---|
+| `logger.py` | Writes every classified command to a rotating on-disk log with a consistent, parseable format | `logs/attacks.log` (rotating, 5 MB × 3 backups) |
+| `log_viewer.py` | Standalone analyst CLI — parses, filters, searches, replays, graphs, and exports the log | Terminal reports, Matplotlib graphs, JSON/CSV exports |
+| `replay.py` | A duplicate, unwired copy of an early AI-backend client (see [module breakdown](#-replaypy) below) | N/A — not imported anywhere else in the codebase |
+
+---
+
+## 🔄 Complete Execution Workflow
+
+1. **Attacker connects** to `server.py`, which spins up a dedicated thread per TCP connection.
+2. The attacker types a command; `command_router.py` matches it against XYNERA's routing tables (or falls back to the AI backend via `ai_client.py`) to build the simulated response.
+3. In parallel, `server.py` calls `attack_analyzer.classify(command)` to tag the command with an **attack type** (e.g. `Reconnaissance`, `Credential Enumeration`, `Malware Download`).
+4. `attack_analyzer.threat_score(attack_type)` converts that tag into a numeric severity score, which is also folded into the session's running threat score via `session_manager`.
+5. `server.py` calls `logger.log_command(command, attack_type, ip_address, session_id)`.
+6. `logger.py` looks up the same score from `SHARED_ATTACK_SCORES`, formats a single log line, and writes it through a `RotatingFileHandler` to `logs/attacks.log`.
+7. At any later point, an analyst runs `log_viewer.py` directly from the terminal.
+8. `log_viewer.py` loads and regex-parses `attacks.log` (or `attacks.json`, if present) into structured dictionaries.
+9. The analyst chooses from a 24-option menu — read, filter, search, **replay the session's timeline at real pacing**, chart the data, or export a report.
+
+---
+
+## 🔬 Individual Module Breakdown
+
+### `logger.py`
+
+**Purpose:** The single write-path for attacker activity. It exists so every other module — server, router, viewer — agrees on one log format.
+
+**Internal workflow:**
+- On import, `setup_logger()` creates the `logs/` directory if needed and configures a dedicated `attack_logger` with a `RotatingFileHandler` (`MAX_BYTES = 5MB`, `BACKUP_COUNT = 3`), guarding against duplicate handler registration if called twice.
+- `log_command(command, attack_type, ip_address, session_id, severity)` is the only public entry point. It:
+  - Looks up a numeric score for the attack type from `attack_analyzer.SHARED_ATTACK_SCORES` (imported directly, so logger and analyzer never disagree on scoring).
+  - Resolves the requested `severity` string to a real `logging` level, defaulting to `INFO`.
+  - Formats a single-line message: `IP=... | SESSION=... | TYPE=... | SCORE=... | CMD=...`.
+
+**Role in architecture:** Terminal node of the live attack path — the last thing that happens to a command before it becomes durable evidence.
+
+**Interaction with other modules:** Imports `SHARED_ATTACK_SCORES` from `attack_analyzer.py`; is imported and called by `server.py` immediately after classification.
+
+<details>
+<summary>📄 Log line format produced by <code>logger.py</code></summary>
+
+```
+[2026-07-30 14:02:11] [INFO] IP=192.168.1.44 | SESSION=b3f1... | TYPE=Reconnaissance | SCORE=20 | CMD=whoami
+```
+
+</details>
+
+---
+
+### `log_viewer.py`
+
+**Purpose:** The analyst-facing half of the subsystem — a full CLI dashboard built on top of the log file `logger.py` produces.
+
+**Internal workflow:**
+- `load_logs()` reads `logs/attacks.log` line by line against a compiled regex (`LOG_PATTERN`) that mirrors `logger.py`'s exact output format, turning each line into a dict of `timestamp`, `severity`, `ip`, `session`, `attack_type`, `score`, `command`.
+- `load_json_logs()` offers an alternate path for a structured `logs/attacks.json`, if one exists.
+- A large family of functions then operate on that list of dicts.
+
+**Important functions, grouped by what they do:**
+
+| Category | Functions |
+|---|---|
+| 🔎 Inspection | `latest_logs`, `filter_ip`, `filter_attack`, `filter_severity`, `session_logs`, `search_command`, `search_time_range`, `sort_logs` |
+| ⏱️ Replay | `timeline_view` |
+| 📊 Analytics (text) | `threat_summary`, `command_frequency`, `top_attackers`, `dashboard`, `statistics`, `session_statistics`, `ip_intelligence` |
+| 📈 Analytics (graphs, via Matplotlib) | `attack_distribution_graph`, `severity_distribution_graph`, `top_attackers_graph`, `threat_score_graph`, `command_frequency_graph`, `timeline_graph`, `analytics_dashboard` |
+| 📤 Export | `export_json`, `export_csv`, `generate_report` |
+| 🔮 Future placeholders | `ai_anomaly_detection`, `rag_context_lookup`, `threat_intelligence` (each simply prints `[Future Feature] ...`) |
+| 🧭 Entry point | `menu()` — a 24-option CLI loop, run when the file is executed directly |
+
+**The replay mechanism, specifically:** `timeline_view(logs)` sorts all entries chronologically and then walks through them printing each one — but before printing the next entry, it sleeps for the real gap between the two original timestamps, **capped at 5 seconds**. This is what actually delivers "attack replay": the attacker's session is played back at (a bounded version of) the speed it originally happened, rather than dumped instantly.
+
+**Role in architecture:** The read/query surface of the subsystem — the only module in this trio actually designed for a human to sit in front of.
+
+**Interaction with other modules:** Imports `threat_score` from `attack_analyzer.py` to compute severity weightings for its dashboards and graphs; consumes the exact file format `logger.py` writes.
+
+---
+
+### `replay.py`
+
+**Purpose (as implemented):** Despite the name, this module does **not** read, sort, or play back log entries. It defines `send_to_ai(ip, command, history, attack_type)` — a synchronous HTTP client that posts a command payload to `http://10.200.200.30:5000/process` and returns a cleaned text reply.
+
+**Internal workflow:**
+- Builds a JSON payload (`ip`, `command`, `history`, `local_attack_type`) and POSTs it with a 335-second timeout.
+- Handles non-200 responses, invalid JSON, request timeouts, and connection errors, each returning `None` on failure.
+- `clean_response()` strips Markdown code fences from the AI's reply before returning it.
+
+> ⚠️ **Accuracy note:** A `grep` across the full baseline shows this module is not imported anywhere else in the codebase. The live AI-integration path used by `command_router.py` goes through a separate, more capable module — `ai_client.py` — which adds connection pooling, retries, a background health-monitor thread, and an offline fallback payload. `replay.py` appears to be an earlier or duplicate draft of that same idea that was never wired in, consistent with it having been flagged during merge review as a stale copy. It is documented here for completeness because it ships in the baseline, but **the "attack replay" functionality described elsewhere in this document is `log_viewer.py`'s `timeline_view()`, not this file.**
+
+---
+
+## 🔀 Internal Data Flow
+
+```mermaid
+flowchart LR
+    CMD[Attacker Command] --> ROUTER[command_router.py]
+    ROUTER --> CLASSIFY[attack_analyzer.classify]
+    CLASSIFY --> LOGGER[logger.log_command]
+    LOGGER --> STORE[(logs/attacks.log)]
+    STORE --> LOAD[log_viewer.load_logs]
+    LOAD --> TIMELINE[timeline_view / analytics]
+    TIMELINE --> HUMAN[Human-readable output]
+```
+
+---
+
+## 🔗 Integration with the Entire Honeypot
+
+| Module | How it connects to Logging & Replay |
+|---|---|
+| `server.py` | Owns the per-connection thread loop; is the **only** caller of `logger.log_command()`, invoking it right after classification on every attacker command |
+| `command_router.py` | Produces the simulated response the attacker sees, and supplies the `attack_type` context used downstream; does not call the logger itself |
+| `session_manager.py` | Generates the UUID4 `session_id` that `logger.py` stamps onto every log line, and tracks the same running threat score that `log_viewer.py` later recomputes from the log |
+| `attack_analyzer.py` | Supplies both the classification (`classify()`) and the shared scoring table (`SHARED_ATTACK_SCORES` / `threat_score()`) that `logger.py` and `log_viewer.py` both depend on for consistent severity numbers |
+| `deception_engine.py` | Sits upstream of `command_router.py`, shaping which commands even reach the router — it does not call the logging subsystem directly, but every command it lets through still gets classified and logged as usual |
+
+---
+
+## 💡 Why This Subsystem Matters
+
+- **Forensic analysis** — `attacks.log` is the durable, tamper-evident record of everything an attacker did, independent of whatever the live session simulated back to them.
+- **Debugging the honeypot itself** — session-by-session and IP-by-IP breakdowns (`session_statistics`, `ip_intelligence`) make it easy to spot routing gaps or misclassifications during development.
+- **Attack investigation** — filtering by IP, command keyword, time range, or attack type turns a flat log file into a searchable case file.
+- **Behavioural replay** — `timeline_view()` lets an analyst watch an attacker's session unfold at (near) real speed, which is far more revealing of intent than a static list of commands.
+- **Behavioural analytics** — the Matplotlib-backed graphs (attack distribution, threat trend, top attackers) turn raw text logs into shareable visual evidence.
+- **A foundation for future AI work** — the placeholder functions (`ai_anomaly_detection`, `rag_context_lookup`, `threat_intelligence`) mark exactly where machine-driven analysis is meant to slot in next.
+
+---
+
+## ✅ Key Features
+
+- [x] Structured, rotating file logging (`RotatingFileHandler`, 5 MB × 3 backups)
+- [x] Shared attack-scoring table used consistently across logging and viewing
+- [x] Regex-based log parsing tied precisely to `logger.py`'s output format
+- [x] IP / attack-type / severity / command / time-range filtering
+- [x] Session-wise log grouping
+- [x] Paced timeline replay (capped at 5s between entries)
+- [x] Text dashboards: threat summary, command frequency, top attackers, statistics
+- [x] Matplotlib graphs: attack distribution, severity pie chart, top attackers, threat trend, command frequency, timeline
+- [x] JSON and CSV export
+- [x] Auto-generated summary report
+- [x] Session and IP intelligence breakdowns
+- [x] Optional JSON log source (`attacks.json`) alongside the primary text log
+
+---
+
+## 🚀 Future Improvements
+
+> These are ideas suggested by the codebase's own placeholder functions — none of them are implemented today.
+
+- 🧠 **AI Anomaly Detection** — the `ai_anomaly_detection()` stub is reserved for ML-based behaviour clustering and unusual-activity scoring.
+- 📚 **RAG Context Lookup** — the `rag_context_lookup()` stub is reserved for retrieving similar historical attacks from a vector database.
+- 🌐 **Threat Intelligence Enrichment** — the `threat_intelligence()` stub is reserved for VirusTotal / AbuseIPDB / GeoIP lookups and IOC enrichment.
+- 🗺️ **MITRE ATT&CK mapping** for each classified attack type.
+- 📡 **Live dashboard** instead of an on-demand CLI (e.g. a lightweight web view).
+- 🔍 **Elasticsearch / Kibana integration** for large-scale log search and visualization.
+- 📄 **PDF report generation** to complement the existing JSON/CSV export options.
+- 🧩 **Wiring or retiring `replay.py`** — either integrate it properly (superseded by `ai_client.py`) or remove it to avoid confusion with `log_viewer.py`'s actual replay feature.
+
+---
+
+<div align="center">
+
+**XYNERA Honeypot Project** · Logging & Attack Replay Subsystem · Baseline V3.3
+
+</div>
+
 ---
 
 //Updates from AI & UI integration team (Author- Vidit):
