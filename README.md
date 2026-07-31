@@ -1493,7 +1493,338 @@ flowchart LR
 
 ---
 
-//Updates from AI & UI integration team (Author- Vidit):
+# 🤖 XYNERA AI
+
+<p align="center">
+  <strong>Adaptive Intelligence Engine for the XYNERA AI-Powered SSH Honeypot</strong>
+  <br>
+  Context-Aware • RAG-Powered • Threat-Aware • Session-Aware • Real-Time Deception
+</p>
+
+---
+
+## Badges
+
+<p align="center">
+
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![Groq](https://img.shields.io/badge/Groq-LLM-orange?style=for-the-badge)
+![FAISS](https://img.shields.io/badge/FAISS-Vector%20Search-blue?style=for-the-badge)
+![RAG](https://img.shields.io/badge/RAG-Enabled-success?style=for-the-badge)
+![MIT License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge)
+
+</p>
+
+---
+
+# 📖 Overview
+
+**XYNERA AI** is the intelligent decision-making engine powering the **XYNERA AI-Powered SSH Honeypot**. It transforms traditional static honeypots into adaptive deception systems capable of understanding attacker behavior, maintaining realistic conversations, and generating context-aware responses in real time.
+
+Unlike conventional honeypots that rely on predefined outputs, XYNERA AI combines **Retrieval-Augmented Generation (RAG)**, **behavioral profiling**, **threat analysis**, **adaptive personalities**, and **predictive intelligence** to create a highly believable Linux environment that continuously adapts to attacker actions.
+
+Every command received from the honeypot is processed through a multi-stage AI pipeline that classifies the attack, evaluates risk, retrieves relevant contextual information, applies security guardrails, and generates realistic responses while preserving session consistency.
+
+The AI backend is built with a modular architecture, allowing each intelligence component to operate independently while collaborating to provide fast, scalable, and secure deception. This design makes it easy to extend the system with new detection models, knowledge sources, personalities, and analytics capabilities.
+
+---
+
+# ✨ Key Features
+
+- 🧠 **Adaptive AI Deception** using Retrieval-Augmented Generation (RAG)
+- ⚡ **FastAPI-powered** high-performance asynchronous backend
+- 📚 **FAISS Vector Database** for lightning-fast knowledge retrieval
+- 🎯 **Threat Classification Engine** with multi-level risk scoring
+- 👤 **Behavior Profiling** that tracks attacker actions throughout each session
+- 🎭 **Dynamic AI Personalities** that adapt responses based on threat level
+- 🔮 **Predictive Intelligence** for forecasting attacker intentions and next actions
+- 🛡️ **Runtime Guardrails** preventing unsafe or unrealistic AI responses
+- 📂 **Session-Aware Corporate Data Generation** with consistent fake identities
+- 🔍 **Knowledge Base Retrieval** containing Linux commands, documents, credentials, and enterprise assets
+- ⚙️ **Dynamic Configuration** without restarting the backend
+- 📊 **Structured JSON Logging** for dashboards and attack analytics
+- 🚀 **Local Command Simulation** for common Linux commands, reducing LLM calls
+- 🔄 **Automatic Retry & Response Caching** for improved reliability and performance
+- 🌐 **REST API** enabling seamless integration with the XYNERA Honeypot
+- 📈 **Modular Architecture** designed for future AI models and security research
+
+---
+---
+
+# 🏗️ Architecture Diagram
+
+The AI backend follows a modular, pipeline-driven architecture where every component performs a dedicated task before passing enriched context to the next stage. This design enables scalable intelligence, realistic deception, and efficient request processing.
+
+```text
+                        ┌──────────────────────────┐
+                        │   XYNERA Honeypot        │
+                        │ (SSH / TCP Connection)   │
+                        └─────────────┬────────────┘
+                                      │
+                                      ▼
+                          POST /process (FastAPI)
+                                      │
+                                      ▼
+                           ┌─────────────────────┐
+                           │   API Server        │
+                           │   api_server.py     │
+                           └─────────┬───────────┘
+                                     │
+        ┌────────────────────────────┼─────────────────────────────┐
+        ▼                            ▼                             ▼
+┌────────────────┐         ┌─────────────────┐          ┌─────────────────┐
+│ Classifier     │         │ Session Data    │          │ Attacker Profile│
+└──────┬─────────┘         └────────┬────────┘          └────────┬────────┘
+       │                            │                            │
+       └──────────────┬─────────────┴──────────────┬─────────────┘
+                      ▼                            ▼
+              ┌─────────────────┐         ┌──────────────────┐
+              │ Threat Engine   │────────▶│ Adaptive Persona │
+              └────────┬────────┘         └────────┬─────────┘
+                       │                           │
+                       ▼                           ▼
+                ┌────────────────────────────────────┐
+                │        RAG Engine                  │
+                │ Knowledge Base + Vector Store      │
+                └────────────────┬───────────────────┘
+                                 │
+                                 ▼
+                       Large Language Model
+                                 │
+                                 ▼
+                         Guardrails Layer
+                                 │
+                                 ▼
+                     Predictive Intelligence
+                                 │
+                                 ▼
+                      Structured JSON Logger
+                                 │
+                                 ▼
+                        API Response Returned
+```
+
+---
+
+# ⚙️ AI Processing Pipeline
+
+Every attacker command passes through multiple intelligence layers before a response is generated.
+
+| Stage | Module | Responsibility | Output |
+|-------|--------|---------------|--------|
+| 1 | `api_server.py` | Receives API request and orchestrates the pipeline | Request Context |
+| 2 | `classifier.py` | Detects attack type and assigns risk score | Attack Classification |
+| 3 | `attacker_profile.py` | Maintains attacker history and behavioural metrics | Session Profile |
+| 4 | `threat_engine.py` | Calculates dynamic threat severity | Threat Level |
+| 5 | `personalities.py` | Selects adaptive AI persona | Personality Context |
+| 6 | `knowledge_base.py` | Retrieves Linux commands and enterprise documents | Retrieved Context |
+| 7 | `vector_store.py` | Performs semantic similarity search using FAISS | Relevant Knowledge |
+| 8 | `rag_engine.py` | Generates context-aware AI responses | AI Response |
+| 9 | `guardrails.py` | Filters unsafe or unrealistic outputs | Safe Response |
+| 10 | `predictive_engine.py` | Predicts attacker intentions and deception success | Analytics |
+| 11 | `logger.py` | Stores structured security events | JSON Logs |
+| 12 | FastAPI | Returns the final response to the Honeypot | API Response |
+
+### 🔄 Request Workflow
+
+```text
+Attacker Command
+        │
+        ▼
+Receive API Request
+        │
+        ▼
+Attack Classification
+        │
+        ▼
+Session & Behaviour Analysis
+        │
+        ▼
+Threat Scoring
+        │
+        ▼
+Adaptive Personality Selection
+        │
+        ▼
+Knowledge Retrieval (FAISS)
+        │
+        ▼
+LLM Response Generation
+        │
+        ▼
+Security Guardrails
+        │
+        ▼
+Predictive Analytics
+        │
+        ▼
+Structured Logging
+        │
+        ▼
+Response Returned
+```
+
+---
+
+# 📂 Folder Structure
+
+```text
+xynera-ai/
+│
+├── api_server.py              # FastAPI backend entry point
+├── classifier.py              # Attack classification engine
+├── attacker_profile.py        # Behaviour profiling
+├── threat_engine.py           # Threat scoring
+├── personalities.py           # Adaptive AI personalities
+├── rag_engine.py              # Retrieval-Augmented Generation
+├── knowledge_base.py          # Enterprise knowledge repository
+├── vector_store.py            # FAISS vector search
+├── predictive_engine.py       # Attack prediction
+├── guardrails.py              # AI safety layer
+├── logger.py                  # Structured logging
+├── config.py                  # Dynamic configuration
+├── dynamic_config.json        # Runtime configuration
+├── requirements.txt
+├── .env
+├── cache/
+├── logs/
+├── knowledge/
+└── README.md
+```
+
+### 📦 Core Modules
+
+| Module | Purpose |
+|---------|---------|
+| `api_server.py` | FastAPI application and request orchestration |
+| `classifier.py` | Detects attacker intent and assigns risk |
+| `attacker_profile.py` | Tracks attacker behaviour across sessions |
+| `threat_engine.py` | Calculates dynamic threat scores |
+| `personalities.py` | Selects adaptive honeypot personalities |
+| `rag_engine.py` | Generates AI responses using retrieved context |
+| `knowledge_base.py` | Stores Linux, enterprise, and deception knowledge |
+| `vector_store.py` | Semantic retrieval using FAISS |
+| `guardrails.py` | Prevents unsafe AI responses |
+| `predictive_engine.py` | Forecasts attacker behaviour |
+| `logger.py` | Structured analytics and event logging |
+
+---
+
+# 🚀 Installation
+
+## Prerequisites
+
+| Requirement | Version |
+|-------------|----------|
+| Python | 3.10+ |
+| pip | Latest |
+| Git | Latest |
+| Groq API Key | Required |
+
+---
+
+## Clone Repository
+
+```bash
+git clone https://github.com/Xenera-Cyber/Org-HoneyPot.git
+cd Org-HoneyPot/xynera-ai
+```
+
+---
+
+## Create Virtual Environment
+
+### Windows
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+### Linux / macOS
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+---
+
+## Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## Run the Backend
+
+```bash
+python api_server.py
+```
+
+The API will start at:
+
+```
+http://localhost:5000
+```
+
+---
+
+# 🔐 Environment Variables
+
+Create a `.env` file inside the project root.
+
+```env
+# ===============================
+# API Configuration
+# ===============================
+HOST=0.0.0.0
+PORT=5000
+
+# ===============================
+# LLM Configuration
+# ===============================
+GROQ_API_KEY=your_api_key_here
+MODEL=llama-3.1-8b-instant
+
+# ===============================
+# RAG Configuration
+# ===============================
+VECTOR_DB=faiss
+TOP_K=5
+
+# ===============================
+# Logging
+# ===============================
+LOG_LEVEL=INFO
+
+# ===============================
+# Runtime
+# ===============================
+DEBUG=False
+```
+
+## Environment Variable Reference
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `HOST` | API host address | `0.0.0.0` |
+| `PORT` | Backend port | `5000` |
+| `GROQ_API_KEY` | Groq API key | Required |
+| `MODEL` | LLM model | `llama-3.1-8b-instant` |
+| `VECTOR_DB` | Vector database | `FAISS` |
+| `TOP_K` | Number of retrieved documents | `5` |
+| `LOG_LEVEL` | Logging level | `INFO` |
+| `DEBUG` | Debug mode | `False` |
+
+---
+---
+
+### XYNERA-AI MODULE [EXPLANANTION] :-
 
 1. **RAG Engine (`xynera-ai/rag_engine.py`)**
    - Built the Retrieval-Augmented Generation engine from scratch powering all AI deception responses.
@@ -1590,3 +1921,1779 @@ flowchart LR
     - Validated all endpoints (`GET /health`, `POST /process`, all `dashboard_api.py` routes) using Postman. Full collection saved at `postman_collection.json`.
     - Tested attack scenarios: reconnaissance, credential access, privilege escalation, network recon, reverse shell commands, and multi-session consistency (same `cat /etc/shadow` with same `session_id` → identical hash output confirmed from cache).
     - Verified guardrails blocked all destructive and malware commands, rate-limit back-off prevented API key exhaustion, offline fallback kept the honeypot responsive during simulated AI backend outages, and live `dynamic_config.json` reload applied model and temperature changes without restart.
+
+   ---
+
+## 📖 Project Summary
+
+**XYNERA AI** is an intelligent cyber deception engine that powers the **XYNERA AI-Powered SSH Honeypot**, transforming traditional honeypots into adaptive, context-aware defense systems. By combining **Retrieval-Augmented Generation (RAG)**, **behavioral analytics**, **semantic search**, **threat intelligence**, **predictive analytics**, and **dynamic AI personalities**, the platform generates realistic and consistent interactions that emulate genuine Linux environments while continuously adapting to attacker behavior.
+
+Built on a modular **FastAPI** architecture, XYNERA AI integrates specialized components for attack classification, attacker profiling, threat assessment, knowledge retrieval, vector search, guardrails, structured logging, and runtime configuration. A custom **TF-IDF + FAISS** retrieval pipeline, response caching, asynchronous processing, and local command simulation enable low-latency, high-performance AI responses suitable for real-time cyber deception.
+
+The platform also generates realistic enterprise assets—including corporate documents, credentials, infrastructure configurations, employee profiles, and decoy data—to strengthen deception authenticity. Integrated with both the backend analytics service and the React-based dashboard, XYNERA AI provides live attack monitoring, predictive threat insights, session analytics, and centralized management through secure REST APIs. Comprehensive API validation and security testing ensure the platform remains reliable, scalable, and production-ready for modern cybersecurity research and intelligent defense applications.
+
+# ▶️ Running the Backend
+
+After configuring the environment and installing dependencies, start the AI backend.
+
+```bash
+python api_server.py
+```
+
+or
+
+```bash
+uvicorn api_server:app --host 0.0.0.0 --port 5000 --reload
+```
+
+Expected Output
+
+```
+INFO:     Started server process
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:5000
+```
+
+The backend exposes REST APIs that communicate directly with the XYNERA Honeypot and Dashboard.
+
+---
+
+## Backend Workflow
+
+```text
+              Start Backend
+                    │
+                    ▼
+          Load Environment Variables
+                    │
+                    ▼
+        Load Dynamic Configuration
+                    │
+                    ▼
+       Initialize Knowledge Base
+                    │
+                    ▼
+       Build / Load FAISS Index
+                    │
+                    ▼
+      Initialize AI Personalities
+                    │
+                    ▼
+     Start FastAPI Application
+                    │
+                    ▼
+        Wait for API Requests
+```
+
+---
+
+# 🌐 API Endpoints
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| GET | `/health` | Backend health check |
+| POST | `/process` | Main AI processing endpoint |
+| GET | `/api/stats` | Dashboard statistics |
+| GET | `/api/recent-events` | Recent AI events |
+| GET | `/api/attackers` | Active attacker sessions |
+| GET | `/api/geo-map` | Geographic attack data |
+| GET | `/api/service-status` | Service health |
+| GET | `/api/config` | Current runtime configuration |
+| PUT | `/api/config` | Update runtime configuration |
+
+---
+
+## Request Processing Workflow
+
+```text
+Client
+   │
+   ▼
+POST /process
+   │
+   ▼
+Validate Request
+   │
+   ▼
+Execute AI Pipeline
+   │
+   ▼
+Generate Response
+   │
+   ▼
+Store Logs
+   │
+   ▼
+Return JSON Response
+```
+
+---
+
+# 🧩 Core Modules
+
+The AI backend follows a highly modular architecture where each module performs one specialised task before forwarding enriched information to the next stage.
+
+---
+
+## Overall Module Interaction
+
+```text
+                     api_server.py
+                           │
+      ┌────────────────────┼────────────────────┐
+      ▼                    ▼                    ▼
+classifier.py      attacker_profile.py    config.py
+      │                    │
+      └──────────────┬─────┘
+                     ▼
+             threat_engine.py
+                     │
+                     ▼
+            personalities.py
+                     │
+                     ▼
+           knowledge_base.py
+                     │
+                     ▼
+            vector_store.py
+                     │
+                     ▼
+              rag_engine.py
+                     │
+                     ▼
+             guardrails.py
+                     │
+                     ▼
+        predictive_engine.py
+                     │
+                     ▼
+               logger.py
+                     │
+                     ▼
+              JSON API Response
+```
+
+---
+
+# 📦 Module Summary
+
+| Module | Primary Responsibility | Key Features |
+|---------|-----------------------|--------------|
+| api_server.py | Pipeline orchestration | FastAPI, Pydantic, API routing |
+| classifier.py | Command classification | Risk scoring, attack detection |
+| attacker_profile.py | Behaviour profiling | Session analytics |
+| threat_engine.py | Threat evaluation | Dynamic threat scoring |
+| personalities.py | Adaptive AI | Context-aware personalities |
+| knowledge_base.py | Enterprise knowledge | Linux docs & fake corporate data |
+| vector_store.py | Semantic search | TF-IDF + FAISS |
+| rag_engine.py | AI generation | Retrieval-Augmented Generation |
+| guardrails.py | AI safety | Filters unsafe responses |
+| predictive_engine.py | Prediction | Behaviour forecasting |
+| logger.py | Logging | JSON security analytics |
+| config.py | Runtime configuration | Dynamic configuration loading |
+
+---
+
+# 📚 Detailed Module Overview
+
+## 1️⃣ api_server.py
+
+### Purpose
+
+Acts as the central controller of the entire AI backend.
+
+### Responsibilities
+
+- Hosts the FastAPI application
+- Validates incoming requests
+- Executes the complete AI pipeline
+- Returns structured JSON responses
+- Coordinates all backend modules
+
+### Workflow
+
+```text
+Receive Request
+      │
+      ▼
+Validate
+      │
+      ▼
+Run Pipeline
+      │
+      ▼
+Return Response
+```
+
+---
+
+## 2️⃣ classifier.py
+
+### Purpose
+
+Analyses every attacker command.
+
+### Responsibilities
+
+- Detect attack category
+- Assign confidence score
+- Calculate risk score
+- Track cumulative session risk
+
+### Output
+
+```
+Attack Type
+Risk Score
+Threat Level
+Confidence
+Timestamp
+```
+
+---
+
+## 3️⃣ attacker_profile.py
+
+### Purpose
+
+Maintains attacker behaviour throughout the session.
+
+Tracks
+
+- Commands
+- Directories
+- Recon attempts
+- Files accessed
+- Persistence
+- Engagement
+- Curiosity
+
+### Behaviour Workflow
+
+```text
+New Command
+      │
+      ▼
+Update Session
+      │
+      ▼
+Calculate Scores
+      │
+      ▼
+Generate Profile
+```
+
+---
+
+## 4️⃣ threat_engine.py
+
+### Purpose
+
+Calculates overall threat severity.
+
+Features
+
+- Attack weighting
+- Sequence analysis
+- Escalation logic
+- Threat multipliers
+
+```text
+Attack History
+      │
+      ▼
+Threat Rules
+      │
+      ▼
+Risk Calculation
+      │
+      ▼
+Threat Level
+```
+
+---
+
+## 5️⃣ personalities.py
+
+### Purpose
+
+Selects the most realistic AI personality.
+
+Threat Mapping
+
+| Threat | Personality |
+|---------|-------------|
+| LOW | Friendly |
+| MEDIUM | Normal |
+| HIGH | Suspicious |
+| CRITICAL | High Security |
+
+---
+
+## 6️⃣ knowledge_base.py
+
+### Purpose
+
+Stores deception knowledge.
+
+Contains
+
+- Linux commands
+- Corporate documents
+- Fake credentials
+- Emails
+- Database dumps
+- Configuration files
+- Internal reports
+
+---
+
+## 7️⃣ vector_store.py
+
+### Purpose
+
+Provides semantic search.
+
+Pipeline
+
+```text
+Knowledge Base
+      │
+      ▼
+TF-IDF
+      │
+      ▼
+FAISS Index
+      │
+      ▼
+Nearest Documents
+```
+
+---
+
+## 8️⃣ rag_engine.py
+
+### Purpose
+
+Generates intelligent responses.
+
+Pipeline
+
+```text
+Attacker Command
+       │
+       ▼
+Retrieve Context
+       │
+       ▼
+Construct Prompt
+       │
+       ▼
+LLM
+       │
+       ▼
+Post Processing
+```
+
+Key Features
+
+- Local command simulation
+- Async requests
+- Response cache
+- Retry mechanism
+- Prompt engineering
+- Output cleaning
+
+---
+
+## 9️⃣ guardrails.py
+
+### Purpose
+
+Final security layer.
+
+Blocks
+
+- Malware commands
+- Reverse shells
+- Dangerous filesystem operations
+- Empty responses
+
+Workflow
+
+```text
+LLM Response
+      │
+      ▼
+Guardrails
+      │
+      ▼
+Safe Output
+```
+
+---
+
+## 🔟 predictive_engine.py
+
+### Purpose
+
+Predicts attacker behaviour.
+
+Predicts
+
+- Next command
+- High-value target
+- Deception success
+- Session outcome
+
+---
+
+## 1️⃣1️⃣ logger.py
+
+### Purpose
+
+Stores every AI decision.
+
+Logs
+
+- Security events
+- Predictions
+- Personalities
+- Threat scores
+- AI responses
+- Analytics
+
+Workflow
+
+```text
+Pipeline Events
+      │
+      ▼
+JSON Logger
+      │
+      ▼
+Dashboard
+```
+
+---
+
+## 1️⃣2️⃣ config.py
+
+### Purpose
+
+Loads runtime configuration.
+
+Supports
+
+- Dynamic model selection
+- Temperature
+- Context length
+- Guardrails
+- RAG
+- Runtime updates
+
+---
+
+# 🔄 Complete AI Workflow
+
+```text
+SSH Honeypot
+      │
+      ▼
+API Server
+      │
+      ▼
+Classifier
+      │
+      ▼
+Attacker Profile
+      │
+      ▼
+Threat Engine
+      │
+      ▼
+Adaptive Personality
+      │
+      ▼
+Knowledge Base
+      │
+      ▼
+Vector Store
+      │
+      ▼
+RAG Engine
+      │
+      ▼
+Large Language Model
+      │
+      ▼
+Guardrails
+      │
+      ▼
+Predictive Engine
+      │
+      ▼
+Logger
+      │
+      ▼
+Dashboard
+      │
+      ▼
+Final Response
+```
+
+---
+
+## 📊 AI Backend at a Glance
+
+| Metric | Value |
+|---------|------:|
+| Core Python Modules | 12 |
+| AI Processing Stages | 11 |
+| REST APIs | 9 |
+| AI Personalities | 11 |
+| Attack Categories | 9 |
+| Linux Commands in KB | 35+ |
+| Sensitive Documents | 30+ |
+| Internal Corporate Documents | 21 |
+| Fake Employees per Session | 25 |
+| Vector Search Engine | FAISS |
+| Retrieval Method | TF-IDF + FAISS |
+| AI Framework | FastAPI |
+| Logging Format | Structured JSON |
+
+---
+
+---
+
+# 🔄 Request Flow
+
+Every attacker command passes through a multi-stage intelligence pipeline before a secure, context-aware response is returned.
+
+## End-to-End Workflow
+
+```text
+                     Attacker Command
+                            │
+                            ▼
+                  API Request (FastAPI)
+                            │
+                            ▼
+                Request Validation Layer
+                            │
+                            ▼
+               Attack Classification Engine
+                            │
+                            ▼
+              Session Behaviour Analysis
+                            │
+                            ▼
+                 Threat Assessment Engine
+                            │
+                            ▼
+             Adaptive Personality Selection
+                            │
+                            ▼
+               Retrieval-Augmented Generation
+                            │
+                            ▼
+              Large Language Model (Groq)
+                            │
+                            ▼
+                  Runtime Guardrails
+                            │
+                            ▼
+               Predictive Intelligence
+                            │
+                            ▼
+               Structured Security Logging
+                            │
+                            ▼
+                  JSON API Response
+                            │
+                            ▼
+                 XYNERA SSH Honeypot
+```
+
+---
+
+## Processing Stages
+
+| Stage | Component | Purpose |
+|--------|-----------|----------|
+| 1 | API Server | Receives attacker command |
+| 2 | Classifier | Detects attack category |
+| 3 | Profile Engine | Updates attacker behaviour |
+| 4 | Threat Engine | Calculates threat level |
+| 5 | Personality Engine | Selects AI personality |
+| 6 | RAG Engine | Retrieves contextual knowledge |
+| 7 | LLM | Generates realistic response |
+| 8 | Guardrails | Removes unsafe output |
+| 9 | Predictive Engine | Forecasts attacker intent |
+| 10 | Logger | Stores structured analytics |
+| 11 | API | Returns final response |
+
+---
+
+# 🧠 Retrieval-Augmented Generation (RAG) Pipeline
+
+The RAG engine enriches every prompt with contextual knowledge before sending it to the LLM.
+
+## Architecture
+
+```text
+               Attacker Command
+                       │
+                       ▼
+             Command Preprocessing
+                       │
+                       ▼
+             Local Command Simulator
+          (pwd, ls, whoami, echo ...)
+                       │
+             ┌─────────┴──────────┐
+             │                    │
+        Simulated           Unknown Command
+         Response                  │
+             │                     ▼
+             │            Knowledge Retrieval
+             │                     │
+             │                     ▼
+             │              TF-IDF Vectorizer
+             │                     │
+             │                     ▼
+             │                FAISS Search
+             │                     │
+             └──────────────┬──────┘
+                            ▼
+                  Prompt Construction
+                            │
+                            ▼
+                      Groq LLM API
+                            │
+                            ▼
+                 Output Post Processing
+                            │
+                            ▼
+                    Final AI Response
+```
+
+---
+
+## RAG Components
+
+| Component | Description |
+|-----------|-------------|
+| Local Simulator | Handles common Linux commands without LLM |
+| Knowledge Base | Stores enterprise data and Linux documentation |
+| TF-IDF | Converts documents into searchable vectors |
+| FAISS | Fast semantic similarity search |
+| Prompt Builder | Combines retrieved context |
+| Groq API | Generates intelligent responses |
+| Output Cleaner | Removes markdown and unwanted formatting |
+
+---
+
+# 🚨 Threat Analysis Pipeline
+
+Threat analysis continuously evaluates attacker behaviour instead of judging individual commands.
+
+## Threat Workflow
+
+```text
+Command
+    │
+    ▼
+Attack Classification
+    │
+    ▼
+Pattern Matching
+    │
+    ▼
+Risk Scoring
+    │
+    ▼
+Behaviour History
+    │
+    ▼
+Sequence Detection
+    │
+    ▼
+Threat Escalation
+    │
+    ▼
+Severity Level
+```
+
+---
+
+## Threat Levels
+
+| Level | Description | Behaviour |
+|--------|-------------|-----------|
+| 🟢 LOW | Normal reconnaissance | Friendly interaction |
+| 🟡 MEDIUM | Suspicious activity | Increased monitoring |
+| 🟠 HIGH | Active exploitation | Defensive responses |
+| 🔴 CRITICAL | Advanced attacker | Restricted deception |
+
+---
+
+# 🎭 Adaptive Personalities
+
+Instead of responding with one static prompt, XYNERA dynamically changes personality according to attacker behaviour.
+
+## Personality Selection
+
+```text
+Threat Score
+      │
+      ▼
+Determine Threat Level
+      │
+      ▼
+Select Personality
+      │
+      ▼
+Inject Prompt Context
+      │
+      ▼
+Generate Response
+```
+
+---
+
+## Available Personalities
+
+| Personality | Used For |
+|-------------|----------|
+| 😊 Friendly | Normal users |
+| 💻 Developer | Development servers |
+| 🏢 Corporate | Enterprise environments |
+| ☁️ Cloud | Cloud infrastructure |
+| 🏦 Banking | Financial systems |
+| 🎓 University | Educational networks |
+| 🤔 Suspicious | High-risk attackers |
+| 🔒 High Security | Critical threats |
+| 👶 Newbie | Misconfigured servers |
+| ⭐ High Value | Sensitive production hosts |
+| ⚙️ Default | Generic Linux systems |
+
+---
+
+# 🔮 Predictive Intelligence
+
+The predictive engine analyses attacker behaviour and predicts future actions.
+
+## Prediction Workflow
+
+```text
+Attacker Profile
+        │
+        ▼
+Curiosity Score
+        │
+        ▼
+Engagement Score
+        │
+        ▼
+Threat Score
+        │
+        ▼
+Prediction Model
+        │
+        ▼
+Future Behaviour
+```
+
+---
+
+## Generated Predictions
+
+| Prediction | Description |
+|------------|-------------|
+| Next Attack | Expected attacker action |
+| High-Value Target | Most likely target |
+| Session Risk | Overall session severity |
+| Deception Success | Probability of attacker remaining engaged |
+| Recommended Bait | Best deception asset |
+
+---
+
+# 📚 Knowledge Base
+
+The knowledge base stores realistic enterprise assets used by the RAG engine.
+
+## Knowledge Architecture
+
+```text
+Knowledge Sources
+        │
+        ├──────── Linux Commands
+        ├──────── Credentials
+        ├──────── Configuration Files
+        ├──────── SQL Dumps
+        ├──────── Corporate Emails
+        ├──────── Internal Reports
+        ├──────── Security Policies
+        ├──────── Infrastructure Files
+        └──────── Fake Employee Data
+                │
+                ▼
+         Document Processing
+                │
+                ▼
+          Vector Embeddings
+                │
+                ▼
+            FAISS Index
+```
+
+---
+
+## Stored Resources
+
+| Resource | Purpose |
+|----------|----------|
+| Linux Commands | Realistic shell outputs |
+| Credentials | Fake secrets |
+| SSH Keys | Honeypot bait |
+| Database Dumps | Enterprise deception |
+| HR Documents | Corporate realism |
+| Emails | Social engineering bait |
+| YAML Files | Infrastructure simulation |
+| Incident Reports | Security documentation |
+
+---
+
+# ⚡ Vector Store
+
+Semantic retrieval enables the AI to understand command intent instead of matching keywords.
+
+## Search Pipeline
+
+```text
+Knowledge Base
+        │
+        ▼
+Text Processing
+        │
+        ▼
+TF-IDF Vectorizer
+        │
+        ▼
+L2 Normalization
+        │
+        ▼
+FAISS Index
+        │
+        ▼
+Similarity Search
+        │
+        ▼
+Top-K Documents
+        │
+        ▼
+Prompt Builder
+```
+
+---
+
+## Retrieval Stack
+
+| Layer | Technology |
+|--------|------------|
+| Tokenization | Custom TF-IDF |
+| Weighting | IDF |
+| Similarity | Cosine Similarity |
+| Index | FAISS IndexFlatIP |
+| Ranking | Top-K Retrieval |
+| Cache | Disk Cache + MD5 |
+
+---
+
+# 🛡️ Guardrails
+
+Guardrails ensure the AI never provides dangerous or unrealistic responses.
+
+## Security Pipeline
+
+```text
+LLM Output
+      │
+      ▼
+Command Validation
+      │
+      ▼
+Malware Detection
+      │
+      ▼
+Dangerous Command Filter
+      │
+      ▼
+Prompt Sanitization
+      │
+      ▼
+Response Validation
+      │
+      ▼
+Safe Output
+```
+
+---
+
+## Guardrail Features
+
+| Feature | Protection |
+|----------|------------|
+| 🚫 Malware Filter | Blocks malicious payloads |
+| 🔥 Dangerous Commands | Prevents destructive actions |
+| 📄 Output Validation | Removes empty responses |
+| 🔐 Runtime Toggle | Enable/Disable dynamically |
+| ⚡ Prompt Sanitizer | Cleans LLM responses |
+| 🧹 Output Cleaner | Removes markdown & artifacts |
+
+---
+
+## 🏛️ Complete AI Intelligence Architecture
+
+```text
+                   SSH Honeypot
+                         │
+                         ▼
+                  FastAPI Backend
+                         │
+         ┌───────────────┼───────────────┐
+         ▼               ▼               ▼
+   Classification   Behaviour      Configuration
+         │
+         ▼
+   Threat Analysis
+         │
+         ▼
+ Adaptive Personality
+         │
+         ▼
+ Knowledge Retrieval
+         │
+         ▼
+ TF-IDF + FAISS Search
+         │
+         ▼
+ Retrieval-Augmented Generation
+         │
+         ▼
+       Groq LLM
+         │
+         ▼
+     Guardrails
+         │
+         ▼
+ Predictive Intelligence
+         │
+         ▼
+ Structured Logging
+         │
+         ▼
+ Dashboard Analytics
+         │
+         ▼
+ JSON Response
+```
+
+---
+
+> 💡 **Design Philosophy:** XYNERA AI is built around a modular, AI-first architecture where every request passes through independent intelligence layers—classification, profiling, threat analysis, retrieval, generation, prediction, and security—resulting in realistic, adaptive, and secure deception for modern cyber defense.
+
+---
+
+# 📊 Logging & Observability
+
+> **"Every interaction tells a story. Every event becomes intelligence."**
+
+XYNERA AI is designed with **security-first observability**, ensuring that every stage of the AI pipeline is recorded for monitoring, analytics, debugging, and forensic investigation. Instead of relying on simple console logs, the system generates structured JSON events that capture the complete lifecycle of an attacker session.
+
+The logging framework enables developers and security analysts to reconstruct attacker behavior, analyze AI decisions, monitor deception effectiveness, and visualize real-time metrics through the XYNERA Dashboard.
+
+---
+
+## 🏗️ Logging Architecture
+
+```text
+              AI Processing Pipeline
+                      │
+                      ▼
+             Event Generation Layer
+                      │
+        ┌─────────────┼─────────────┐
+        ▼             ▼             ▼
+ Session Logs   Threat Logs   AI Logs
+        │             │             │
+        └─────────────┼─────────────┘
+                      ▼
+             Structured JSON Logger
+                      │
+        ┌─────────────┼─────────────┐
+        ▼             ▼             ▼
+ Dashboard      Analytics      Debugging
+                      │
+                      ▼
+          Security Investigation
+```
+
+---
+
+## 📋 Logged Information
+
+| Category | Description |
+|----------|-------------|
+| 👤 Session ID | Unique attacker session |
+| 🌍 IP Address | Source IP |
+| 💻 Executed Command | Attacker command |
+| 🎯 Attack Category | Classified attack type |
+| 📈 Threat Score | Dynamic risk level |
+| 🎭 Selected Personality | Active AI behaviour |
+| 📚 Retrieved Documents | RAG context |
+| 🤖 AI Response | Generated output |
+| 🔒 Guardrail Actions | Safety filters triggered |
+| 🔮 Prediction | Future attacker behaviour |
+| ⏱️ Response Time | API latency |
+| 📅 Timestamp | Event creation time |
+
+---
+
+## 📁 Sample Log
+
+```json
+{
+  "session_id": "S-8A92F3",
+  "command": "cat /etc/passwd",
+  "attack_type": "Credential Enumeration",
+  "threat_level": "HIGH",
+  "personality": "Corporate Linux Server",
+  "prediction": "Likely privilege escalation",
+  "response_time": "248 ms",
+  "timestamp": "2026-07-31T12:20:16Z"
+}
+```
+
+---
+
+# ⚡ Performance Optimizations
+
+> **"Fast responses create believable deception."**
+
+To maintain an authentic interactive shell experience, XYNERA AI incorporates multiple optimization techniques that significantly reduce response latency while preserving high-quality AI-generated outputs.
+
+---
+
+## 🚀 Optimization Pipeline
+
+```text
+Incoming Command
+        │
+        ▼
+Local Command Detection
+        │
+        ├─────────────► Simulated Output
+        │
+        ▼
+Cache Lookup
+        │
+        ├─────────────► Cached Response
+        │
+        ▼
+Knowledge Retrieval
+        │
+        ▼
+FAISS Search
+        │
+        ▼
+Groq LLM
+        │
+        ▼
+Guardrails
+        │
+        ▼
+Final Response
+```
+
+---
+
+## 🚀 Key Optimizations
+
+| Optimization | Benefit |
+|--------------|---------|
+| ⚡ Local Command Simulation | Eliminates unnecessary LLM calls |
+| 📚 FAISS Semantic Search | Millisecond document retrieval |
+| 🧠 TF-IDF Preprocessing | Faster context matching |
+| 💾 Response Cache | Reuses previous responses |
+| 🔄 Automatic Retry | Handles transient API failures |
+| 🧹 Output Cleaning | Removes unnecessary formatting |
+| ⚙️ Async FastAPI | High concurrency support |
+| 📦 Modular Pipeline | Independent component execution |
+| 🔍 Dynamic Config | Runtime configuration updates |
+
+---
+
+## 📈 Expected Performance
+
+| Metric | Typical Value |
+|---------|--------------:|
+| API Latency | < 300 ms |
+| Local Command Response | < 50 ms |
+| FAISS Search | < 10 ms |
+| Cache Retrieval | < 5 ms |
+| Concurrent Sessions | 100+ |
+| Logging Overhead | Minimal |
+
+---
+
+# 🌐 Example API Request
+
+The AI backend exposes a RESTful API that can be integrated with the SSH Honeypot, web dashboard, or third-party applications.
+
+---
+
+## Endpoint
+
+```http
+POST /process
+```
+
+---
+
+## Request Headers
+
+```http
+Content-Type: application/json
+```
+
+---
+
+## Request Body
+
+```json
+{
+  "session_id": "session-001",
+  "ip": "192.168.1.15",
+  "username": "root",
+  "command": "cat /etc/passwd",
+  "cwd": "/home/root"
+}
+```
+
+---
+
+## Request Flow
+
+```text
+Client
+    │
+    ▼
+POST /process
+    │
+    ▼
+Validate JSON
+    │
+    ▼
+AI Processing Pipeline
+    │
+    ▼
+Generate Response
+    │
+    ▼
+Return JSON
+```
+
+---
+
+# 📨 Example Response
+
+```json
+{
+  "status": "success",
+  "attack_type": "Credential Enumeration",
+  "threat_level": "HIGH",
+  "personality": "Corporate Linux Server",
+  "prediction": "Privilege Escalation",
+  "response": "root:x:0:0:root:/root:/bin/bash\n..."
+}
+```
+
+---
+
+## Response Fields
+
+| Field | Description |
+|--------|-------------|
+| status | API status |
+| attack_type | Classified attack |
+| threat_level | Dynamic risk level |
+| personality | Active AI persona |
+| prediction | Predicted attacker behaviour |
+| response | AI generated shell output |
+
+---
+
+# 📂 Project Structure
+
+> **"Designed for modularity, scalability, and future AI research."**
+
+```
+xynera-ai/
+│
+├── api_server.py
+├── classifier.py
+├── attacker_profile.py
+├── threat_engine.py
+├── personalities.py
+├── rag_engine.py
+├── knowledge_base.py
+├── vector_store.py
+├── predictive_engine.py
+├── guardrails.py
+├── logger.py
+├── config.py
+├── dynamic_config.json
+├── requirements.txt
+├── .env
+│
+├── cache/
+│   ├── response_cache/
+│   └── embeddings/
+│
+├── logs/
+│   ├── api_logs.json
+│   ├── threat_logs.json
+│   └── session_logs.json
+│
+├── knowledge/
+│   ├── linux/
+│   ├── corporate/
+│   ├── credentials/
+│   └── infrastructure/
+│
+├── tests/
+│
+├── docs/
+│
+└── README.md
+```
+
+---
+
+## 📦 Directory Overview
+
+| Directory | Purpose |
+|-----------|----------|
+| `knowledge/` | Enterprise knowledge repository |
+| `cache/` | Cached AI responses |
+| `logs/` | Structured JSON logs |
+| `tests/` | Unit and integration tests |
+| `docs/` | Documentation and diagrams |
+
+---
+
+# 🚀 Future Roadmap
+
+> **"Building the next generation of AI-powered cyber deception."**
+
+XYNERA AI is designed with extensibility in mind. The roadmap focuses on enhancing realism, scalability, and autonomous cyber defense capabilities.
+
+---
+
+## 🗺️ Development Roadmap
+
+```text
+Version 1.0
+    │
+    ├── AI Pipeline
+    ├── RAG
+    ├── Threat Detection
+    └── Dashboard
+          │
+          ▼
+Version 2.0
+    │
+    ├── Multi-Agent AI
+    ├── Memory System
+    ├── Adaptive Learning
+    └── Voice Interface
+          │
+          ▼
+Version 3.0
+    │
+    ├── Autonomous Deception
+    ├── Reinforcement Learning
+    ├── Digital Twins
+    └── Federated Intelligence
+```
+
+---
+
+## 🎯 Planned Features
+
+### 🤖 Artificial Intelligence
+
+- Multi-Agent AI Collaboration
+- Reinforcement Learning
+- Long-Term Memory
+- Autonomous Prompt Engineering
+- Context Compression
+
+---
+
+### 🔐 Cyber Security
+
+- MITRE ATT&CK Mapping
+- CVE-Aware Knowledge Base
+- Malware Behaviour Simulation
+- Advanced Threat Intelligence
+- Autonomous Incident Response
+
+---
+
+### ☁️ Infrastructure
+
+- Docker Deployment
+- Kubernetes Support
+- Distributed Vector Database
+- Horizontal Scaling
+- Cloud-Native Architecture
+
+---
+
+### 📊 Analytics
+
+- Real-Time Dashboards
+- AI Decision Visualization
+- Session Replay
+- Behaviour Heatmaps
+- Threat Timeline
+
+---
+
+### 🧠 Research
+
+- Fine-Tuned Security LLMs
+- Adaptive Personality Learning
+- AI Explainability
+- Self-Updating Knowledge Base
+- Federated Honeypot Networks
+
+---
+
+# 🌟 Vision
+
+> **"To redefine cyber deception through adaptive intelligence, realistic interaction, and autonomous decision-making."**
+
+XYNERA AI aims to bridge the gap between traditional honeypots and modern AI-driven cyber defense by combining Retrieval-Augmented Generation, behavioral analytics, semantic search, predictive intelligence, and dynamic personalities into a unified deception platform.
+
+The long-term vision is to create an intelligent cyber defense ecosystem capable of learning from attacker behavior, adapting in real time, and providing security researchers with unprecedented visibility into evolving attack techniques.
+
+---
+
+---
+
+# 🧪 API Testing
+
+> **"Every endpoint is validated. Every response is verified."**
+
+XYNERA AI includes a comprehensive API testing workflow to ensure that each endpoint remains reliable, secure, and production-ready. Testing covers functional correctness, response validation, concurrency, error handling, and performance under simulated attack scenarios.
+
+---
+
+## 🎯 API Testing Goals
+
+- ✅ Endpoint Validation
+- ✅ JSON Schema Verification
+- ✅ Authentication Checks
+- ✅ Response Consistency
+- ✅ Error Handling
+- ✅ High-Concurrency Testing
+- ✅ Performance Benchmarking
+- ✅ Security Validation
+
+---
+
+## 🏗️ API Testing Workflow
+
+```text
+                 API Request
+                      │
+                      ▼
+            Input Validation Tests
+                      │
+                      ▼
+           Authentication Tests
+                      │
+                      ▼
+           Business Logic Tests
+                      │
+                      ▼
+           Response Validation
+                      │
+                      ▼
+            Performance Testing
+                      │
+                      ▼
+            Security Verification
+                      │
+                      ▼
+             Test Report Generated
+```
+
+---
+
+## 🔍 Test Coverage
+
+| Category | Tests |
+|-----------|-------|
+| GET APIs | Health, Dashboard, Config |
+| POST APIs | AI Processing |
+| PUT APIs | Runtime Configuration |
+| Invalid JSON | ✔ |
+| Missing Fields | ✔ |
+| Invalid Commands | ✔ |
+| SQL Injection | ✔ |
+| Command Injection | ✔ |
+| Concurrent Requests | ✔ |
+| Response Time | ✔ |
+
+---
+
+## 📦 Example cURL Request
+
+```bash
+curl -X POST http://localhost:5000/process \
+-H "Content-Type: application/json" \
+-d '{
+"session_id":"12345",
+"ip":"192.168.1.5",
+"username":"root",
+"command":"whoami"
+}'
+```
+
+---
+
+## Expected Result
+
+```json
+{
+  "status":"success",
+  "response":"root",
+  "threat_level":"LOW"
+}
+```
+
+---
+
+# 🔐 Security Testing
+
+> **"Security isn't a feature—it's the foundation."**
+
+The AI backend is continuously evaluated against common attack vectors to ensure realistic deception without exposing sensitive functionality.
+
+---
+
+## Security Validation Pipeline
+
+```text
+Incoming Request
+        │
+        ▼
+Input Sanitization
+        │
+        ▼
+Prompt Injection Detection
+        │
+        ▼
+Command Validation
+        │
+        ▼
+Threat Classification
+        │
+        ▼
+Guardrail Enforcement
+        │
+        ▼
+Safe AI Response
+```
+
+---
+
+## Security Test Matrix
+
+| Security Check | Status |
+|----------------|--------|
+| Prompt Injection | ✅ |
+| Jailbreak Attempts | ✅ |
+| Command Injection | ✅ |
+| SQL Injection | ✅ |
+| XSS Payloads | ✅ |
+| Path Traversal | ✅ |
+| Buffer Overflow Strings | ✅ |
+| Unicode Bypass | ✅ |
+| Null Byte Injection | ✅ |
+| Dangerous Shell Commands | ✅ |
+
+---
+
+## AI Safety Checks
+
+```text
+User Prompt
+      │
+      ▼
+Prompt Sanitizer
+      │
+      ▼
+Guardrails
+      │
+      ▼
+Malicious Pattern Detection
+      │
+      ▼
+Response Validation
+      │
+      ▼
+Secure Output
+```
+
+---
+
+# 🔗 XYNERA AI Integration
+
+> **"One Intelligence Engine. Multiple Connected Components."**
+
+XYNERA AI acts as the intelligence layer connecting the SSH Honeypot, Backend Services, and Real-Time Monitoring Dashboard into a unified cyber deception ecosystem.
+
+---
+
+## Complete System Architecture
+
+```text
+                         INTERNET
+                             │
+                             ▼
+                      Threat Actors
+                             │
+                             ▼
+                     SSH Honeypot Server
+                             │
+                             ▼
+                     FastAPI AI Backend
+                             │
+     ┌───────────────────────┼────────────────────────┐
+     ▼                       ▼                        ▼
+Threat Engine          RAG Engine             Guardrails
+     │                       │                        │
+     └──────────────┬────────┴──────────────┬─────────┘
+                    ▼                       ▼
+             Prediction Engine      Structured Logger
+                    │
+                    ▼
+              REST API Services
+                    │
+        ┌───────────┴─────────────┐
+        ▼                         ▼
+ Backend Dashboard          React Frontend
+        │                         │
+        └──────────────┬──────────┘
+                       ▼
+              Security Analysts
+```
+
+---
+
+# 🖥️ Backend Dashboard Integration
+
+The backend dashboard communicates directly with the AI engine through internal REST APIs and visualizes live attack intelligence.
+
+---
+
+## Backend Workflow
+
+```text
+AI Modules
+      │
+      ▼
+Structured Logs
+      │
+      ▼
+Analytics Engine
+      │
+      ▼
+Dashboard APIs
+      │
+      ▼
+Backend Dashboard
+```
+
+---
+
+### Backend Features
+
+- 📊 Live Attack Analytics
+- 📈 Threat Score Monitoring
+- 👤 Active Session Tracking
+- 🌍 Geo-IP Visualization
+- 🔥 Top Commands
+- 📋 Event Timeline
+- 📂 Log Viewer
+- ⚙ Runtime Configuration
+
+---
+
+# 🎨 Frontend Dashboard Integration
+
+The React Dashboard provides an interactive interface for monitoring AI decisions and attacker behaviour in real time.
+
+---
+
+## Frontend Communication
+
+```text
+React Dashboard
+        │
+        ▼
+REST API
+        │
+        ▼
+FastAPI Backend
+        │
+        ▼
+AI Pipeline
+        │
+        ▼
+JSON Response
+        │
+        ▼
+Charts & Visualizations
+```
+
+---
+
+### Frontend Features
+
+| Feature | Description |
+|----------|-------------|
+| 📊 Live Dashboard | Real-time monitoring |
+| 🌍 Attack Map | Geo-IP visualization |
+| 📈 Threat Graph | Dynamic threat scores |
+| 💬 AI Conversation Viewer | Session responses |
+| 📋 Event Timeline | Chronological attack history |
+| ⚙ Configuration Panel | Runtime updates |
+| 🔍 Session Explorer | Detailed attacker profiles |
+| 📡 System Health | API and service monitoring |
+
+---
+
+# 🔄 Complete XYNERA Ecosystem
+
+```text
+                      Threat Actors
+                             │
+                             ▼
+                     SSH Honeypot Server
+                             │
+                             ▼
+                  FastAPI AI Intelligence
+                             │
+        ┌────────────────────┼────────────────────┐
+        ▼                    ▼                    ▼
+ Classification        Behaviour Analysis     Threat Engine
+        │                    │                    │
+        └──────────────┬─────┴──────────────┬─────┘
+                       ▼                    ▼
+             Adaptive Personalities   Knowledge Base
+                       │                    │
+                       ▼                    ▼
+                 FAISS Vector Search   RAG Engine
+                       │                    │
+                       └──────────┬─────────┘
+                                  ▼
+                           Groq LLM Response
+                                  │
+                                  ▼
+                             Guardrails
+                                  │
+                                  ▼
+                       Predictive Intelligence
+                                  │
+                                  ▼
+                           Structured Logging
+                                  │
+                 ┌────────────────┼────────────────┐
+                 ▼                ▼                ▼
+         Backend Dashboard   REST APIs     React Dashboard
+                 │                                 │
+                 └──────────────┬──────────────────┘
+                                ▼
+                     Security Researchers
+```
+
+---
+
+# 🌌 Future Vision
+
+```text
+                 TODAY
+                   │
+                   ▼
+         AI-Powered Honeypot
+                   │
+                   ▼
+      Context-Aware Deception
+                   │
+                   ▼
+     Behaviour-Based Intelligence
+                   │
+                   ▼
+      Autonomous Cyber Defense
+                   │
+                   ▼
+          Multi-Agent Security
+                   │
+                   ▼
+         Self-Learning AI System
+```
+
+---
+
+# 💙 Thank You for Exploring XYNERA AI
+
+<div align="center">
+
+# ⚡ **"Deceive Intelligently. Detect Proactively. Defend Autonomously."**
+
+### 🤖 AI-Powered Cyber Deception Platform
+
+**Built with ❤️ by Team XYNERA**
+
+<div align="center">
+
+# ⚡ XYNERA AI
+
+### **"The Future Isn't Defended. It's Engineered."**
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🧠 **Adaptive Intelligence** • 🔐 **Autonomous Defense** • 🚀 **Cyber Deception**
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+*"In a world where attackers evolve every second, XYNERA AI evolves even faster."*
+
+### **Building the Next Generation of Intelligent Cyber Defense.**
+
+⭐ **If this project inspired you, leave a Star and join us in shaping the future of AI-powered Honeypot.**
+
+</div>
+
+**Together, we're building the future of intelligent cyber defense.**
+
+</div>
+
+---
