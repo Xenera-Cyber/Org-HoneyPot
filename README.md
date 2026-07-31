@@ -1824,8 +1824,13 @@ DEBUG=False
 ---
 ---
 
-### XYNERA-AI MODULE [EXPLANANTION] :-
+# 🧠 XYNERA AI Architecture & Module Documentation
 
+<p align="center">
+
+### <img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=22&duration=3000&pause=1000&color=4FC3F7&center=true&vCenter=true&width=750&lines=Scalable+AI+Architecture;Real-Time+Threat+Analysis;Context-Aware+Cyber+Defense;Engineering+Intelligent+Deception" />
+
+</p>
 1. **RAG Engine (`xynera-ai/rag_engine.py`)**
    - Built the Retrieval-Augmented Generation engine from scratch powering all AI deception responses.
    - Implemented local command simulation layer (pwd, whoami, echo, chmod, etc.) to bypass LLM calls for common commands — reducing latency to near-zero for ~40% of attacker commands.
