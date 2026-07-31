@@ -3691,7 +3691,11 @@ Charts & Visualizations
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-*"In a world where attackers evolve every second, XYNERA AI evolves even faster."*
+<div align="center">
+
+<img src="https://readme-typing-svg.demolab.com?font=Audiowide&weight=700&size=30&duration=2200&pause=900&color=00FFE5&center=true&vCenter=true&repeat=true&width=1100&lines=%E2%96%B6+SYSTEM+ONLINE;In+a+world+where+attackers+evolve+every+second...;XYNERA+AI+evolves+even+faster.;AUTONOMOUS+DEFENSE+ACTIVE" />
+
+</div>
 
 ### **Building the Next Generation of Intelligent Cyber Defense.**
 
