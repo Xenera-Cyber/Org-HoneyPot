@@ -1493,13 +1493,90 @@ flowchart LR
 
 ---
 
+<div align="center">
+
 # 🤖 XYNERA AI
 
+### ⚡ Adaptive Intelligence Engine for the XYNERA AI-Powered SSH Honeypot
+
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=26&duration=2500&pause=1000&color=00F7FF&center=true&vCenter=true&repeat=true&width=1100&lines=Context-Aware+%E2%80%A2+RAG-Powered+%E2%80%A2+Threat-Aware;Session-Aware+%E2%80%A2+Real-Time+Deception;Behavioral+Analytics+%E2%80%A2+Predictive+Intelligence;FAISS+Vector+Search+%E2%80%A2+FastAPI+%E2%80%A2+Groq+LLM;Engineering+the+Future+of+Cyber+Defense" />
+
 <p align="center">
-  <strong>Adaptive Intelligence Engine for the XYNERA AI-Powered SSH Honeypot</strong>
-  <br>
-  Context-Aware • RAG-Powered • Threat-Aware • Session-Aware • Real-Time Deception
+
+<img src="https://img.shields.io/badge/AI%20CORE-ONLINE-00F7FF?style=for-the-badge&logo=openai&logoColor=black"/>
+<img src="https://img.shields.io/badge/THREAT%20ENGINE-ACTIVE-39FF14?style=for-the-badge"/>
+<img src="https://img.shields.io/badge/RAG-READY-FF00FF?style=for-the-badge"/>
+<img src="https://img.shields.io/badge/STATUS-OPERATIONAL-00C8FF?style=for-the-badge"/>
+
 </p>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+### 🧠 **Context-Aware** • 📚 **RAG-Powered** • 🚨 **Threat-Aware**
+
+### 🎭 **Session-Aware** • ⚡ **Real-Time Deception** • 🔮 **Predictive Intelligence**
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+</div>
+
+---
+
+## ⚙️ SYSTEM BOOT SEQUENCE
+
+```text
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                      XYNERA AI :: SYSTEM INITIALIZATION                     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[00:00:01]  ✔ AI CORE ......................... ONLINE
+[00:00:02]  ✔ FASTAPI SERVER .................. INITIALIZED
+[00:00:03]  ✔ THREAT ENGINE ................... ACTIVE
+[00:00:04]  ✔ ATTACK CLASSIFIER ............... READY
+[00:00:05]  ✔ BEHAVIOR PROFILER ............... RUNNING
+[00:00:06]  ✔ ADAPTIVE PERSONALITIES .......... LOADED
+[00:00:07]  ✔ KNOWLEDGE BASE .................. SYNCHRONIZED
+[00:00:08]  ✔ FAISS VECTOR DATABASE ........... CONNECTED
+[00:00:09]  ✔ RAG PIPELINE .................... OPERATIONAL
+[00:00:10]  ✔ GROQ LLM CONNECTION ............. ESTABLISHED
+[00:00:11]  ✔ GUARDRAILS ...................... ENABLED
+[00:00:12]  ✔ PREDICTIVE ENGINE ............... ACTIVE
+[00:00:13]  ✔ STRUCTURED LOGGER ............... RECORDING
+[00:00:14]  ✔ REST API SERVICES ............... LISTENING
+[00:00:15]  ✔ DASHBOARD INTEGRATION ........... CONNECTED
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ STATUS              : ONLINE
+ AI MODE             : AUTONOMOUS
+ SECURITY LEVEL      : MAXIMUM
+ DECEPTION MATRIX    : ACTIVE
+ THREAT MONITORING   : ENABLED
+ RESPONSE ENGINE     : READY
+ SESSION TRACKING    : ACTIVE
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+> INITIALIZING NEXT-GENERATION CYBER DEFENSE...
+> LOADING ADAPTIVE INTELLIGENCE...
+> ESTABLISHING DECEPTION MATRIX...
+> MONITORING THREAT LANDSCAPE...
+> READY TO ENGAGE.
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║     "The Future Isn't Defended. It's Engineered." — XYNERA AI              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+<div align="center">
+
+### 🌌 **Beyond Detection • Beyond Deception • Beyond Limits**
+
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=24&duration=3000&pause=1200&color=00F7FF&center=true&vCenter=true&repeat=true&width=1000&lines=In+a+world+where+attackers+evolve+every+second...;XYNERA+AI+evolves+even+faster.;Learning+%E2%80%A2+Predicting+%E2%80%A2+Deceiving+%E2%80%A2+Defending." />
+
+</div>
+
+---
 
 ---
 
